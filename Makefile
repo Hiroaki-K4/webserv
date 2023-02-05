@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/05 22:11:53 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/05 22:29:30 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ OBJS := $(SRCS:.cpp=.o)
 
 CXX := c++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98
-INCLUDE := -I.
+INCLUDE := -I./includes
 
 all: $(NAME)
 
