@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/12 22:50:57 by hkubo             #+#    #+#             */
-/*   Updated: 2023/01/12 22:52:10 by hkubo            ###   ########.fr       */
+/*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
+/*   Updated: 2023/02/05 22:12:46 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-
-int main(void)
+int main(int argc, char *argv[])
 {
-    std::cout << "hello" << std::endl;
+    (void)argc;
+    (void)argv;
+    return 0;
 }
