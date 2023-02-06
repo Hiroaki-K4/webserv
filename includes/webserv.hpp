@@ -3,5 +3,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <sys/socket.h>
+#include <cstring>
 
 #endif
