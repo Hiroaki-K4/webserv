@@ -1,3 +1,5 @@
 .vscode/
 webserv
+client
 srcs/*.o
+test/*.o
