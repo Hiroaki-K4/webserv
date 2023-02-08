@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/07 23:35:56 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/08 22:52:10 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ int open_listen_fd(char *port)
 
     std::memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_socktype = SOCK_STREAM; // Ordered and reliable.
+    // When specifying multiple flags in ai_flags, specify them by bitwise OR them.
     hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG; // AI_PASSIVE->server
     hints.ai_flags = AI_NUMERICSERV; // port should be string include port number.
     getaddrinfo(NULL, port, &hints, &listp);
@@ -27,7 +28,7 @@ int open_listen_fd(char *port)
     for (p = listp; p; p = p->ai_next) {
         if ((listen_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
             continue;
-        setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&opt_val, sizeof(int));
+        setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, static_cast<const void *>(&opt_val), sizeof(int));
 
         // bind function ask the kernel to relate server socket address and socket descriptor(listen_fd).
         if (bind(listen_fd, p->ai_addr, p->ai_addrlen) == 0)
@@ -56,16 +57,26 @@ int open_listen_fd(char *port)
 
 int main(int argc, char *argv[])
 {
-    int listen_fd;
-
     if (argc != 2) {
         std::cout << "[main.cpp main][ERROR] Usage: " << argv[0] << " <port>" << std::endl;
         return 1;
     }
-    listen_fd = open_listen_fd(argv[1]);
+    int listen_fd = open_listen_fd(argv[1]);
     std::cout << "listen_fd: " << listen_fd << std::endl;
     if (listen_fd < 0) {
         return -1;
+    }
+
+    while (1) {
+        struct sockaddr_storage clientaddr;
+        socklen_t client_len = sizeof(clientaddr);
+        int conn_fd = accept(listen_fd, (sockaddr *)&clientaddr, &client_len);
+        std::cout << "conn_fd: " << conn_fd << std::endl;
+        char hostname[MAXLINE], port[MAXLINE];
+        getnameinfo((sockaddr *) &clientaddr, client_len, hostname, MAXLINE, port, MAXLINE, 0);
+        std::cout << "Accepted connection from " << hostname << ":" << port << std::endl;
+        // doit(connfd);
+        // close(connfd);
     }
     return 0;
 }

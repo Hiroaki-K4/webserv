@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <unistd.h>
 
+#define MAXLINE 8192
 #define LISTENQ  1024  // Second argument to listen(). Maximum queue length of pending connections for sockfd.
 
 #endif

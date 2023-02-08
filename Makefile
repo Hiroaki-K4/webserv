@@ -6,15 +6,18 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/05 22:29:30 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/08 22:28:07 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME := webserv
+TEST := client
 
 SRCS := srcs/main.cpp
+TEST_SRCS := test/main.cpp
 
 OBJS := $(SRCS:.cpp=.o)
+TEST_OBJS := $(TEST_SRCS:.cpp=.o)
 
 CXX := c++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98
@@ -28,11 +31,16 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	$(CXX) $(OBJS) -o $(NAME)
 
+test: $(TEST)
+
+$(TEST): $(TEST_OBJS)
+	$(CXX) $(TEST_OBJS) -o $(TEST)
+
 clean:
-	rm $(OBJS)
+	rm $(OBJS) $(TEST_OBJS)
 
 fclean: clean
-	rm $(NAME)
+	rm $(NAME) $(TEST)
 
 re: fclean all
 
