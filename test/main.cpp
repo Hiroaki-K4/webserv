@@ -12,8 +12,7 @@
 
 #include "webserv.hpp"
 
-int open_client_fd(char *hostname, char *port)
-{
+int open_client_fd(char *hostname, char *port) {
     int client_fd;
     struct addrinfo hints, *listp, *p;
 
@@ -24,10 +23,8 @@ int open_client_fd(char *hostname, char *port)
     getaddrinfo(hostname, port, &hints, &listp);
 
     for (p = listp; p; p = p->ai_next) {
-        if ((client_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
-            continue;
-        if (connect(client_fd, p->ai_addr, p->ai_addrlen) != -1)
-            break;
+        if ((client_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
+        if (connect(client_fd, p->ai_addr, p->ai_addrlen) != -1) break;
         close(client_fd);
     }
     freeaddrinfo(listp);
@@ -37,8 +34,7 @@ int open_client_fd(char *hostname, char *port)
         return client_fd;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     char buf[MAXLINE];
     rio_t rio;
 

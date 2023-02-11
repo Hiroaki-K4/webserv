@@ -6,33 +6,32 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/11 17:44:41 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/11 18:15:01 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 
-int open_listen_fd(char *port)
-{
+int open_listen_fd(char *port) {
     int listen_fd, opt_val = 1;
     char buf[20];
     struct addrinfo hints, *listp, *p;
 
     std::memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_socktype = SOCK_STREAM; // Ordered and reliable.
+    hints.ai_socktype = SOCK_STREAM;  // Ordered and reliable.
     // When specifying multiple flags in ai_flags, specify them by bitwise OR them.
-    hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG; // AI_PASSIVE->server
-    hints.ai_flags = AI_NUMERICSERV; // port should be string include port number.
+    hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;  // AI_PASSIVE->server
+    hints.ai_flags = AI_NUMERICSERV;              // port should be string include port number.
     getaddrinfo(NULL, port, &hints, &listp);
 
     for (p = listp; p; p = p->ai_next) {
-        if ((listen_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
-            continue;
-        setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, static_cast<const void *>(&opt_val), sizeof(int));
+        if ((listen_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
+        setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, static_cast<const void *>(&opt_val),
+                   sizeof(int));
 
-        // bind function ask the kernel to relate server socket address and socket descriptor(listen_fd).
-        if (bind(listen_fd, p->ai_addr, p->ai_addrlen) == 0)
-        {
+        // bind function ask the kernel to relate server socket address and socket
+        // descriptor(listen_fd).
+        if (bind(listen_fd, p->ai_addr, p->ai_addrlen) == 0) {
             getnameinfo(p->ai_addr, p->ai_addrlen, buf, 20, NULL, 0, NI_NUMERICHOST);
             std::cout << "Host address: " << buf << std::endl;
             break;
@@ -55,19 +54,16 @@ int open_listen_fd(char *port)
     return listen_fd;
 }
 
-int parse_uri(char *uri, char *filename, char *cgiargs)
-{
+int parse_uri(char *uri, char *filename, char *cgiargs) {
     char *ptr;
 
-    if (!strstr(uri, "cgi-bin")) { // Static content
+    if (!strstr(uri, "cgi-bin")) {  // Static content
         strcpy(cgiargs, "");
         strcpy(filename, "contents");
         strcat(filename, uri);
-        if (uri[strlen(uri) - 1] == '/')
-            strcat(filename, "home.html");
+        if (uri[strlen(uri) - 1] == '/') strcat(filename, "home.html");
         return 1;
-    }
-    else {
+    } else {
         ptr = index(uri, '?');
         if (ptr) {
             strcpy(cgiargs, ptr + 1);
@@ -81,8 +77,7 @@ int parse_uri(char *uri, char *filename, char *cgiargs)
     }
 }
 
-void get_filetype(char *filename, char *filetype)
-{
+void get_filetype(char *filename, char *filetype) {
     if (strstr(filename, ".html"))
         strcpy(filetype, "text/html");
     else if (strstr(filename, ".gif"))
@@ -95,8 +90,7 @@ void get_filetype(char *filename, char *filetype)
         strcpy(filetype, "text/plain");
 }
 
-void serve_static(int fd, char *filename, int filesize)
-{
+void serve_static(int fd, char *filename, int filesize) {
     int srcfd;
     char *srcp, filetype[MAXLINE], buf[MAXBUF];
 
@@ -122,9 +116,8 @@ void serve_static(int fd, char *filename, int filesize)
     munmap(srcp, filesize);
 }
 
-void serve_dynamic(int fd, char *filename, char *cgiargs)
-{
-    char buf[MAXLINE], *emptylist[] = { NULL };
+void serve_dynamic(int fd, char *filename, char *cgiargs) {
+    char buf[MAXLINE], *emptylist[] = {NULL};
 
     // Return first part of HTTP response
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
@@ -132,7 +125,7 @@ void serve_dynamic(int fd, char *filename, char *cgiargs)
     sprintf(buf, "Server: Tiny Web Server\r\n");
     rio_writen(fd, buf, strlen(buf));
 
-    if (fork()== 0) {
+    if (fork() == 0) {
         setenv("QUERY_STRING", cgiargs, 1);
         dup2(fd, STDOUT_FILENO);
         execve(filename, emptylist, environ);
@@ -140,8 +133,7 @@ void serve_dynamic(int fd, char *filename, char *cgiargs)
     wait(NULL);
 }
 
-void serve_contents(int fd)
-{
+void serve_contents(int fd) {
     int is_static;
     struct stat sbuf;
     char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
@@ -165,19 +157,21 @@ void serve_contents(int fd)
 
     // Parse URI from GET request
     is_static = parse_uri(uri, filename, cgiargs);
-    std::cout << "is_static: " << is_static << " filename: " << filename << " cgiargs: " << cgiargs << std::endl;
+    std::cout << "is_static: " << is_static << " filename: " << filename << " cgiargs: " << cgiargs
+              << std::endl;
     if (stat(filename, &sbuf) < 0) {
         std::cout << "404 Not found: Tiny cloudn't find this file" << std::endl;
         return;
     }
-    if (is_static) { // Serve static content
-        if (!(S_ISREG(sbuf.st_mode) || !(S_IRUSR & sbuf.st_mode))) { // S_ISREG -> normal file?, S_IRUSR -> have read permission?
+    if (is_static) {  // Serve static content
+        if (!(S_ISREG(sbuf.st_mode) ||
+              !(S_IRUSR &
+                sbuf.st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
             std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
             return;
         }
         serve_static(fd, filename, sbuf.st_size);
-    }
-    else { // Serve dynamic content
+    } else {  // Serve dynamic content
         if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
             std::cout << "403 Forbidden: Tiny couldn't run the CGI program" << std::endl;
             return;
@@ -186,8 +180,7 @@ void serve_contents(int fd)
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if (argc != 2) {
         std::cout << "[main.cpp main][ERROR] Usage: " << argv[0] << " <port>" << std::endl;
         return 1;
@@ -204,7 +197,7 @@ int main(int argc, char *argv[])
         int conn_fd = accept(listen_fd, (sockaddr *)&clientaddr, &client_len);
         std::cout << "conn_fd: " << conn_fd << std::endl;
         char hostname[MAXLINE], port[MAXLINE];
-        getnameinfo((sockaddr *) &clientaddr, client_len, hostname, MAXLINE, port, MAXLINE, 0);
+        getnameinfo((sockaddr *)&clientaddr, client_len, hostname, MAXLINE, port, MAXLINE, 0);
         std::cout << "Accepted connection from " << hostname << ":" << port << std::endl;
         serve_contents(conn_fd);
         close(conn_fd);
