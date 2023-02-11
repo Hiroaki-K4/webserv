@@ -6,14 +6,13 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/11 17:02:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/11 17:46:11 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 
-int open_client_fd(char *hostname, char *port)
-{
+int open_client_fd(char *hostname, char *port) {
     int client_fd;
     struct addrinfo hints, *listp, *p;
 
@@ -24,10 +23,8 @@ int open_client_fd(char *hostname, char *port)
     getaddrinfo(hostname, port, &hints, &listp);
 
     for (p = listp; p; p = p->ai_next) {
-        if ((client_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
-            continue;
-        if (connect(client_fd, p->ai_addr, p->ai_addrlen) != -1)
-            break;
+        if ((client_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
+        if (connect(client_fd, p->ai_addr, p->ai_addrlen) != -1) break;
         close(client_fd);
     }
     freeaddrinfo(listp);
@@ -37,8 +34,7 @@ int open_client_fd(char *hostname, char *port)
         return client_fd;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     char buf[MAXLINE];
     rio_t rio;
 
@@ -55,7 +51,7 @@ int main(int argc, char *argv[])
     while (fgets(buf, MAXLINE, stdin) != NULL) {
         // Write the string received in standard input to clientfd.
         if (rio_writen(client_fd, buf, strlen(buf)) == -1) {
-            fprintf(stderr, "rio_writen error\n");
+            std::cout << "rio_writen error" << std::endl;
             return (-1);
         }
         rio_readlineb(&rio, buf, MAXLINE, false);

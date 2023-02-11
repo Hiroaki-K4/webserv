@@ -1,25 +1,27 @@
 #ifndef WEBSERV_HPP
-# define WEBSERV_HPP
+#define WEBSERV_HPP
 
-#include <cstdio>
-#include <iostream>
-#include <sys/socket.h>
-#include <cstring>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <sys/mman.h>
-#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
 
 #define MAXLINE 8192
 #define MAXBUF 8192
 #define RIO_BUFSIZE 8192
-#define LISTENQ  1024  // Second argument to listen(). Maximum queue length of pending connections for sockfd.
+#define LISTENQ \
+    1024  // Second argument to listen(). Maximum queue length of pending connections for sockfd.
 
 // Persistent state for the robust I/O (rio) package
 typedef struct {

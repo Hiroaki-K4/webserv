@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/11 16:59:19 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/11 18:27:34 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,4 +44,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re test
+format:
+	clang-format -i srcs/*.cpp test/*.cpp includes/*.hpp
+
+.PHONY: all clean fclean re test format
