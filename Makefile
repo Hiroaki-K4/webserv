@@ -6,15 +6,15 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/08 22:28:07 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/11 16:59:19 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME := webserv
 TEST := client
 
-SRCS := srcs/main.cpp
-TEST_SRCS := test/main.cpp
+SRCS := srcs/main.cpp srcs/rio_utils.cpp
+TEST_SRCS := test/main.cpp srcs/rio_utils.cpp
 
 OBJS := $(SRCS:.cpp=.o)
 TEST_OBJS := $(TEST_SRCS:.cpp=.o)

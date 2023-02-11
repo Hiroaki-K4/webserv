@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/08 22:38:56 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/11 17:02:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,9 @@ int open_client_fd(char *hostname, char *port)
 
 int main(int argc, char *argv[])
 {
+    char buf[MAXLINE];
+    rio_t rio;
+
     if (argc != 3) {
         std::cout << "[ERROR] Usage: " << argv[0] << " <host> <port>" << std::endl;
         return 1;
@@ -46,5 +49,18 @@ int main(int argc, char *argv[])
 
     int client_fd = open_client_fd(argv[1], argv[2]);
     std::cout << "client_fd: " << client_fd << std::endl;
+
+    rio_readinitb(&rio, client_fd);
+
+    while (fgets(buf, MAXLINE, stdin) != NULL) {
+        // Write the string received in standard input to clientfd.
+        if (rio_writen(client_fd, buf, strlen(buf)) == -1) {
+            fprintf(stderr, "rio_writen error\n");
+            return (-1);
+        }
+        rio_readlineb(&rio, buf, MAXLINE, false);
+        fputs(buf, stdout);
+    }
+    close(client_fd);
     return 0;
 }
