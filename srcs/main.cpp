@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/11 17:20:24 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/11 17:44:41 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,11 +108,11 @@ void serve_static(int fd, char *filename, int filesize)
     // sprintf(buf, "%sContent-length: %d\r\n", buf, filesize);
     // sprintf(buf, "%sContent-type: %s\r\n", buf, filetype);
     if (rio_writen(fd, buf, strlen(buf)) == -1) {
-        printf("rio_writen error!");
+        std::cout << "rio_writen error!" << std::endl;
         return;
     }
-    printf("Response headers:\n");
-    printf("%s", buf);
+    std::cout << "Response headers:" << std::endl;
+    std::cout << buf;
 
     // Send response body to client
     srcfd = open(filename, O_RDONLY, 0);
@@ -126,7 +126,6 @@ void serve_dynamic(int fd, char *filename, char *cgiargs)
 {
     char buf[MAXLINE], *emptylist[] = { NULL };
 
-    std::cout << "fd: " << fd << std::endl;
     // Return first part of HTTP response
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
     rio_writen(fd, buf, strlen(buf));
@@ -152,35 +151,35 @@ void serve_contents(int fd)
     // Read request line and headers
     rio_readinitb(&rio, fd);
     rio_readlineb(&rio, buf, MAXLINE, true);
-    printf("Request headers:\n");
-    printf("%s", buf);
+    std::cout << "Request headers:" << std::endl;
+    std::cout << buf;
     sscanf(buf, "%s %s %s", method, uri, version);
-    printf("method: %s uri: %s version: %s\n", method, uri, version);
+    std::cout << "method: " << method << " uri: " << uri << " version: " << version << std::endl;
     int cmp_res = strcasecmp(method, "GET");
     if (cmp_res != 0) {
         // clienterror(fd, method, "501", "Not implemented", "Tiny does not implement this method");
-        printf("Tiny does not implement this method\n");
+        std::cout << "Tiny does not implement this method" << std::endl;
         return;
     }
     // read_requesthdrs(&rio);
 
     // Parse URI from GET request
     is_static = parse_uri(uri, filename, cgiargs);
-    printf("is_static: %d filename: %s cgiargs: %s\n", is_static, filename, cgiargs);
+    std::cout << "is_static: " << is_static << " filename: " << filename << " cgiargs: " << cgiargs << std::endl;
     if (stat(filename, &sbuf) < 0) {
-        printf("404 Not found: Tiny cloudn't find this file\n");
+        std::cout << "404 Not found: Tiny cloudn't find this file" << std::endl;
         return;
     }
     if (is_static) { // Serve static content
         if (!(S_ISREG(sbuf.st_mode) || !(S_IRUSR & sbuf.st_mode))) { // S_ISREG -> normal file?, S_IRUSR -> have read permission?
-            printf("403 Forbidden: Tiny couldn't read the file\n");
+            std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
             return;
         }
         serve_static(fd, filename, sbuf.st_size);
     }
     else { // Serve dynamic content
         if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
-            printf("403 Forbidden: Tiny couldn't run the CGI program\n");
+            std::cout << "403 Forbidden: Tiny couldn't run the CGI program" << std::endl;
             return;
         }
         serve_dynamic(fd, filename, cgiargs);
@@ -208,7 +207,7 @@ int main(int argc, char *argv[])
         getnameinfo((sockaddr *) &clientaddr, client_len, hostname, MAXLINE, port, MAXLINE, 0);
         std::cout << "Accepted connection from " << hostname << ":" << port << std::endl;
         serve_contents(conn_fd);
-        // close(connfd);
+        close(conn_fd);
     }
     return 0;
 }

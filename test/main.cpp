@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/11 17:02:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/11 17:46:11 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     while (fgets(buf, MAXLINE, stdin) != NULL) {
         // Write the string received in standard input to clientfd.
         if (rio_writen(client_fd, buf, strlen(buf)) == -1) {
-            fprintf(stderr, "rio_writen error\n");
+            std::cout << "rio_writen error" << std::endl;
             return (-1);
         }
         rio_readlineb(&rio, buf, MAXLINE, false);
