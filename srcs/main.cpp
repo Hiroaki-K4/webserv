@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/11 18:15:01 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/11 22:35:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,16 +91,16 @@ void get_filetype(char *filename, char *filetype) {
 }
 
 void serve_static(int fd, char *filename, int filesize) {
-    int srcfd;
+    int src_fd;
     char *srcp, filetype[MAXLINE], buf[MAXBUF];
 
     // Send response headers to client
     get_filetype(filename, filetype);
     sprintf(buf, "HTTP/1.0, 200 OK\r\n");
-    // sprintf(buf, "%sServer: Tiny Web Server\r\n", buf);
-    // sprintf(buf, "%sConnection: close\r\n", buf);
-    // sprintf(buf, "%sContent-length: %d\r\n", buf, filesize);
-    // sprintf(buf, "%sContent-type: %s\r\n", buf, filetype);
+    sprintf(buf, "%sServer: Tiny Web Server\r\n", buf);
+    sprintf(buf, "%sConnection: close\r\n", buf);
+    sprintf(buf, "%sContent-length: %d\r\n", buf, filesize);
+    sprintf(buf, "%sContent-type: %s\r\n\r\n", buf, filetype);
     if (rio_writen(fd, buf, strlen(buf)) == -1) {
         std::cout << "rio_writen error!" << std::endl;
         return;
@@ -109,9 +109,12 @@ void serve_static(int fd, char *filename, int filesize) {
     std::cout << buf;
 
     // Send response body to client
-    srcfd = open(filename, O_RDONLY, 0);
-    srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0));
-    close(srcfd);
+    src_fd = open(filename, O_RDONLY, 0);
+    if (src_fd == -1) {
+        std::cout << "[main.cpp main][ERROR] File open failed." << std::endl;
+    }
+    srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0));
+    close(src_fd);
     rio_writen(fd, srcp, filesize);
     munmap(srcp, filesize);
 }

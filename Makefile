@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/11 18:27:34 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/11 22:31:50 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,8 @@ OBJS := $(SRCS:.cpp=.o)
 TEST_OBJS := $(TEST_SRCS:.cpp=.o)
 
 CXX := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98
+# CXXFLAGS := -Wall -Wextra -Werror -std=c++98
+CXXFLAGS := -std=c++98
 INCLUDE := -I./includes
 
 all: $(NAME)
