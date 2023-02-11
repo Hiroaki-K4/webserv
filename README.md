@@ -11,7 +11,9 @@ make
 ```
 ./webserv 8080
 ```
+If you ccess http://localhost:8080/, you will get static page. If you access http://localhost:8080/cgi-bin/adder?15000&213, you will get dynamic page.
 
+<br></br>
 ## How to build client
 ```
 make test
