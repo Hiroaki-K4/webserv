@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 #define MAXLINE 8192
 #define MAXBUF 8192
