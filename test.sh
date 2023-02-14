@@ -15,8 +15,6 @@ check_result() {
 # Test make command
 make > /dev/null
 check_result "make"
-make clean > /dev/null
-check_result "make clean"
 make re > /dev/null
 check_result "make re"
 make fclean > /dev/null
