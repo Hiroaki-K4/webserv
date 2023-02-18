@@ -32,3 +32,11 @@ You can request dynamic contents from the server. In the example below, the serv
 ```
 GET /cgi-bin/adder?15000&213 HTTP/1.1
 ```
+<br></br>
+
+## Reference
+- RFC9110([en](https://httpwg.org/specs/rfc9110.html) / [ja](https://triple-underscore.github.io/http-semantics-ja.html#protocol.version))
+- RFC9112([en](https://httpwg.org/specs/rfc9112.html) / [ja](https://triple-underscore.github.io/http1-ja.html))
+- [Computer Systems: A Programmer's Perspective chapter11, 12](https://csapp.cs.cmu.edu/)
+- [C++でHTTPサーバを作った話](https://nafuka.hatenablog.com/entry/2022/04/14/194200)
+- [C++でHTTPサーバーを作った](https://jun-networks.hatenablog.com/entry/2022/12/05/234522)
