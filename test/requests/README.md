@@ -2,6 +2,7 @@
 See [RFC9112](https://httpwg.org/specs/rfc9112.html) for details.
 <br></br>
 
+
 ## Request line
 A request-line begins with a method token, followed by a single space (SP), the request-target, and another single space (SP), and ends with the protocol version.
 ```
@@ -19,7 +20,7 @@ The following methods are supported on my server.
 - DELETE
 
 ### **Request target**
-The only origin-form request target is supported on my server.
+The only origin-form request target is supported on my server. Recipients of an invalid request-line SHOULD respond with either a 400 (Bad Request) error or a 301 (Moved Permanently) redirect with the request-target properly encoded. A server MUST respond with a 400 (Bad Request) status code to any HTTP/1.1 request message that lacks a Host header field and to any request message that contains more than one Host header field line or a Host header field with an invalid field value.
 ```
 origin-form = absolute-path [ "?" query ]
 ```
@@ -33,14 +34,50 @@ Host: www.example.org
 My server only supports HTPP/1.1.
 <br></br>
 
-## Request header
+
+## Request header field
+Each field line consists of a case-insensitive field name followed by a colon (":"), optional leading whitespace, the field line value, and optional trailing whitespace(OWS). A server MUST reject, with a response status code of 400 (Bad Request), any received request message that contains whitespace between a header field name and colon.
+```
+field-line = field-name ":" OWS field-value OWS
+```
+For example,
+```
+Accept: image/gif, image/jpeg, */*
+Accept-Language: ja
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/4.0 (Compatible; MSIE 6.0; Windows NT 5.1;)
+Host: www.example.org
+Connection: Keep-Alive
+```
 <br></br>
 
-## Request body
+
+## Request message body
+The presence of a message body in a request is signaled by a Content-Length or Transfer-Encoding header field. Request message framing is independent of method semantics.
+
+### **Transfer-Encoding**
+The Transfer-Encoding header field lists the transfer coding names corresponding to the sequence of transfer codings that have been (or will be) applied to the content in order to form the message body. A server MAY reject a request that contains both Content-Length and Transfer-Encoding or process such a request in accordance with the Transfer-Encoding alone. Regardless, the server MUST close the connection after responding to such a request to avoid the potential attacks.
+```
+Transfer-Encoding = #transfer-coding
+```
+For example,
+```
+Transfer-Encoding: gzip, chunked
+```
+
+### **Content-Length**
+When a message does not have a Transfer-Encoding header field, a Content-Length header field can provide the anticipated size, as a decimal number of octets, for potential content.
+A sender MUST NOT send a Content-Length header field in any message that contains a Transfer-Encoding header field.
 <br></br>
+
+
+## Transfer Codings
+<br></br>
+
 
 ## Examples
 <br></br>
+
 
 ## How to parse HTTP request
 1. Read the start-line into a structure.
