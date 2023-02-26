@@ -6,20 +6,17 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/26 16:35:24 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/26 22:58:50 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME := webserv
-TEST := client
 
 SRCS := srcs/main.cpp \
 		srcs/rio_utils.cpp \
 		srcs/RequestParser.cpp
-TEST_SRCS := test/main.cpp srcs/rio_utils.cpp
 
 OBJS := $(SRCS:.cpp=.o)
-TEST_OBJS := $(TEST_SRCS:.cpp=.o)
 
 INCLUDE := -I./includes -I./srcs
 
@@ -34,20 +31,30 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
-test: $(TEST)
-
-$(TEST): $(TEST_OBJS)
-	$(CXX) $(TEST_OBJS) -o $(TEST)
-
 clean:
-	rm $(OBJS) $(TEST_OBJS)
+	$(RM) $(OBJS)
 
 fclean: clean
-	rm $(NAME) $(TEST)
+	$(RM) $(NAME)
 
 re: fclean all
 
 format:
 	clang-format -i srcs/*.cpp srcs/*.hpp test/*.cpp includes/*.hpp
 
-.PHONY: all clean fclean re test format
+
+## Google test
+GTEST_DIR   := ./google_test
+GTEST := $(GTEST_DIR)/gtest $(GTEST_DIR)/googletest-release-1.11.0
+
+$(GTEST):
+	mkdir -p $(GTEST_DIR)
+	curl -OL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.tar.gz
+	tar -xvzf release-1.11.0.tar.gz googletest-release-1.11.0
+	rm -rf release-1.11.0.tar.gz
+	python googletest-release-1.11.0/googletest/scripts/fuse_gtest_files.py $(GTEST_DIR)
+	mv googletest-release-1.11.0 $(GTEST_DIR)
+
+test: $(GTEST)
+
+.PHONY: all clean fclean re format test

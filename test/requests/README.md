@@ -1,5 +1,11 @@
 # HTTP1.1 request
-See [RFC9112](https://httpwg.org/specs/rfc9112.html) and [RFC9110](https://httpwg.org/specs/rfc9110.html) for details.
+An HTTP/1.1 message consists of a start-line followed by a CRLF and a sequence of octets in a format similar to the Internet Message Format: zero or more header field lines (collectively referred to as the "headers" or the "header section"), an empty line indicating the end of the header section, and an optional message body. See [RFC9112](https://httpwg.org/specs/rfc9112.html) and [RFC9110](https://httpwg.org/specs/rfc9110.html) for details.
+```
+HTTP-message = start-line(request line) CRLF
+               *(field-line CRLF)
+               CRLF
+               [message-body]
+```
 <br></br>
 
 
