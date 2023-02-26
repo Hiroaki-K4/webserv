@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/26 14:43:36 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/26 16:35:24 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,17 +21,18 @@ TEST_SRCS := test/main.cpp srcs/rio_utils.cpp
 OBJS := $(SRCS:.cpp=.o)
 TEST_OBJS := $(TEST_SRCS:.cpp=.o)
 
-CXX := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98
 INCLUDE := -I./includes -I./srcs
+
+CXX := c++
+CXXFLAGS := -Wall -Wextra -Werror -std=c++98 $(INCLUDE)
 
 all: $(NAME)
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
-	$(CXX) $(OBJS) -o $(NAME)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
 test: $(TEST)
 
