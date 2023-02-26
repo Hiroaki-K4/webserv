@@ -4,3 +4,4 @@ client
 srcs/*.o
 test/*.o
 google_test/
+.mypy_cache/
