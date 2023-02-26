@@ -26,8 +26,7 @@ int open_listen_fd(char *port) {
 
     for (p = listp; p; p = p->ai_next) {
         if ((listen_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
-        setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, static_cast<const void *>(&opt_val),
-                   sizeof(int));
+        setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, static_cast<const void *>(&opt_val), sizeof(int));
 
         // bind function ask the kernel to relate server socket address and socket
         // descriptor(listen_fd).
@@ -97,8 +96,7 @@ void serve_static(int fd, char *filename, int filesize) {
     // Send response headers to client
     get_filetype(filename, filetype);
     std::stringstream ss;
-    ss << "HTTP/1.0, 200 OK\r\nServer: Tiny Web Server\r\nConnection: close\r\nContent-length: "
-       << filesize << "\r\n"
+    ss << "HTTP/1.0, 200 OK\r\nServer: Tiny Web Server\r\nConnection: close\r\nContent-length: " << filesize << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
     std::string out;
     out = ss.str();
@@ -163,16 +161,13 @@ void serve_contents(int fd) {
 
     // Parse URI from GET request
     is_static = parse_uri(uri, filename, cgiargs);
-    std::cout << "is_static: " << is_static << " filename: " << filename << " cgiargs: " << cgiargs
-              << std::endl;
+    std::cout << "is_static: " << is_static << " filename: " << filename << " cgiargs: " << cgiargs << std::endl;
     if (stat(filename, &sbuf) < 0) {
         std::cout << "404 Not found: Tiny cloudn't find this file" << std::endl;
         return;
     }
-    if (is_static) {  // Serve static content
-        if (!(S_ISREG(sbuf.st_mode) ||
-              !(S_IRUSR &
-                sbuf.st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
+    if (is_static) {                                                  // Serve static content
+        if (!(S_ISREG(sbuf.st_mode) || !(S_IRUSR & sbuf.st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
             std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
             return;
         }
