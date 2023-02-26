@@ -6,14 +6,16 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/12 10:37:27 by hkubo            ###   ########.fr        #
+#    Updated: 2023/02/26 14:43:36 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME := webserv
 TEST := client
 
-SRCS := srcs/main.cpp srcs/rio_utils.cpp
+SRCS := srcs/main.cpp \
+		srcs/rio_utils.cpp \
+		srcs/RequestParser.cpp
 TEST_SRCS := test/main.cpp srcs/rio_utils.cpp
 
 OBJS := $(SRCS:.cpp=.o)
@@ -21,7 +23,7 @@ TEST_OBJS := $(TEST_SRCS:.cpp=.o)
 
 CXX := c++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98
-INCLUDE := -I./includes
+INCLUDE := -I./includes -I./srcs
 
 all: $(NAME)
 
@@ -45,6 +47,6 @@ fclean: clean
 re: fclean all
 
 format:
-	clang-format -i srcs/*.cpp test/*.cpp includes/*.hpp
+	clang-format -i srcs/*.cpp srcs/*.hpp test/*.cpp includes/*.hpp
 
 .PHONY: all clean fclean re test format
