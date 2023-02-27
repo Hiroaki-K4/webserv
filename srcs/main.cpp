@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/26 17:52:34 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/27 22:07:36 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,8 +191,6 @@ int main(int argc, char *argv[]) {
     if (listen_fd < 0) {
         return -1;
     }
-
-    RequestParser parser;
 
     while (1) {
         struct sockaddr_storage clientaddr;
