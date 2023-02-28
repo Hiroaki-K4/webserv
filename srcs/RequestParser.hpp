@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/26 17:50:28 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/28 09:36:32 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,10 @@ class RequestParser {
     state get_state();
     void set_request(const std::string request);
     std::string get_request();
+    void set_is_error_request(bool is_error);
+    bool get_is_error_request();
     int parse_request(const std::string request);
+
 
    private:
     std::string request;
@@ -43,6 +46,8 @@ class RequestParser {
     std::string target_path;
     std::string host;
     std::map<std::string, std::string> header;
+
+    bool is_error_request;
 };
 
 #endif

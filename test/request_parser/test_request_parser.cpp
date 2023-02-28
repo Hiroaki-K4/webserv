@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/27 22:34:08 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/02/28 09:37:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@ std::string read_file(const std::string& file_name) {
     return file_content;
 }
 
-TEST(add_factors, factors) {
-    EXPECT_EQ(2, 1 + 1);
-
+TEST(RequestParser, request_case) {
     std::string content = read_file("request_case.txt");
-    std::cout << content << std::endl;
     RequestParser parser;
+    // TODO: Fix error about get_request()
+    std::cout << "req: " << parser.get_request() << std::endl;
+    EXPECT_EQ(false, parser.get_is_error_request());
 }
