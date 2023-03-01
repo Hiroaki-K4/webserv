@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/28 09:32:20 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/01 09:46:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,10 @@ bool RequestParser::get_is_error_request() { return this->is_error_request; }
 
 int RequestParser::parse_request(const std::string request) {
     set_request(request);
+
+    // Readline until EOF
+    // Check line_state and decide parse method
+    // parse_request_line, parse_request_header, parse_request_body
 
     return 0;
 }
