@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/01 09:46:29 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/04 16:32:26 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,21 @@ int RequestParser::parse_request(const std::string request) {
     set_request(request);
 
     // Readline until EOF
+    std::istringstream data(request);
+    std::string name;
+    while (1) {
+        std::getline(data, name, '\n');
+        std::cout << "name: " << name << std::endl;
+        if (data.eof()) {
+            std::cout << "[INFO] RequestParser::parse_request: Reached EOF" << std::endl;
+            break;
+        }
+        if (data.fail()) {
+            std::cout << "[ERROR] RequestParser::parse_request: getline error" << std::endl;
+            break;
+        }
+    }
+
     // Check line_state and decide parse method
     // parse_request_line, parse_request_header, parse_request_body
 
