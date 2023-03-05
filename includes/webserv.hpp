@@ -18,6 +18,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "RequestParser.hpp"
+
 #define MAXLINE 8192
 #define MAXBUF 8192
 #define RIO_BUFSIZE 8192
