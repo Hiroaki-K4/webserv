@@ -6,18 +6,18 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 17:48:39 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/05 20:47:28 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUESTPARSER_HPP
 #define REQUESTPARSER_HPP
 
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
-#include <cstdlib>
 
 class RequestParser {
    public:
@@ -57,7 +57,7 @@ class RequestParser {
     int parse_request(const std::string request);
     int parse_request_line(std::string line);
     int parse_request_header(std::string line);
-
+    int parse_request_body(std::string line);
 
    private:
     std::string request;

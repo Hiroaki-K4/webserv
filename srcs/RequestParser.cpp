@@ -6,13 +6,14 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 20:42:08 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/05 20:54:17 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RequestParser.hpp"
 
-RequestParser::RequestParser() : REQ_LINE("REQ_LINE"), REQ_HEADER("REQ_HEADER"), REQ_BODY("REQ_BODY"), GET("GET"), POST("POST"), DELETE("DELETE"), HTTP_VERSION("HTTP/1.1") {
+RequestParser::RequestParser()
+    : REQ_LINE("REQ_LINE"), REQ_HEADER("REQ_HEADER"), REQ_BODY("REQ_BODY"), GET("GET"), POST("POST"), DELETE("DELETE"), HTTP_VERSION("HTTP/1.1") {
     set_state(REQ_LINE);
     set_is_error_request(false);
     std::cout << "Initial value of RequestParser class" << std::endl;
@@ -126,9 +127,14 @@ int RequestParser::parse_request_header(std::string line) {
         return EXIT_SUCCESS;
     } else {
         std::cout << "[ERROR] RequestParser::parse_request_header: The request header is invalid" << std::endl;
-        // set_is_error_request(true);
+        set_is_error_request(true);
         return EXIT_FAILURE;
     }
+}
+
+int RequestParser::parse_request_body(std::string line) {
+    (void)line;
+    return EXIT_SUCCESS;
 }
 
 int RequestParser::parse_request(const std::string request) {
@@ -139,20 +145,29 @@ int RequestParser::parse_request(const std::string request) {
     std::string line;
     while (1) {
         std::getline(data, line, '\n');
+        if (data.fail()) {
+            std::cout << "[ERROR] RequestParser::parse_request: getline error" << std::endl;
+            return EXIT_FAILURE;
+        }
 
         // Check line_state and decide parse method
-        // parse_request_line, parse_request_header, parse_request_body
         if (get_state() == REQ_LINE) {
             if (parse_request_line(line) == EXIT_FAILURE) {
                 return EXIT_FAILURE;
             }
             set_state(REQ_HEADER);
         } else if (get_state() == REQ_HEADER) {
+            if (line == "") {
+                set_state(REQ_BODY);
+                continue;
+            }
             if (parse_request_header(line) == EXIT_FAILURE) {
                 return EXIT_FAILURE;
             }
         } else if (get_state() == REQ_BODY) {
-            std::cout << REQ_BODY << std::endl;
+            if (parse_request_body(line) == EXIT_FAILURE) {
+                return EXIT_FAILURE;
+            }
         } else {
             std::cout << "[ERROR] RequestParser::parse_request: line state is invaliad" << std::endl;
         }
@@ -160,10 +175,6 @@ int RequestParser::parse_request(const std::string request) {
         if (data.eof()) {
             std::cout << "[INFO] RequestParser::parse_request: Reached EOF" << std::endl;
             break;
-        }
-        if (data.fail()) {
-            std::cout << "[ERROR] RequestParser::parse_request: getline error" << std::endl;
-            return EXIT_FAILURE;
         }
     }
 
