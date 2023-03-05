@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 17:18:34 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/05 20:42:08 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,10 @@ std::string RequestParser::get_request() { return this->request; }
 void RequestParser::set_is_error_request(bool is_error) { this->is_error_request = is_error; }
 
 bool RequestParser::get_is_error_request() { return this->is_error_request; }
+
+void RequestParser::set_header(const std::map<std::string, std::string> header) { this->header = header; }
+
+const std::map<std::string, std::string> RequestParser::get_header() { return this->header; }
 
 int RequestParser::handle_request_method(const std::string token) {
     if (token == GET || token == POST || token == DELETE) {
@@ -91,6 +95,7 @@ int RequestParser::parse_request_line(std::string line) {
                 break;
             }
         } else {
+            std::cout << "[ERROR] RequestParser::parse_request_line: The request line is too long" << std::endl;
             set_is_error_request(true);
         }
         line.erase(0, pos + delimiter.length());
@@ -105,6 +110,25 @@ int RequestParser::parse_request_line(std::string line) {
     }
 
     return EXIT_SUCCESS;
+}
+
+int RequestParser::parse_request_header(std::string line) {
+    std::string delimiter = ":";
+    size_t pos = line.find(delimiter);
+    if (pos != std::string::npos) {
+        std::string key = line.substr(0, pos);
+        line.erase(0, pos + delimiter.length());
+        std::string value = line;
+        std::map<std::string, std::string> header;
+        header[key] = value;
+        set_header(header);
+        std::cout << "key: " << key << " value: " << value << std::endl;
+        return EXIT_SUCCESS;
+    } else {
+        std::cout << "[ERROR] RequestParser::parse_request_header: The request header is invalid" << std::endl;
+        // set_is_error_request(true);
+        return EXIT_FAILURE;
+    }
 }
 
 int RequestParser::parse_request(const std::string request) {
@@ -124,7 +148,9 @@ int RequestParser::parse_request(const std::string request) {
             }
             set_state(REQ_HEADER);
         } else if (get_state() == REQ_HEADER) {
-            std::cout << REQ_HEADER << std::endl;
+            if (parse_request_header(line) == EXIT_FAILURE) {
+                return EXIT_FAILURE;
+            }
         } else if (get_state() == REQ_BODY) {
             std::cout << REQ_BODY << std::endl;
         } else {
