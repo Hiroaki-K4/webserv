@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 20:54:17 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/05 22:05:19 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void RequestParser::set_is_error_request(bool is_error) { this->is_error_request
 
 bool RequestParser::get_is_error_request() { return this->is_error_request; }
 
-void RequestParser::set_header(const std::map<std::string, std::string> header) { this->header = header; }
+void RequestParser::set_header(const std::string name, const std::string value) { this->header[name] = value; }
 
 const std::map<std::string, std::string> RequestParser::get_header() { return this->header; }
 
@@ -113,17 +113,26 @@ int RequestParser::parse_request_line(std::string line) {
     return EXIT_SUCCESS;
 }
 
+std::string RequestParser::trim_value(std::string line) {
+    size_t begin = line.find_first_not_of(" ");
+    if (begin == std::string::npos)
+        return "";
+
+    size_t end = line.find_last_not_of(" ");
+    size_t range = end - begin + 1;
+
+    return line.substr(begin, range);
+}
+
 int RequestParser::parse_request_header(std::string line) {
     std::string delimiter = ":";
     size_t pos = line.find(delimiter);
-    if (pos != std::string::npos) {
-        std::string key = line.substr(0, pos);
+    if (pos != std::string::npos && pos > 0 && line[pos - 1] != ' ') {
+        std::string name = line.substr(0, pos);
         line.erase(0, pos + delimiter.length());
-        std::string value = line;
-        std::map<std::string, std::string> header;
-        header[key] = value;
-        set_header(header);
-        std::cout << "key: " << key << " value: " << value << std::endl;
+        std::string value = trim_value(line);
+        set_header(name, value);
+        std::cout << "name: " << name << " value: " << value << std::endl;
         return EXIT_SUCCESS;
     } else {
         std::cout << "[ERROR] RequestParser::parse_request_header: The request header is invalid" << std::endl;
