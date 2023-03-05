@@ -1,9 +1,3 @@
-[GET]
-GET / HTTP/1.1
-HOST: localhost
-
-
-[POST]
 POST / HTTP/1.1
 User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
 Host: www.example.com
@@ -22,8 +16,3 @@ Content-Type: text/plain
         <h1>Hello, World!</h1>
     </body>
 </html>
-
-
-[DELETE]
-DELETE /index.html HTTP/1.1
-Host: localhost

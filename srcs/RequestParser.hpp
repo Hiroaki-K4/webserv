@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/04 16:23:37 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/05 17:02:20 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 
 class RequestParser {
    public:
@@ -30,22 +31,36 @@ class RequestParser {
     const method POST;
     const method DELETE;
 
+    const std::string HTTP_VERSION;
+
     RequestParser();
     ~RequestParser();
     void set_state(state line_state);
     state get_state();
+    void set_request_method(method method);
+    method get_request_method();
+    void set_target_uri(const std::string token);
+    const std::string get_target_uri();
+    void set_http_version(const std::string request);
+    const std::string get_http_version();
     void set_request(const std::string request);
     std::string get_request();
     void set_is_error_request(bool is_error);
     bool get_is_error_request();
     int parse_request(const std::string request);
+    int parse_request_line(const std::string line);
+    int handle_request_method(const std::string token);
+    int handle_target_uri(const std::string token);
+    int handle_http_version(const std::string token);
+
 
 
    private:
     std::string request;
     state line_state;
     method request_method;
-    std::string target_path;
+    std::string target_uri;
+    std::string http_version;
     std::string host;
     std::map<std::string, std::string> header;
 
