@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 20:56:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/06 09:56:36 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,35 +24,73 @@ std::string read_file(const std::string& file_name) {
     return file_content;
 }
 
-TEST(RequestParser, get_normal1) {
-    std::string content = read_file("get_normal1.txt");
+TEST(RequestParser, ok_normal_get_01) {
+    std::string content = read_file("ok_normal_get_01.txt");
     RequestParser parser;
-    parser.parse_request(content);
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
 
+    // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
     EXPECT_EQ(parser.GET, parser.get_request_method());
     EXPECT_EQ("/", parser.get_target_uri());
     EXPECT_EQ(parser.HTTP_VERSION, parser.get_http_version());
+
+    // Check request header
+    EXPECT_EQ("localhost", parser.get_header().at("Host"));
 }
 
-TEST(RequestParser, post_normal1) {
-    std::string content = read_file("post_normal1.txt");
+TEST(RequestParser, ok_normal_post_01) {
+    std::string content = read_file("ok_normal_post_01.txt");
     RequestParser parser;
-    parser.parse_request(content);
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
 
+    // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
     EXPECT_EQ(parser.POST, parser.get_request_method());
     EXPECT_EQ("/", parser.get_target_uri());
     EXPECT_EQ(parser.HTTP_VERSION, parser.get_http_version());
+
+    // Check request header
+    EXPECT_EQ("curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3", parser.get_header().at("User-Agent"));
+    EXPECT_EQ("www.example.com", parser.get_header().at("Host"));
+    EXPECT_EQ("en, mi", parser.get_header().at("Accept-Language"));
+    EXPECT_EQ("Mon, 27 Jul 2009 12:28:53 GMT", parser.get_header().at("Date"));
+    EXPECT_EQ("51", parser.get_header().at("Content-Length"));
+    EXPECT_EQ("text/plain", parser.get_header().at("Content-Type"));
 }
 
-TEST(RequestParser, delete_normal1) {
-    std::string content = read_file("delete_normal1.txt");
+TEST(RequestParser, ok_normal_delete_01) {
+    std::string content = read_file("ok_normal_delete_01.txt");
     RequestParser parser;
-    parser.parse_request(content);
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
 
+    // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
     EXPECT_EQ(parser.DELETE, parser.get_request_method());
     EXPECT_EQ("/index.html", parser.get_target_uri());
     EXPECT_EQ(parser.HTTP_VERSION, parser.get_http_version());
+
+    // Check request header
+    EXPECT_EQ("localhost", parser.get_header().at("Host"));
+}
+
+TEST(RequestParser, ng_request_header_01) {
+    std::string content = read_file("ng_request_header_01.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_FAILURE, res);
+
+    EXPECT_EQ(true, parser.get_is_error_request());
+}
+
+TEST(RequestParser, ng_request_header_02) {
+    std::string content = read_file("ng_request_header_02.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_FAILURE, res);
+
+    EXPECT_EQ(true, parser.get_is_error_request());
 }

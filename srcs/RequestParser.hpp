@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 20:47:28 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/05 22:05:37 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,13 @@ class RequestParser {
     std::string get_request();
     void set_is_error_request(bool is_error);
     bool get_is_error_request();
-    void set_header(const std::map<std::string, std::string> header);
+    void set_header(const std::string name, const std::string value);
     const std::map<std::string, std::string> get_header();
 
     int handle_request_method(const std::string token);
     int handle_target_uri(const std::string token);
     int handle_http_version(const std::string token);
+    std::string trim_value(std::string line);
 
     int parse_request(const std::string request);
     int parse_request_line(std::string line);
