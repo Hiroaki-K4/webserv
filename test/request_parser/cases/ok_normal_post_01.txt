@@ -1,10 +1,10 @@
 POST / HTTP/1.1
 User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
-Host: www.example.com
-Accept-Language: en, mi
-Date: Mon, 27 Jul 2009 12:28:53 GMT
-Content-Length: 51
-Content-Type: text/plain
+Host:  www.example.com
+Accept-Language: en, mi 
+Date:   Mon, 27 Jul 2009 12:28:53 GMT  
+Content-Length:   51  
+Content-Type:  text/plain 
 
 <html>
     <body>

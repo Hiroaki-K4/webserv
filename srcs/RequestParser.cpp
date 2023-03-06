@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 22:05:19 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/06 09:55:40 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,6 @@ RequestParser::RequestParser()
     : REQ_LINE("REQ_LINE"), REQ_HEADER("REQ_HEADER"), REQ_BODY("REQ_BODY"), GET("GET"), POST("POST"), DELETE("DELETE"), HTTP_VERSION("HTTP/1.1") {
     set_state(REQ_LINE);
     set_is_error_request(false);
-    std::cout << "Initial value of RequestParser class" << std::endl;
-    std::cout << "state: " << get_state() << std::endl;
-    std::cout << "is_error_request: " << get_is_error_request() << std::endl;
 }
 
 RequestParser::~RequestParser() { std::cout << "Goodbye, RequestParser." << std::endl; }
@@ -84,7 +81,6 @@ int RequestParser::parse_request_line(std::string line) {
     std::string token;
     while ((pos = line.find(delimiter)) != std::string::npos) {
         token = line.substr(0, pos);
-        std::cout << "token " << token << " token_count " << token_count << std::endl;
         if (token_count == 0) {
             if (handle_request_method(token) == EXIT_FAILURE) {
                 set_is_error_request(true);
@@ -132,7 +128,6 @@ int RequestParser::parse_request_header(std::string line) {
         line.erase(0, pos + delimiter.length());
         std::string value = trim_value(line);
         set_header(name, value);
-        std::cout << "name: " << name << " value: " << value << std::endl;
         return EXIT_SUCCESS;
     } else {
         std::cout << "[ERROR] RequestParser::parse_request_header: The request header is invalid" << std::endl;
@@ -154,9 +149,11 @@ int RequestParser::parse_request(const std::string request) {
     std::string line;
     while (1) {
         std::getline(data, line, '\n');
-        if (data.fail()) {
-            std::cout << "[ERROR] RequestParser::parse_request: getline error" << std::endl;
+        if (data.bad()) {
+            std::cout << "[ERROR] RequestParser::parse_request: getline badbit error" << std::endl;
             return EXIT_FAILURE;
+        } else if (data.fail()) {
+            return EXIT_SUCCESS;
         }
 
         // Check line_state and decide parse method

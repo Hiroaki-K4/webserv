@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/05 22:08:18 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/06 09:56:36 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ std::string read_file(const std::string& file_name) {
 TEST(RequestParser, ok_normal_get_01) {
     std::string content = read_file("ok_normal_get_01.txt");
     RequestParser parser;
-    parser.parse_request(content);
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -42,7 +43,8 @@ TEST(RequestParser, ok_normal_get_01) {
 TEST(RequestParser, ok_normal_post_01) {
     std::string content = read_file("ok_normal_post_01.txt");
     RequestParser parser;
-    parser.parse_request(content);
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -62,7 +64,8 @@ TEST(RequestParser, ok_normal_post_01) {
 TEST(RequestParser, ok_normal_delete_01) {
     std::string content = read_file("ok_normal_delete_01.txt");
     RequestParser parser;
-    parser.parse_request(content);
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -72,4 +75,22 @@ TEST(RequestParser, ok_normal_delete_01) {
 
     // Check request header
     EXPECT_EQ("localhost", parser.get_header().at("Host"));
+}
+
+TEST(RequestParser, ng_request_header_01) {
+    std::string content = read_file("ng_request_header_01.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_FAILURE, res);
+
+    EXPECT_EQ(true, parser.get_is_error_request());
+}
+
+TEST(RequestParser, ng_request_header_02) {
+    std::string content = read_file("ng_request_header_02.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_FAILURE, res);
+
+    EXPECT_EQ(true, parser.get_is_error_request());
 }
