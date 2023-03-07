@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/06 09:55:40 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/07 09:32:15 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,17 @@ int RequestParser::parse_request_body(std::string line) {
     return EXIT_SUCCESS;
 }
 
+bool RequestParser::is_valid_header() {
+    const std::map<std::string,std::string> m = get_header();
+    if (m.find("Transfer-Encoding") != m.end() && m.find("Content-Length") != m.end()) {
+        set_is_error_request(true);
+        std::cout << "[ERROR] RequestParser::is_valid_header: the value of header is invalid" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
 int RequestParser::parse_request(const std::string request) {
     set_request(request);
 
@@ -164,8 +175,12 @@ int RequestParser::parse_request(const std::string request) {
             set_state(REQ_HEADER);
         } else if (get_state() == REQ_HEADER) {
             if (line == "") {
-                set_state(REQ_BODY);
-                continue;
+                if (is_valid_header()) {
+                    set_state(REQ_BODY);
+                    continue;
+                } else {
+                    return EXIT_FAILURE;
+                }
             }
             if (parse_request_header(line) == EXIT_FAILURE) {
                 return EXIT_FAILURE;

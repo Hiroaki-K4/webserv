@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/06 09:56:36 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/07 09:26:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,15 @@ TEST(RequestParser, ng_request_header_01) {
 
 TEST(RequestParser, ng_request_header_02) {
     std::string content = read_file("ng_request_header_02.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_FAILURE, res);
+
+    EXPECT_EQ(true, parser.get_is_error_request());
+}
+
+TEST(RequestParser, ng_request_header_03) {
+    std::string content = read_file("ng_request_header_03.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_FAILURE, res);
