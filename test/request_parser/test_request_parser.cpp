@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/07 09:26:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/11 21:52:17 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,12 @@ TEST(RequestParser, ok_normal_post_01) {
     EXPECT_EQ("www.example.com", parser.get_header().at("Host"));
     EXPECT_EQ("en, mi", parser.get_header().at("Accept-Language"));
     EXPECT_EQ("Mon, 27 Jul 2009 12:28:53 GMT", parser.get_header().at("Date"));
-    EXPECT_EQ("51", parser.get_header().at("Content-Length"));
+    EXPECT_EQ("68", parser.get_header().at("Content-Length"));
     EXPECT_EQ("text/plain", parser.get_header().at("Content-Type"));
+
+    // Check request body;
+    std::string body = "<html>\n    <body>\n        <h1>Hello, World!</h1>\n    </body>\n</html>";
+    EXPECT_EQ(body, parser.get_body());
 }
 
 TEST(RequestParser, ok_normal_delete_01) {

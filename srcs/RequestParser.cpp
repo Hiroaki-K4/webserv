@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/11 18:14:28 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/11 21:53:09 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@ bool RequestParser::get_is_error_request() { return this->is_error_request; }
 void RequestParser::set_header(const std::string name, const std::string value) { this->header[name] = value; }
 
 const std::map<std::string, std::string> RequestParser::get_header() { return this->header; }
+
+void RequestParser::set_body(const std::string body) { this->body = body; }
+
+std::string RequestParser::get_body() { return this->body; }
 
 int RequestParser::handle_request_method(const std::string token) {
     if (token == GET || token == POST || token == DELETE) {
@@ -151,10 +155,23 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
             break;
         }
     }
-    std::getline(data, line, '\n');
-    std::cout << "curr_line: " << line << std::endl;
-    std::cout << "body_type: " << get_body_type() << std::endl;
-    return EXIT_SUCCESS;
+    if (get_body_type() == RAW) {
+        int content_len;
+        std::istringstream(get_header().at("Content-Length")) >> content_len;
+        char buf[content_len + 1];
+
+        data.read(buf, content_len);
+        size_t readed = data.gcount();
+        buf[readed] = '\0';
+        set_body(buf);
+        return EXIT_SUCCESS;
+    } else if (get_body_type() == ENCODING) {
+        return EXIT_SUCCESS;
+    } else {
+        std::cout << "[ERROR] RequestParser::parse_request_body: the type of request body is invalid" << std::endl;
+        set_is_error_request(true);
+        return EXIT_FAILURE;
+    }
 }
 
 bool RequestParser::is_valid_header() {
