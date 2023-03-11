@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/07 09:32:47 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/11 17:09:30 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ class RequestParser {
     int handle_http_version(const std::string token);
     std::string trim_value(std::string line);
     bool is_valid_header();
+    bool is_include_request_body();
 
     int parse_request(const std::string request);
     int parse_request_line(std::string line);

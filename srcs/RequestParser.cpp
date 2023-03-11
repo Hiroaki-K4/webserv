@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/07 09:32:15 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/11 17:09:36 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,15 @@ bool RequestParser::is_valid_header() {
     return true;
 }
 
+bool RequestParser::is_include_request_body() {
+    const std::map<std::string,std::string> m = get_header();
+    if (m.find("Transfer-Encoding") != m.end() || m.find("Content-Length") != m.end()) {
+        return true;
+    }
+
+    return false;
+}
+
 int RequestParser::parse_request(const std::string request) {
     set_request(request);
 
@@ -162,9 +171,14 @@ int RequestParser::parse_request(const std::string request) {
         std::getline(data, line, '\n');
         if (data.bad()) {
             std::cout << "[ERROR] RequestParser::parse_request: getline badbit error" << std::endl;
+            set_is_error_request(true);
             return EXIT_FAILURE;
         } else if (data.fail()) {
             return EXIT_SUCCESS;
+        }
+
+        if (line == "") {
+            break;
         }
 
         // Check line_state and decide parse method
@@ -174,19 +188,7 @@ int RequestParser::parse_request(const std::string request) {
             }
             set_state(REQ_HEADER);
         } else if (get_state() == REQ_HEADER) {
-            if (line == "") {
-                if (is_valid_header()) {
-                    set_state(REQ_BODY);
-                    continue;
-                } else {
-                    return EXIT_FAILURE;
-                }
-            }
             if (parse_request_header(line) == EXIT_FAILURE) {
-                return EXIT_FAILURE;
-            }
-        } else if (get_state() == REQ_BODY) {
-            if (parse_request_body(line) == EXIT_FAILURE) {
                 return EXIT_FAILURE;
             }
         } else {
@@ -196,6 +198,21 @@ int RequestParser::parse_request(const std::string request) {
         if (data.eof()) {
             std::cout << "[INFO] RequestParser::parse_request: Reached EOF" << std::endl;
             break;
+        }
+    }
+
+    // Decide whether to parse request body
+    if (!data.eof() && get_state() == REQ_HEADER && line == "") {
+        if (is_valid_header()) {
+            if (is_include_request_body()) {
+                set_state(REQ_BODY);
+                parse_request_body(line);
+                return EXIT_SUCCESS;
+            } else {
+                return EXIT_SUCCESS;
+            }
+        } else {
+            return EXIT_FAILURE;
         }
     }
 
