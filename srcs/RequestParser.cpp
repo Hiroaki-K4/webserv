@@ -6,14 +6,14 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/06 09:55:40 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/11 21:53:09 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RequestParser.hpp"
 
 RequestParser::RequestParser()
-    : REQ_LINE("REQ_LINE"), REQ_HEADER("REQ_HEADER"), REQ_BODY("REQ_BODY"), GET("GET"), POST("POST"), DELETE("DELETE"), HTTP_VERSION("HTTP/1.1") {
+    : REQ_LINE("REQ_LINE"), REQ_HEADER("REQ_HEADER"), REQ_BODY("REQ_BODY"), GET("GET"), POST("POST"), DELETE("DELETE"), HTTP_VERSION("HTTP/1.1"), ENCODING("ENCODING"), RAW("RAW") {
     set_state(REQ_LINE);
     set_is_error_request(false);
 }
@@ -27,6 +27,10 @@ RequestParser::state RequestParser::get_state() { return this->line_state; }
 void RequestParser::set_request_method(method method) { this->request_method = method; }
 
 RequestParser::method RequestParser::get_request_method() { return this->request_method; }
+
+void RequestParser::set_body_type(body_type request_body_type) { this->request_body_type = request_body_type; }
+
+RequestParser::body_type RequestParser::get_body_type() { return this->request_body_type; }
 
 void RequestParser::set_target_uri(const std::string token) { this->target_uri = token; }
 
@@ -47,6 +51,10 @@ bool RequestParser::get_is_error_request() { return this->is_error_request; }
 void RequestParser::set_header(const std::string name, const std::string value) { this->header[name] = value; }
 
 const std::map<std::string, std::string> RequestParser::get_header() { return this->header; }
+
+void RequestParser::set_body(const std::string body) { this->body = body; }
+
+std::string RequestParser::get_body() { return this->body; }
 
 int RequestParser::handle_request_method(const std::string token) {
     if (token == GET || token == POST || token == DELETE) {
@@ -136,24 +144,81 @@ int RequestParser::parse_request_header(std::string line) {
     }
 }
 
-int RequestParser::parse_request_body(std::string line) {
-    (void)line;
-    return EXIT_SUCCESS;
+int RequestParser::parse_request_body(const std::string request, unsigned int line_count) {
+    std::istringstream data(request);
+    std::string line;
+    unsigned int curr_line = 0;
+    while (1) {
+        std::getline(data, line, '\n');
+        curr_line += 1;
+        if (curr_line == line_count) {
+            break;
+        }
+    }
+    if (get_body_type() == RAW) {
+        int content_len;
+        std::istringstream(get_header().at("Content-Length")) >> content_len;
+        char buf[content_len + 1];
+
+        data.read(buf, content_len);
+        size_t readed = data.gcount();
+        buf[readed] = '\0';
+        set_body(buf);
+        return EXIT_SUCCESS;
+    } else if (get_body_type() == ENCODING) {
+        return EXIT_SUCCESS;
+    } else {
+        std::cout << "[ERROR] RequestParser::parse_request_body: the type of request body is invalid" << std::endl;
+        set_is_error_request(true);
+        return EXIT_FAILURE;
+    }
+}
+
+bool RequestParser::is_valid_header() {
+    const std::map<std::string,std::string> m = get_header();
+    if (m.find("Transfer-Encoding") != m.end() && m.find("Content-Length") != m.end()) {
+        set_is_error_request(true);
+        std::cout << "[ERROR] RequestParser::is_valid_header: the value of header is invalid" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool RequestParser::is_include_request_body() {
+    const std::map<std::string,std::string> m = get_header();
+    if (m.find("Transfer-Encoding") != m.end()) {
+        set_body_type(ENCODING);
+        return true;
+    }
+    if (m.find("Content-Length") != m.end()) {
+        set_body_type(RAW);
+        return true;
+    }
+
+    return false;
 }
 
 int RequestParser::parse_request(const std::string request) {
     set_request(request);
 
-    // Readline until EOF
     std::istringstream data(request);
     std::string line;
+    unsigned int line_count = 0;
+    // Read requst line and header
     while (1) {
+        line_count += 1;
         std::getline(data, line, '\n');
         if (data.bad()) {
             std::cout << "[ERROR] RequestParser::parse_request: getline badbit error" << std::endl;
+            set_is_error_request(true);
             return EXIT_FAILURE;
         } else if (data.fail()) {
             return EXIT_SUCCESS;
+        }
+
+        if (line == "") {
+            break;
         }
 
         // Check line_state and decide parse method
@@ -163,15 +228,7 @@ int RequestParser::parse_request(const std::string request) {
             }
             set_state(REQ_HEADER);
         } else if (get_state() == REQ_HEADER) {
-            if (line == "") {
-                set_state(REQ_BODY);
-                continue;
-            }
             if (parse_request_header(line) == EXIT_FAILURE) {
-                return EXIT_FAILURE;
-            }
-        } else if (get_state() == REQ_BODY) {
-            if (parse_request_body(line) == EXIT_FAILURE) {
                 return EXIT_FAILURE;
             }
         } else {
@@ -181,6 +238,23 @@ int RequestParser::parse_request(const std::string request) {
         if (data.eof()) {
             std::cout << "[INFO] RequestParser::parse_request: Reached EOF" << std::endl;
             break;
+        }
+    }
+
+    std::cout << "line_count: " << line_count << std::endl;
+
+    // Decide whether to parse request body
+    if (!data.eof() && get_state() == REQ_HEADER && line == "") {
+        if (is_valid_header()) {
+            if (is_include_request_body()) {
+                set_state(REQ_BODY);
+                parse_request_body(request, line_count);
+                return EXIT_SUCCESS;
+            } else {
+                return EXIT_SUCCESS;
+            }
+        } else {
+            return EXIT_FAILURE;
         }
     }
 
