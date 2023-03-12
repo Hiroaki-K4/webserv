@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/11 21:53:09 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/12 17:26:49 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,6 +166,33 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         set_body(buf);
         return EXIT_SUCCESS;
     } else if (get_body_type() == ENCODING) {
+        unsigned int chunk_size;
+        unsigned int length = 0;
+        std::string body;
+        while (1) {
+            std::getline(data, line, '\n');
+            if (line == "0") {
+                std::cout << "[INFO] RequestParser::parse_request_body: Reached last chunk" << std::endl;
+                break;
+            }
+
+            std::stringstream ss;
+            ss << std::hex << line;
+            ss >> chunk_size;
+            length += chunk_size;
+            std::getline(data, line, '\n');
+            body = body + line.substr(0, chunk_size);
+
+            if (data.eof()) {
+                std::cout << "[INFO] RequestParser::parse_request_body: Reached EOF" << std::endl;
+                break;
+            }
+        }
+        set_body(body);
+        std::stringstream ss;
+        ss << length;
+        std::string content_length = ss.str();
+        set_header("Content-Length", content_length);
         return EXIT_SUCCESS;
     } else {
         std::cout << "[ERROR] RequestParser::parse_request_body: the type of request body is invalid" << std::endl;
@@ -240,8 +267,6 @@ int RequestParser::parse_request(const std::string request) {
             break;
         }
     }
-
-    std::cout << "line_count: " << line_count << std::endl;
 
     // Decide whether to parse request body
     if (!data.eof() && get_state() == REQ_HEADER && line == "") {
