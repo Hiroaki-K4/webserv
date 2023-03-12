@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/11 21:52:17 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/12 17:25:09 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ TEST(RequestParser, ok_normal_post_01) {
     EXPECT_EQ("Mon, 27 Jul 2009 12:28:53 GMT", parser.get_header().at("Date"));
     EXPECT_EQ("68", parser.get_header().at("Content-Length"));
     EXPECT_EQ("text/plain", parser.get_header().at("Content-Type"));
+    EXPECT_EQ(parser.RAW, parser.get_body_type());
 
     // Check request body;
     std::string body = "<html>\n    <body>\n        <h1>Hello, World!</h1>\n    </body>\n</html>";
@@ -79,6 +80,28 @@ TEST(RequestParser, ok_normal_delete_01) {
 
     // Check request header
     EXPECT_EQ("localhost", parser.get_header().at("Host"));
+}
+
+TEST(RequestParser, ok_post_with_chunk_data) {
+    std::string content = read_file("ok_post_with_chunk_data.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
+
+    // Chect request line
+    EXPECT_EQ(false, parser.get_is_error_request());
+    EXPECT_EQ(parser.POST, parser.get_request_method());
+    EXPECT_EQ("/index.html", parser.get_target_uri());
+    EXPECT_EQ(parser.HTTP_VERSION, parser.get_http_version());
+
+    // Check request header
+    EXPECT_EQ("localhost:8080", parser.get_header().at("Host"));
+    EXPECT_EQ(parser.ENCODING, parser.get_body_type());
+    EXPECT_EQ("225", parser.get_header().at("Content-Length"));
+
+    // Checkt request body
+    EXPECT_EQ("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901123456789012123456789012312345678901234123456789012345",
+        parser.get_body());
 }
 
 TEST(RequestParser, ng_request_header_01) {

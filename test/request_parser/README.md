@@ -71,6 +71,21 @@ For example,
 Transfer-Encoding: gzip, chunked
 ```
 
+### **Decoding Chunked**
+A process for decoding the chunked transfer coding can be represented in pseudo-code as:
+```
+length := 0
+read chunk-size and CRLF
+while (chunk-size > 0) {
+    read chunk-data and CRLF
+    append chunk-data to content
+    length := length + chunk-size
+    read chunk-size and CRLF
+}
+Content-Length := length
+Remove "chunked" from Transfer-Encoding
+```
+
 ### **Content-Length**
 When a message does not have a Transfer-Encoding header field, a Content-Length header field can provide the anticipated size, as a decimal number of octets, for potential content.
 A sender MUST NOT send a Content-Length header field in any message that contains a Transfer-Encoding header field.
