@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/12 17:25:09 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/18 14:19:55 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ std::string read_file(const std::string& file_name) {
     return file_content;
 }
 
-TEST(RequestParser, ok_normal_get_01) {
-    std::string content = read_file("ok_normal_get_01.txt");
+TEST(RequestParser, ok_normal_get) {
+    std::string content = read_file("ok_normal_get.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -40,8 +40,8 @@ TEST(RequestParser, ok_normal_get_01) {
     EXPECT_EQ("localhost", parser.get_header().at("Host"));
 }
 
-TEST(RequestParser, ok_normal_post_01) {
-    std::string content = read_file("ok_normal_post_01.txt");
+TEST(RequestParser, ok_normal_post) {
+    std::string content = read_file("ok_normal_post.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -66,8 +66,25 @@ TEST(RequestParser, ok_normal_post_01) {
     EXPECT_EQ(body, parser.get_body());
 }
 
-TEST(RequestParser, ok_normal_delete_01) {
-    std::string content = read_file("ok_normal_delete_01.txt");
+TEST(RequestParser, ok_multiple_header_keys) {
+    std::string content = read_file("ok_multiple_header_keys.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
+
+    // Chect request line
+    EXPECT_EQ(false, parser.get_is_error_request());
+    EXPECT_EQ(parser.GET, parser.get_request_method());
+    EXPECT_EQ("/", parser.get_target_uri());
+    EXPECT_EQ(parser.HTTP_VERSION, parser.get_http_version());
+
+    // Check request header
+    EXPECT_EQ("localhost", parser.get_header().at("Host"));
+    EXPECT_EQ("second", parser.get_header().at("Foo"));
+}
+
+TEST(RequestParser, ok_normal_delete) {
+    std::string content = read_file("ok_normal_delete.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -104,8 +121,8 @@ TEST(RequestParser, ok_post_with_chunk_data) {
         parser.get_body());
 }
 
-TEST(RequestParser, ng_request_header_01) {
-    std::string content = read_file("ng_request_header_01.txt");
+TEST(RequestParser, ng_request_header_wrong_space) {
+    std::string content = read_file("ng_request_header_wrong_space.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_FAILURE, res);
@@ -113,17 +130,8 @@ TEST(RequestParser, ng_request_header_01) {
     EXPECT_EQ(true, parser.get_is_error_request());
 }
 
-TEST(RequestParser, ng_request_header_02) {
-    std::string content = read_file("ng_request_header_02.txt");
-    RequestParser parser;
-    int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_FAILURE, res);
-
-    EXPECT_EQ(true, parser.get_is_error_request());
-}
-
-TEST(RequestParser, ng_request_header_03) {
-    std::string content = read_file("ng_request_header_03.txt");
+TEST(RequestParser, ng_request_header_wrong_body_info) {
+    std::string content = read_file("ng_request_header_wrong_body_info.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_FAILURE, res);
