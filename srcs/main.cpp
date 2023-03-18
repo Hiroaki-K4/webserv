@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/27 22:07:36 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/18 15:45:25 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,12 @@ int open_listen_fd(char *port) {
 
     freeaddrinfo(listp);
     if (!p) {
-        std::cout << "[main.cpp open_listen_fd][ERROR] freeaddrinfo error" << std::endl;
+        std::cout << "[ERROR] open_listen_fd: freeaddrinfo error" << std::endl;
         return -1;
     }
     // Change listen_Fd from active socket to listen socket(wait connection request from client).
     if (listen(listen_fd, LISTENQ) < 0) {
-        std::cout << "[main.cpp open_listen_fd][ERROR] listen error" << std::endl;
+        std::cout << "[ERROR] open_listen_fd: listen error" << std::endl;
         close(listen_fd);
         return -1;
     }
@@ -112,7 +112,7 @@ void serve_static(int fd, char *filename, int filesize) {
     // Send response body to client
     src_fd = open(filename, O_RDONLY, 0);
     if (src_fd == -1) {
-        std::cout << "[main.cpp main][ERROR] File open failed." << std::endl;
+        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
     }
     srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0));
     close(src_fd);
@@ -149,8 +149,15 @@ void serve_contents(int fd) {
     rio_readlineb(&rio, buf, MAXLINE, true);
     std::cout << "Request headers:" << std::endl;
     std::cout << buf;
+
+    RequestParser parser;
+    int res = parser.parse_request(buf);
+    if (res != EXIT_SUCCESS) {
+        return;
+    }
+
     sscanf(buf, "%s %s %s", method, uri, version);
-    std::cout << "method: " << method << " uri: " << uri << " version: " << version << std::endl;
+    std::cout << "method: " << parser.get_request_method() << " uri: " << parser.get_target_uri() << " version: " << parser.get_http_version() << std::endl;
     int cmp_res = strcasecmp(method, "GET");
     if (cmp_res != 0) {
         // clienterror(fd, method, "501", "Not implemented", "Tiny does not implement this method");
@@ -183,7 +190,7 @@ void serve_contents(int fd) {
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        std::cout << "[main.cpp main][ERROR] Usage: " << argv[0] << " <port>" << std::endl;
+        std::cout << "[ERROR] main: Usage: " << argv[0] << " <port>" << std::endl;
         return 1;
     }
     int listen_fd = open_listen_fd(argv[1]);

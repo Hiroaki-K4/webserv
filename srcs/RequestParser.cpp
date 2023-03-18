@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/12 17:26:49 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/18 15:46:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@ int RequestParser::handle_target_uri(const std::string token) {
 }
 
 int RequestParser::handle_http_version(const std::string token) {
-    if (token == HTTP_VERSION) {
-        set_http_version(token);
+    if (token.substr(0, HTTP_VERSION.length()) == HTTP_VERSION) {
+        set_http_version(token.substr(0, HTTP_VERSION.length()));
     } else {
         std::cout << "[ERROR] RequestParser::handle_http_version: Http version is invalid" << std::endl;
         return EXIT_FAILURE;
