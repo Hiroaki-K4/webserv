@@ -13,7 +13,15 @@
 #include "RequestParser.hpp"
 
 RequestParser::RequestParser()
-    : REQ_LINE("REQ_LINE"), REQ_HEADER("REQ_HEADER"), REQ_BODY("REQ_BODY"), GET("GET"), POST("POST"), DELETE("DELETE"), HTTP_VERSION("HTTP/1.1"), ENCODING("ENCODING"), RAW("RAW") {
+    : REQ_LINE("REQ_LINE"),
+      REQ_HEADER("REQ_HEADER"),
+      REQ_BODY("REQ_BODY"),
+      GET("GET"),
+      POST("POST"),
+      DELETE("DELETE"),
+      HTTP_VERSION("HTTP/1.1"),
+      ENCODING("ENCODING"),
+      RAW("RAW") {
     set_state(REQ_LINE);
     set_is_error_request(false);
 }
@@ -119,8 +127,7 @@ int RequestParser::parse_request_line(std::string line) {
 
 std::string RequestParser::trim_value(std::string line) {
     size_t begin = line.find_first_not_of(" ");
-    if (begin == std::string::npos)
-        return "";
+    if (begin == std::string::npos) return "";
 
     size_t end = line.find_last_not_of(" ");
     size_t range = end - begin + 1;
@@ -202,7 +209,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
 }
 
 bool RequestParser::is_valid_header() {
-    const std::map<std::string,std::string> m = get_header();
+    const std::map<std::string, std::string> m = get_header();
     if (m.find("Transfer-Encoding") != m.end() && m.find("Content-Length") != m.end()) {
         set_is_error_request(true);
         std::cout << "[ERROR] RequestParser::is_valid_header: the value of header is invalid" << std::endl;
@@ -213,7 +220,7 @@ bool RequestParser::is_valid_header() {
 }
 
 bool RequestParser::is_include_request_body() {
-    const std::map<std::string,std::string> m = get_header();
+    const std::map<std::string, std::string> m = get_header();
     if (m.find("Transfer-Encoding") != m.end()) {
         set_body_type(ENCODING);
         return true;

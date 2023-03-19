@@ -17,3 +17,4 @@ make > /dev/null
 check_result "make"
 make test > /dev/null
 check_result "make test"
+make format
