@@ -13,12 +13,12 @@
 #ifndef REQUESTPARSER_HPP
 #define REQUESTPARSER_HPP
 
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
-#include <cmath>
 
 class RequestParser {
    public:
@@ -70,7 +70,6 @@ class RequestParser {
     int parse_request_line(std::string line);
     int parse_request_header(std::string line);
     int parse_request_body(const std::string request, unsigned int line_count);
-
 
    private:
     std::string request;

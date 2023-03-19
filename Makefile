@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/03/19 16:22:15 by hkubo            ###   ########.fr        #
+#    Updated: 2023/03/19 16:48:09 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@ NAME := webserv
 
 SRCS := srcs/main.cpp \
 		srcs/rio_utils.cpp \
+		srcs/server_utils.cpp \
 		srcs/RequestParser.cpp \
 		srcs/HttpServer.cpp
 

@@ -13,9 +13,10 @@
 #ifndef HTTPSERVER_HPP
 #define HTTPSERVER_HPP
 
-#include <iostream>
 #include <netdb.h>
 #include <unistd.h>
+
+#include <iostream>
 
 #define MAXLINE 8192
 

@@ -6,21 +6,17 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/19 16:32:46 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/19 16:40:16 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpServer.hpp"
+
 #include "webserv.hpp"
 
-HttpServer::HttpServer() {
-    std::cout << "Webserv constructor" << std::endl;
-}
+HttpServer::HttpServer() {}
 
-HttpServer::HttpServer(int listen_fd) {
-    std::cout << "Webserv constructor2" << std::endl;
-    set_listen_fd(listen_fd);
-}
+HttpServer::HttpServer(int listen_fd) { set_listen_fd(listen_fd); }
 
 HttpServer::~HttpServer() { std::cout << "Goodbye, Webserv." << std::endl; }
 
