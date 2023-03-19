@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/19 18:06:25 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/19 21:14:12 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,20 @@ int open_client_fd(char *hostname, char *port) {
 }
 
 int main(int argc, char *argv[]) {
-    rio_t rio;
-
     if (argc != 5) {
         std::cout << "[ERROR] Usage: " << argv[0] << " <host> <port> <use_stdin> <repeat_times>" << std::endl;
         return 1;
     }
 
-    int client_fd = open_client_fd(argv[1], argv[2]);
-    std::cout << "client_fd: " << client_fd << std::endl;
-
-    rio_readinitb(&rio, client_fd);
-
+    int client_fd;
     std::string use_stdin(argv[3]);
     if (use_stdin == "1") {
         char buf[MAXLINE];
+        client_fd = open_client_fd(argv[1], argv[2]);
+        std::cout << "client_fd: " << client_fd << std::endl;
+        rio_t rio;
+        rio_readinitb(&rio, client_fd);
+
         if (fgets(buf, MAXLINE, stdin) != NULL) {
             // Write the string received in standard input to clientfd.
             if (rio_writen(client_fd, buf, strlen(buf)) == -1) {
@@ -61,28 +60,24 @@ int main(int argc, char *argv[]) {
         }
         close(client_fd);
     } else {
-        std::string str = "GET / HTTP/1.1";
-        char *buf = new char[15];
-        strcpy(buf, str.c_str());
-        // buf = str.c_str();
+        std::string str = "GET / HTTP/1.1\n";
         int loop_num = atoi(argv[4]);
-        std::cout << "loop_num: " << loop_num << std::endl;
-        std::cout << "len: " << strlen(buf) << std::endl;
         for (int i = 0; i < loop_num; i++) {
-            // if (fgets(buf, MAXLINE, stdin) != NULL) {
-                // Write the string received in standard input to clientfd.
-            std::cout << "ok1: " << buf << std::endl;
+            char *buf = new char[str.length()];
+            strcpy(buf, str.c_str());
+            client_fd = open_client_fd(argv[1], argv[2]);
+            std::cout << "client_fd: " << client_fd << std::endl;
+            rio_t rio;
+            rio_readinitb(&rio, client_fd);
             if (rio_writen(client_fd, buf, strlen(buf)) == -1) {
                 std::cout << "rio_writen error" << std::endl;
                 return -1;
             }
-            std::cout << "ok2" << std::endl;
+
             rio_readlineb(&rio, buf, MAXLINE, false);
-            std::cout << "ok3" << std::endl;
             fputs(buf, stdout);
-            std::cout << "ok4" << std::endl;
-            // }
             close(client_fd);
+            delete buf;
         }
     }
 

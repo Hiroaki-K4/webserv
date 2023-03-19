@@ -16,13 +16,13 @@ If you ccess http://localhost:8080/, you will get static page. If you access htt
 <br></br>
 ## How to build client
 ```
-make test
+make client
 ```
 
 ## How to run client
-./client <host> <port>
+./client <host> <port> <use_stdin> <repeat_times>
 ```
-./client ::1 8080
+./client ::1 8080 1 0
 ```
 You can request static contents from the server. In the example below, the server will return the contents of home.html
 ```
