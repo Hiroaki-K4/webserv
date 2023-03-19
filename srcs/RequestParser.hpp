@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/11 21:23:43 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/19 14:21:27 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ class RequestParser {
     int parse_request_line(std::string line);
     int parse_request_header(std::string line);
     int parse_request_body(const std::string request, unsigned int line_count);
+
 
    private:
     std::string request;

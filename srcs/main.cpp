@@ -6,11 +6,13 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/18 15:45:25 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/19 16:35:06 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
+#include "RequestParser.hpp"
+#include "HttpServer.hpp"
 
 int open_listen_fd(char *port) {
     int listen_fd, opt_val = 1;
@@ -199,16 +201,8 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    while (1) {
-        struct sockaddr_storage clientaddr;
-        socklen_t client_len = sizeof(clientaddr);
-        int conn_fd = accept(listen_fd, (sockaddr *)&clientaddr, &client_len);
-        std::cout << "conn_fd: " << conn_fd << std::endl;
-        char hostname[MAXLINE], port[MAXLINE];
-        getnameinfo((sockaddr *)&clientaddr, client_len, hostname, MAXLINE, port, MAXLINE, 0);
-        std::cout << "Accepted connection from " << hostname << ":" << port << std::endl;
-        serve_contents(conn_fd);
-        close(conn_fd);
-    }
+    HttpServer server(listen_fd);
+    server.run();
+
     return 0;
 }

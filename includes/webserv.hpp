@@ -18,8 +18,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "RequestParser.hpp"
-
 #define MAXLINE 8192
 #define MAXBUF 8192
 #define RIO_BUFSIZE 8192
@@ -36,5 +34,6 @@ typedef struct {
 void rio_readinitb(rio_t *rp, int fd);
 ssize_t rio_writen(int fd, void *usrbuf, size_t n);
 ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen, bool ignore_new_line);
+void serve_contents(int fd);
 
 #endif

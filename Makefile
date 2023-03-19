@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/02/27 08:49:28 by hkubo            ###   ########.fr        #
+#    Updated: 2023/03/19 16:22:15 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@ NAME := webserv
 
 SRCS := srcs/main.cpp \
 		srcs/rio_utils.cpp \
-		srcs/RequestParser.cpp
+		srcs/RequestParser.cpp \
+		srcs/HttpServer.cpp
 
 OBJS := $(SRCS:%.cpp=%.o)
 
