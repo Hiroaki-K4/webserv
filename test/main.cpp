@@ -6,11 +6,12 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/19 21:44:12 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/21 06:55:42 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <thread>
+
 #include "webserv.hpp"
 
 int open_client_fd(char *hostname, char *port) {
@@ -35,8 +36,8 @@ int open_client_fd(char *hostname, char *port) {
         return client_fd;
 }
 
-void call_server(char *argv[]) {
-    std::string str = "GET / HTTP/1.1\n";
+void call_server(char *argv[], std::string str) {
+    // std::string str = "GET / HTTP/1.1\n";
     char *buf = new char[str.length()];
     strcpy(buf, str.c_str());
     int client_fd = open_client_fd(argv[1], argv[2]);
@@ -50,9 +51,9 @@ void call_server(char *argv[]) {
     }
 
     rio_readlineb(&rio, buf, MAXLINE, false);
-    fputs(buf, stdout);
+    std::cout << buf << std::endl;
     close(client_fd);
-    // delete buf;
+    delete buf;
 }
 
 int main(int argc, char *argv[]) {
@@ -84,8 +85,8 @@ int main(int argc, char *argv[]) {
         std::string str = "GET / HTTP/1.1\n";
         int loop_num = atoi(argv[4]);
         for (int i = 0; i < loop_num; i++) {
-            // call_server(argv);
-            std::thread(call_server, argv).detach();
+            call_server(argv, str);
+            // sleep(1);
         }
     }
 
