@@ -20,7 +20,7 @@ make client
 ```
 
 ## How to run client
-./client <host> <port> <use_stdin> <repeat_times>
+./client [host] [port] [use_stdin] [repeat_times]
 ```
 ./client ::1 8080 1 0
 ```
