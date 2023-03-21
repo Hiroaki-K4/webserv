@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/02/11 17:45:45 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/19 21:05:26 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,14 @@ static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n) {
         rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, sizeof(rp->rio_buf));
         if (rp->rio_cnt < 0) {
             if (errno != EINTR) {
-                std::cout << "read error" << std::endl;
                 return -1;
             }
         } else if (rp->rio_cnt == 0) {
             std::cout << "EOF" << std::endl;
             return 0;
-        } else
+        } else {
             rp->rio_bufptr = rp->rio_buf;
+        }
     }
 
     cnt = n;

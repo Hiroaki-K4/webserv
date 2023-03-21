@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/03/19 16:48:09 by hkubo            ###   ########.fr        #
+#    Updated: 2023/03/19 21:43:33 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,6 +44,9 @@ re: fclean all
 format:
 	clang-format -i srcs/*.cpp srcs/*.hpp test/*.cpp includes/*.hpp
 
+client: CXXFLAGS := -Wall -Wextra -Werror -std=c++11 -pthread $(INCLUDE)
+client: $(filter-out srcs/main.o, $(OBJS)) test/main.o
+	$(CXX) $(CXXFLAGS) $(filter-out srcs/main.cpp, $(SRCS)) test/main.cpp -o client
 
 ## Google test
 GTEST_DIR   := ./google_test
@@ -72,4 +75,4 @@ test: $(GTEST) $(TEST_OBJS)
 	$(TESTER_NAME)
 	$(RM) srcs/main.o $(TEST_OBJS) $(TESTER_NAME)
 
-.PHONY: all clean fclean re format test
+.PHONY: all clean fclean re format client test
