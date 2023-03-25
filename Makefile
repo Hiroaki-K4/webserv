@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/03/19 21:43:33 by hkubo            ###   ########.fr        #
+#    Updated: 2023/03/25 21:27:38 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -74,5 +74,8 @@ test: $(GTEST) $(TEST_OBJS)
 		-o $(TESTER_NAME)
 	$(TESTER_NAME)
 	$(RM) srcs/main.o $(TEST_OBJS) $(TESTER_NAME)
+
+cgi:
+	$(CXX) -I./contents/cgi contents/cgi/cgi.cpp -o contents/cgi/cgi
 
 .PHONY: all clean fclean re format client test

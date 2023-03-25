@@ -15,7 +15,10 @@ If you ccess http://localhost:8080/, you will get static page like the image bel
 
 <img src='images/satsuma_hogwarts.png' width='500'>
 
-If you access http://localhost:8080/cgi-bin/adder?15000&213, you will get dynamic page.
+<br></br>
+If you access http://localhost:8080/cgi/cgi?Gryffindor, you will get dynamic page.
+
+<img src='images/satsuma_img.png' width='500'>
 
 <br></br>
 ## How to build client
@@ -32,9 +35,9 @@ You can request static contents from the server. In the example below, the serve
 ```
 GET / HTTP/1.1
 ```
-You can request dynamic contents from the server. In the example below, the server returns the result of an adder program (cgi) that adds two values.
+You can request dynamic contents from the server. In the example below, the server returns the result of an cgi program that decide on your dormitory at Hogwarts.
 ```
-GET /cgi-bin/adder?15000&213 HTTP/1.1
+GET /cgi/cgi?Gryffindor HTTP/1.1
 ```
 <br></br>
 

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/19 16:47:07 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/25 21:35:11 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int open_listen_fd(char *port) {
 int parse_uri(char *uri, char *filename, char *cgiargs) {
     char *ptr;
 
-    if (!strstr(uri, "cgi-bin")) {  // Static content
+    if (!strstr(uri, "cgi")) {  // Static content
         strcpy(cgiargs, "");
         strcpy(filename, "contents");
         strcat(filename, uri);
