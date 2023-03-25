@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/19 17:28:04 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/25 17:10:15 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,39 @@ void HttpServer::set_listen_fd(int listen_fd) { this->listen_fd = listen_fd; }
 
 int HttpServer::get_listen_fd() { return this->listen_fd; }
 
-void HttpServer::run() {
+void HttpServer::simple_server_run() {
     while (1) {
         struct sockaddr_storage clientaddr;
         socklen_t client_len = sizeof(clientaddr);
         int conn_fd = accept(get_listen_fd(), (sockaddr *)&clientaddr, &client_len);
         std::cout << "conn_fd: " << conn_fd << std::endl;
-        char hostname[MAXLINE], port[MAXLINE];
-        getnameinfo((sockaddr *)&clientaddr, client_len, hostname, MAXLINE, port, MAXLINE, 0);
-        std::cout << "Accepted connection from " << hostname << ":" << port << std::endl;
+        char host_name[MAXLINE], port[MAXLINE];
+        getnameinfo((sockaddr *)&clientaddr, client_len, host_name, MAXLINE, port, MAXLINE, 0);
+        std::cout << "Accepted connection from " << host_name << ":" << port << std::endl;
         serve_contents(conn_fd);
         close(conn_fd);
+    }
+}
+
+void HttpServer::multiple_io_server_run() {
+    fd_set read_set, ready_set;
+
+    FD_ZERO(&read_set);
+    FD_SET(get_listen_fd(), &read_set);
+
+    while (1) {
+        ready_set = read_set;
+        select(get_listen_fd() + 1, &ready_set, NULL, NULL, NULL);
+        if (FD_ISSET(get_listen_fd(), &ready_set)) {
+            struct sockaddr_storage clientaddr;
+            socklen_t client_len = sizeof(clientaddr);
+            int conn_fd = accept(get_listen_fd(), (sockaddr *)&clientaddr, &client_len);
+            std::cout << "conn_fd: " << conn_fd << std::endl;
+            char host_name[MAXLINE], port[MAXLINE];
+            getnameinfo((sockaddr *)&clientaddr, client_len, host_name, MAXLINE, port, MAXLINE, 0);
+            std::cout << "Accepted connection from " << host_name << ":" << port << std::endl;
+            serve_contents(conn_fd);
+            close(conn_fd);
+        }
     }
 }

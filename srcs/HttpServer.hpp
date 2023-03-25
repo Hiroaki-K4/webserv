@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/19 16:37:07 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/25 17:10:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define HTTPSERVER_HPP
 
 #include <netdb.h>
+#include <sys/select.h>
 #include <unistd.h>
 
 #include <iostream>
@@ -28,7 +29,8 @@ class HttpServer {
 
     void set_listen_fd(int listen_fd);
     int get_listen_fd();
-    void run();
+    void simple_server_run();
+    void multiple_io_server_run();
 
    private:
     int listen_fd;
