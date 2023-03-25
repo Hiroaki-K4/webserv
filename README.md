@@ -13,7 +13,7 @@ make
 ```
 If you ccess http://localhost:8080/, you will get static page like the image below.
 
-<img src='images/satsuma_hogwarts.png' width='500'>
+<img src='images/satsuma_hog.png' width='500'>
 
 <br></br>
 If you access http://localhost:8080/cgi/cgi?Gryffindor, you will get dynamic page.
