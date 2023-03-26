@@ -13,8 +13,8 @@
 #ifndef HTTPRESPONSE_HPP
 #define HTTPRESPONSE_HPP
 
-#include "webserv.hpp"
 #include "RequestParser.hpp"
+#include "webserv.hpp"
 
 class HttpResponse {
    public:
@@ -33,7 +33,6 @@ class HttpResponse {
     void serve_dynamic(char *filename, char *cgiargs);
     void serve_error_page();
     void serve_contents();
-
 
    private:
     int conn_fd;
