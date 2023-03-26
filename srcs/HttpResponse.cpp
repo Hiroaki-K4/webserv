@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 17:42:10 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 20:42:10 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,9 @@ char *HttpResponse::get_cgi_args() { return this->cgi_args; }
 
 void HttpResponse::set_file_info(struct stat file_info) { this->file_info = file_info; }
 
-struct stat HttpResponse::get_file_info() { return this->file_info; }
+struct stat HttpResponse::get_file_info() {
+    return this->file_info;
+}
 
 bool HttpResponse::parse_uri(char *uri, char *file_name, char *cgi_args) {
     char *ptr;
@@ -163,10 +165,8 @@ void HttpResponse::serve_error_page() {
     munmap(srcp, sbuf.st_size);
 }
 
-void HttpResponse::check_http_request() {
-    char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
-    char file_name[MAXLINE], cgi_args[MAXLINE];
-
+RequestParser HttpResponse::read_http_request() {
+    char buf[MAXLINE];
     rio_t rio;
     rio_readinitb(&rio, get_conn_fd());
     rio_readlineb(&rio, buf, MAXLINE, true);
@@ -174,16 +174,17 @@ void HttpResponse::check_http_request() {
     std::cout << buf;
 
     RequestParser parser;
-    int res = parser.parse_request(buf);
-    if (res != EXIT_SUCCESS) {
-        return;
-    }
+    parser.parse_request(buf);
 
-    sscanf(buf, "%s %s %s", method, uri, version);
-    std::cout << "method: " << parser.get_request_method() << " uri: " << parser.get_target_uri() << " version: " << parser.get_http_version()
-              << std::endl;
+    return parser;
+}
 
-    bool is_static = parse_uri(uri, file_name, cgi_args);
+void HttpResponse::check_http_request(RequestParser parser) {
+    char file_name[MAXLINE], cgi_args[MAXLINE];
+
+    char target_uri[parser.get_target_uri().length() + 1];
+    strcpy(target_uri, parser.get_target_uri().c_str());
+    bool is_static = parse_uri(target_uri, file_name, cgi_args);
     set_is_static(is_static);
     set_file_name(file_name);
     set_cgi_args(cgi_args);
@@ -201,7 +202,8 @@ void HttpResponse::serve_contents() {
         serve_error_page();
     } else {
         if (get_is_static()) {
-            if (!(S_ISREG(get_file_info().st_mode) || !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
+            if (!(S_ISREG(get_file_info().st_mode) ||
+                  !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
                 set_http_status(403);
                 std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
                 serve_error_page();
