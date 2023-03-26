@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 16:16:29 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 17:42:10 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,47 +26,63 @@ void HttpResponse::set_http_status(unsigned int http_status) { this->http_status
 
 unsigned int HttpResponse::get_http_status() { return this->http_status; };
 
-int HttpResponse::parse_uri(char *uri, char *filename, char *cgiargs) {
+void HttpResponse::set_is_static(bool is_static) { this->is_static = is_static; }
+
+bool HttpResponse::get_is_static() { return this->is_static; }
+
+void HttpResponse::set_file_name(char *file_name) { strcpy(this->file_name, file_name); }
+
+char *HttpResponse::get_file_name() { return this->file_name; }
+
+void HttpResponse::set_cgi_args(char *cgi_args) { strcpy(this->cgi_args, cgi_args); }
+
+char *HttpResponse::get_cgi_args() { return this->cgi_args; }
+
+void HttpResponse::set_file_info(struct stat file_info) { this->file_info = file_info; }
+
+struct stat HttpResponse::get_file_info() { return this->file_info; }
+
+bool HttpResponse::parse_uri(char *uri, char *file_name, char *cgi_args) {
     char *ptr;
 
     if (!strstr(uri, "cgi")) {  // Static content
-        strcpy(cgiargs, "");
-        strcpy(filename, "contents");
-        strcat(filename, uri);
-        if (uri[strlen(uri) - 1] == '/') strcat(filename, "home.html");
-        return 1;
+        strcpy(cgi_args, "");
+        strcpy(file_name, "contents");
+        strcat(file_name, uri);
+        if (uri[strlen(uri) - 1] == '/') strcat(file_name, "home.html");
+        return true;
     } else {
         ptr = index(uri, '?');
         if (ptr) {
-            strcpy(cgiargs, ptr + 1);
+            strcpy(cgi_args, ptr + 1);
             *ptr = '\0';  // Change ? to null terminator
         } else {
-            strcpy(cgiargs, "");
+            strcpy(cgi_args, "");
         }
-        strcpy(filename, "./contents");
-        strcat(filename, uri);
-        return 0;
+        strcpy(file_name, "./contents");
+        strcat(file_name, uri);
+        return false;
     }
 }
 
-void HttpResponse::get_filetype(char *filename, char *filetype) {
-    if (strstr(filename, ".html"))
+void HttpResponse::get_filetype(char *file_name, char *filetype) {
+    if (strstr(file_name, ".html"))
         strcpy(filetype, "text/html");
-    else if (strstr(filename, ".gif"))
+    else if (strstr(file_name, ".gif"))
         strcpy(filetype, "image/gif");
-    else if (strstr(filename, ".png"))
+    else if (strstr(file_name, ".png"))
         strcpy(filetype, "image/png");
-    else if (strstr(filename, ".jpg"))
+    else if (strstr(file_name, ".jpg"))
         strcpy(filetype, "image/jpeg");
     else
         strcpy(filetype, "text/plain");
 }
 
-void HttpResponse::serve_static(char *filename, int filesize) {
+void HttpResponse::serve_static(char *file_name, int filesize) {
     char *srcp, filetype[MAXLINE];
 
     // Send response headers to client
-    get_filetype(filename, filetype);
+    get_filetype(file_name, filetype);
     std::stringstream ss;
     ss << "HTTP/1.0, 200 OK\r\nServer: Tiny Web Server\r\nConnection: close\r\nContent-length: " << filesize << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
@@ -82,7 +98,7 @@ void HttpResponse::serve_static(char *filename, int filesize) {
     std::cout << resp_head;
 
     // Send response body to client
-    int src_fd = open(filename, O_RDONLY, 0);
+    int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == -1) {
         std::cout << "[ERROR] serve_static: File open failed." << std::endl;
         return;
@@ -93,7 +109,7 @@ void HttpResponse::serve_static(char *filename, int filesize) {
     munmap(srcp, filesize);
 }
 
-void HttpResponse::serve_dynamic(char *filename, char *cgiargs) {
+void HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
     char buf[MAXLINE], *emptylist[] = {NULL};
 
     // Return first part of HTTP response
@@ -103,9 +119,9 @@ void HttpResponse::serve_dynamic(char *filename, char *cgiargs) {
     rio_writen(get_conn_fd(), buf, strlen(buf));
 
     if (fork() == 0) {
-        setenv("QUERY_STRING", cgiargs, 1);
+        setenv("QUERY_STRING", cgi_args, 1);
         dup2(get_conn_fd(), STDOUT_FILENO);
-        execve(filename, emptylist, environ);
+        execve(file_name, emptylist, environ);
     }
     wait(NULL);
 }
@@ -147,9 +163,9 @@ void HttpResponse::serve_error_page() {
     munmap(srcp, sbuf.st_size);
 }
 
-void HttpResponse::serve_contents() {
+void HttpResponse::check_http_request() {
     char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
-    char filename[MAXLINE], cgiargs[MAXLINE];
+    char file_name[MAXLINE], cgi_args[MAXLINE];
 
     rio_t rio;
     rio_readinitb(&rio, get_conn_fd());
@@ -166,36 +182,38 @@ void HttpResponse::serve_contents() {
     sscanf(buf, "%s %s %s", method, uri, version);
     std::cout << "method: " << parser.get_request_method() << " uri: " << parser.get_target_uri() << " version: " << parser.get_http_version()
               << std::endl;
-    int cmp_res = strcasecmp(method, "GET");
-    if (cmp_res != 0) {
-        std::cout << "Tiny does not implement this method" << std::endl;
-        return;
-    }
 
-    int is_static = parse_uri(uri, filename, cgiargs);
-    std::cout << "is_static: " << is_static << " filename: " << filename << " cgiargs: " << cgiargs << std::endl;
-    struct stat sbuf;
-    if (stat(filename, &sbuf) < 0) {
+    bool is_static = parse_uri(uri, file_name, cgi_args);
+    set_is_static(is_static);
+    set_file_name(file_name);
+    set_cgi_args(cgi_args);
+    std::cout << "is_static: " << get_is_static() << " file_name: " << get_file_name() << " cgi_args: " << get_cgi_args() << std::endl;
+    struct stat file_info;
+    if (stat(file_name, &file_info) < 0) {
         set_http_status(404);
         std::cout << "404 Not found: Tiny cloudn't find this file" << std::endl;
-        serve_error_page();
-        return;
     }
-    if (is_static) {
-        if (!(S_ISREG(sbuf.st_mode) || !(S_IRUSR & sbuf.st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
-            set_http_status(403);
-            std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
-            serve_error_page();
-            return;
-        }
-        serve_static(filename, sbuf.st_size);
+    set_file_info(file_info);
+}
+
+void HttpResponse::serve_contents() {
+    if (get_http_status() >= 400) {
+        serve_error_page();
     } else {
-        if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
-            set_http_status(403);
-            std::cout << "403 Forbidden: Tiny couldn't run the CGI program" << std::endl;
-            serve_error_page();
-            return;
+        if (get_is_static()) {
+            if (!(S_ISREG(get_file_info().st_mode) || !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
+                set_http_status(403);
+                std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
+                serve_error_page();
+            }
+            serve_static(get_file_name(), get_file_info().st_size);
+        } else {
+            if (!(S_ISREG(get_file_info().st_mode)) || !(S_IXUSR & get_file_info().st_mode)) {
+                set_http_status(403);
+                std::cout << "403 Forbidden: Tiny couldn't run the CGI program" << std::endl;
+                serve_error_page();
+            }
+            serve_dynamic(get_file_name(), get_cgi_args());
         }
-        serve_dynamic(filename, cgiargs);
     }
 }

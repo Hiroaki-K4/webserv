@@ -3,5 +3,6 @@ webserv
 client
 srcs/*.o
 test/*.o
+test/**/*.o
 google_test/
 .mypy_cache/
