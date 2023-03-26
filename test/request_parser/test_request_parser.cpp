@@ -6,26 +6,19 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/18 14:19:55 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 21:39:41 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <gtest/gtest.h>
 #include <fstream>
 #include "RequestParser.hpp"
+#include "utils.hpp"
 
-std::string read_file(const std::string& file_name) {
-    std::string file_path = "test/request_parser/cases/" + file_name;
-    std::ifstream ifs(file_path.c_str());
-    std::stringstream ss;
-    ss << ifs.rdbuf();
-    std::string file_content = ss.str();
-
-    return file_content;
-}
+const std::string TEST_DIR = "test/request_parser/cases/";
 
 TEST(RequestParser, ok_normal_get) {
-    std::string content = read_file("ok_normal_get.txt");
+    std::string content = read_file(TEST_DIR, "ok_normal_get.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -41,7 +34,7 @@ TEST(RequestParser, ok_normal_get) {
 }
 
 TEST(RequestParser, ok_normal_post) {
-    std::string content = read_file("ok_normal_post.txt");
+    std::string content = read_file(TEST_DIR, "ok_normal_post.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -67,7 +60,7 @@ TEST(RequestParser, ok_normal_post) {
 }
 
 TEST(RequestParser, ok_multiple_header_keys) {
-    std::string content = read_file("ok_multiple_header_keys.txt");
+    std::string content = read_file(TEST_DIR, "ok_multiple_header_keys.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -84,7 +77,7 @@ TEST(RequestParser, ok_multiple_header_keys) {
 }
 
 TEST(RequestParser, ok_normal_delete) {
-    std::string content = read_file("ok_normal_delete.txt");
+    std::string content = read_file(TEST_DIR, "ok_normal_delete.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -100,7 +93,7 @@ TEST(RequestParser, ok_normal_delete) {
 }
 
 TEST(RequestParser, ok_post_with_chunk_data) {
-    std::string content = read_file("ok_post_with_chunk_data.txt");
+    std::string content = read_file(TEST_DIR, "ok_post_with_chunk_data.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_SUCCESS, res);
@@ -122,7 +115,7 @@ TEST(RequestParser, ok_post_with_chunk_data) {
 }
 
 TEST(RequestParser, ng_request_header_wrong_space) {
-    std::string content = read_file("ng_request_header_wrong_space.txt");
+    std::string content = read_file(TEST_DIR, "ng_request_header_wrong_space.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_FAILURE, res);
@@ -131,7 +124,7 @@ TEST(RequestParser, ng_request_header_wrong_space) {
 }
 
 TEST(RequestParser, ng_request_header_wrong_body_info) {
-    std::string content = read_file("ng_request_header_wrong_body_info.txt");
+    std::string content = read_file(TEST_DIR, "ng_request_header_wrong_body_info.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
     EXPECT_EQ(EXIT_FAILURE, res);

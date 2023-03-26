@@ -58,18 +58,22 @@ GET /cgi/cgi?Gryffindor HTTP/1.1
 
 <br></br>
 
-## How to parse http request
+## How to run unit tests
+To run unit tests for each class, execute the following command.
+```bash
+make test
+```
+
+<br></br>
+
+## About HTTP request parser
 The process of parsing HTTP 1.1 requests is implemented.
 For more information, please click [here](https://github.com/Hiroaki-K4/webserv/tree/main/test/request_parser).
 
 <br></br>
 
-## How to run unit tests
-To run unit tests for each class, execute the following command.
-
-```bash
-make test
-```
+## About HTTP response
+If you want to know HTTP response about this server, please click [here](https://github.com/Hiroaki-K4/webserv/tree/main/test/http_response).
 
 <br></br>
 
