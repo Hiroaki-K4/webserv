@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 17:31:29 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 20:41:34 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void HttpServer::multiple_io_server_run() {
             getnameinfo((sockaddr *)&clientaddr, client_len, host_name, MAXLINE, port, MAXLINE, 0);
             std::cout << "Accepted connection from " << host_name << ":" << port << std::endl;
             HttpResponse resp(conn_fd);
-            resp.check_http_request();
+            resp.check_http_request(resp.read_http_request());
             resp.serve_contents();
             close(conn_fd);
         }
