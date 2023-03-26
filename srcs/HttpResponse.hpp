@@ -1,41 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HttpServer.hpp                                     :+:      :+:    :+:   */
+/*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/19 14:17:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 14:16:23 by hkubo            ###   ########.fr       */
+/*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
+/*   Updated: 2023/03/26 14:15:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HTTPSERVER_HPP
-#define HTTPSERVER_HPP
+#ifndef HTTPRESPONSE_HPP
+#define HTTPRESPONSE_HPP
 
-#include <netdb.h>
-#include <sys/select.h>
-#include <unistd.h>
+#include "webserv.hpp"
+#include "RequestParser.hpp"
 
-#include <iostream>
-
-#include "HttpResponse.hpp"
-
-#define MAXLINE 8192
-
-class HttpServer {
+class HttpResponse {
    public:
-    HttpServer();
-    HttpServer(int listen_fd);
-    ~HttpServer();
+    HttpResponse();
+    ~HttpResponse();
 
-    void set_listen_fd(int listen_fd);
-    int get_listen_fd();
-    void simple_server_run();
-    void multiple_io_server_run();
+    int parse_uri(char *uri, char *filename, char *cgiargs);
+    void get_filetype(char *filename, char *filetype);
+    void serve_static(int fd, char *filename, int filesize);
+    void serve_dynamic(int fd, char *filename, char *cgiargs);
+    void serve_contents(int fd);
+
 
    private:
-    int listen_fd;
 };
 
 #endif
