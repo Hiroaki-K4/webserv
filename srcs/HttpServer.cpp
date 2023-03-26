@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 14:17:01 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 14:28:43 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ void HttpServer::simple_server_run() {
         char host_name[MAXLINE], port[MAXLINE];
         getnameinfo((sockaddr *)&clientaddr, client_len, host_name, MAXLINE, port, MAXLINE, 0);
         std::cout << "Accepted connection from " << host_name << ":" << port << std::endl;
-        HttpResponse resp;
-        resp.serve_contents(conn_fd);
+        HttpResponse resp(conn_fd);
+        resp.serve_contents();
         close(conn_fd);
     }
 }
@@ -56,8 +56,8 @@ void HttpServer::multiple_io_server_run() {
             char host_name[MAXLINE], port[MAXLINE];
             getnameinfo((sockaddr *)&clientaddr, client_len, host_name, MAXLINE, port, MAXLINE, 0);
             std::cout << "Accepted connection from " << host_name << ":" << port << std::endl;
-            HttpResponse resp;
-            resp.serve_contents(conn_fd);
+            HttpResponse resp(conn_fd);
+            resp.serve_contents();
             close(conn_fd);
         }
     }

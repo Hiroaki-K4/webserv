@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 14:17:50 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 14:31:06 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,13 @@
 
 HttpResponse::HttpResponse() {}
 
+HttpResponse::HttpResponse(int conn_fd) { set_conn_fd(conn_fd); }
+
 HttpResponse::~HttpResponse() {}
+
+void HttpResponse::set_conn_fd(int conn_fd) { this->conn_fd = conn_fd; }
+
+int HttpResponse::get_conn_fd() { return this->conn_fd; }
 
 int HttpResponse::parse_uri(char *uri, char *filename, char *cgiargs) {
     char *ptr;
@@ -52,7 +58,7 @@ void HttpResponse::get_filetype(char *filename, char *filetype) {
         strcpy(filetype, "text/plain");
 }
 
-void HttpResponse::serve_static(int fd, char *filename, int filesize) {
+void HttpResponse::serve_static(char *filename, int filesize) {
     int src_fd;
     char *srcp, filetype[MAXLINE];
 
@@ -65,7 +71,7 @@ void HttpResponse::serve_static(int fd, char *filename, int filesize) {
     out = ss.str();
     char resp_head[out.length() + 1];
     strcpy(resp_head, out.c_str());
-    if (rio_writen(fd, resp_head, strlen(resp_head)) == -1) {
+    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == -1) {
         std::cout << "rio_writen error!" << std::endl;
         return;
     }
@@ -79,33 +85,33 @@ void HttpResponse::serve_static(int fd, char *filename, int filesize) {
     }
     srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0));
     close(src_fd);
-    rio_writen(fd, srcp, filesize);
+    rio_writen(get_conn_fd(), srcp, filesize);
     munmap(srcp, filesize);
 }
 
-void HttpResponse::serve_dynamic(int fd, char *filename, char *cgiargs) {
+void HttpResponse::serve_dynamic(char *filename, char *cgiargs) {
     char buf[MAXLINE], *emptylist[] = {NULL};
 
     // Return first part of HTTP response
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
-    rio_writen(fd, buf, strlen(buf));
+    rio_writen(get_conn_fd(), buf, strlen(buf));
     sprintf(buf, "Server: Tiny Web Server\r\n");
-    rio_writen(fd, buf, strlen(buf));
+    rio_writen(get_conn_fd(), buf, strlen(buf));
 
     if (fork() == 0) {
         setenv("QUERY_STRING", cgiargs, 1);
-        dup2(fd, STDOUT_FILENO);
+        dup2(get_conn_fd(), STDOUT_FILENO);
         execve(filename, emptylist, environ);
     }
     wait(NULL);
 }
 
-void HttpResponse::serve_contents(int fd) {
+void HttpResponse::serve_contents() {
     char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
     char filename[MAXLINE], cgiargs[MAXLINE];
 
     rio_t rio;
-    rio_readinitb(&rio, fd);
+    rio_readinitb(&rio, get_conn_fd());
     rio_readlineb(&rio, buf, MAXLINE, true);
     std::cout << "Request headers:" << std::endl;
     std::cout << buf;
@@ -137,12 +143,12 @@ void HttpResponse::serve_contents(int fd) {
             std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
             return;
         }
-        serve_static(fd, filename, sbuf.st_size);
+        serve_static(filename, sbuf.st_size);
     } else {
         if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
             std::cout << "403 Forbidden: Tiny couldn't run the CGI program" << std::endl;
             return;
         }
-        serve_dynamic(fd, filename, cgiargs);
+        serve_dynamic(filename, cgiargs);
     }
 }
