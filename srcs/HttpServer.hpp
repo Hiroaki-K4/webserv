@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/25 17:10:29 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 14:16:23 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <unistd.h>
 
 #include <iostream>
+
+#include "HttpResponse.hpp"
 
 #define MAXLINE 8192
 
