@@ -6,13 +6,20 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 16:30:10 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 16:33:37 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 21:39:35 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <gtest/gtest.h>
+#include <fstream>
 #include "HttpResponse.hpp"
+#include "utils.hpp"
 
-TEST(HttpResponse, ok_normal_get) {
-    EXPECT_EQ(2, 1+1);
+const std::string TEST_DIR = "test/http_response/cases/";
+
+TEST(HttpResponse, status_200) {
+    std::string content = read_file(TEST_DIR, "status_200.txt");
+    RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(EXIT_SUCCESS, res);
 }
