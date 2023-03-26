@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 15:15:33 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/03/26 16:16:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,27 +178,24 @@ void HttpResponse::serve_contents() {
     if (stat(filename, &sbuf) < 0) {
         set_http_status(404);
         std::cout << "404 Not found: Tiny cloudn't find this file" << std::endl;
-        // return;
         serve_error_page();
+        return;
     }
     if (is_static) {
         if (!(S_ISREG(sbuf.st_mode) || !(S_IRUSR & sbuf.st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
             set_http_status(403);
             std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
-            // return;
+            serve_error_page();
+            return;
         }
         serve_static(filename, sbuf.st_size);
     } else {
         if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
             set_http_status(403);
             std::cout << "403 Forbidden: Tiny couldn't run the CGI program" << std::endl;
+            serve_error_page();
             return;
         }
         serve_dynamic(filename, cgiargs);
-    }
-
-    if (get_http_status() >= 400) {
-        std::cout << "Bad status: " << get_http_status() << std::endl;
-        serve_error_page();
     }
 }

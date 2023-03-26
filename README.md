@@ -13,12 +13,17 @@ make
 ```
 If you ccess http://localhost:8080/, you will get static page like the image below.
 
-<img src='images/satsuma_hog.png' width='500'>
+<img src='images/satsuma_hog.png' width='400'>
 
 <br></br>
 If you access http://localhost:8080/cgi/cgi?Gryffindor, you will get dynamic page.
 
-<img src='images/satsuma_img.png' width='500'>
+<img src='images/satsuma_img.png' width='400'>
+
+<br></br>
+If the wrong page is accessed(http://localhost:8080/Gryffindor), an error page will be displayed.
+
+<img src='images/error_page.png' width='400'>
 
 <br></br>
 ## How to build client
