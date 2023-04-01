@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/18 15:46:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/01 17:48:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ RequestParser::RequestParser()
       RAW("RAW") {
     set_state(REQ_LINE);
     set_is_error_request(false);
+    set_http_status(500);
 }
 
 RequestParser::~RequestParser() { std::cout << "Goodbye, RequestParser." << std::endl; }
@@ -64,19 +65,20 @@ void RequestParser::set_body(const std::string body) { this->body = body; }
 
 std::string RequestParser::get_body() { return this->body; }
 
+void RequestParser::set_http_status(unsigned int http_status) { this->http_status = http_status; }
+
+unsigned int RequestParser::get_http_status() { return this->http_status; };
+
 int RequestParser::handle_request_method(const std::string token) {
     if (token == GET || token == POST || token == DELETE) {
         set_request_method(token);
     } else {
         std::cout << "[ERROR] RequestParser::check_request_method: There is no request method" << std::endl;
+        set_http_status(501);
+        set_is_error_request(true);
         return EXIT_FAILURE;
     }
 
-    return EXIT_SUCCESS;
-}
-
-int RequestParser::handle_target_uri(const std::string token) {
-    set_target_uri(token);
     return EXIT_SUCCESS;
 }
 
@@ -85,6 +87,8 @@ int RequestParser::handle_http_version(const std::string token) {
         set_http_version(token.substr(0, HTTP_VERSION.length()));
     } else {
         std::cout << "[ERROR] RequestParser::handle_http_version: Http version is invalid" << std::endl;
+        set_http_status(505);
+        set_is_error_request(true);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -99,16 +103,13 @@ int RequestParser::parse_request_line(std::string line) {
         token = line.substr(0, pos);
         if (token_count == 0) {
             if (handle_request_method(token) == EXIT_FAILURE) {
-                set_is_error_request(true);
                 break;
             }
         } else if (token_count == 1) {
-            if (handle_target_uri(token) == EXIT_FAILURE) {
-                set_is_error_request(true);
-                break;
-            }
+            set_target_uri(token);
         } else {
             std::cout << "[ERROR] RequestParser::parse_request_line: The request line is too long" << std::endl;
+            set_http_status(400);
             set_is_error_request(true);
         }
         line.erase(0, pos + delimiter.length());
@@ -118,7 +119,6 @@ int RequestParser::parse_request_line(std::string line) {
         return EXIT_FAILURE;
     }
     if (handle_http_version(line) == EXIT_FAILURE) {
-        set_is_error_request(true);
         return EXIT_FAILURE;
     }
 
@@ -146,6 +146,7 @@ int RequestParser::parse_request_header(std::string line) {
         return EXIT_SUCCESS;
     } else {
         std::cout << "[ERROR] RequestParser::parse_request_header: The request header is invalid" << std::endl;
+        set_http_status(400);
         set_is_error_request(true);
         return EXIT_FAILURE;
     }
@@ -203,6 +204,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         return EXIT_SUCCESS;
     } else {
         std::cout << "[ERROR] RequestParser::parse_request_body: the type of request body is invalid" << std::endl;
+        set_http_status(500);
         set_is_error_request(true);
         return EXIT_FAILURE;
     }
@@ -211,8 +213,16 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
 bool RequestParser::is_valid_header() {
     const std::map<std::string, std::string> m = get_header();
     if (m.find("Transfer-Encoding") != m.end() && m.find("Content-Length") != m.end()) {
+        set_http_status(400);
         set_is_error_request(true);
         std::cout << "[ERROR] RequestParser::is_valid_header: the value of header is invalid" << std::endl;
+        return false;
+    }
+
+    if (m.find("Transfer-Encoding") == m.end() && m.find("Content-Length") == m.end()) {
+        set_http_status(411);
+        set_is_error_request(true);
+        std::cout << "[ERROR] RequestParser::is_valid_header: There is no content length property" << std::endl;
         return false;
     }
 
@@ -245,6 +255,7 @@ int RequestParser::parse_request(const std::string request) {
         std::getline(data, line, '\n');
         if (data.bad()) {
             std::cout << "[ERROR] RequestParser::parse_request: getline badbit error" << std::endl;
+            set_http_status(500);
             set_is_error_request(true);
             return EXIT_FAILURE;
         } else if (data.fail()) {

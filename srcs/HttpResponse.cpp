@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 20:42:10 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/01 18:03:23 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,8 +180,12 @@ RequestParser HttpResponse::read_http_request() {
 }
 
 void HttpResponse::check_http_request(RequestParser parser) {
-    char file_name[MAXLINE], cgi_args[MAXLINE];
+    if (parser.get_is_error_request()) {
+        set_http_status(parser.get_http_status());
+        return;
+    }
 
+    char file_name[MAXLINE], cgi_args[MAXLINE];
     char target_uri[parser.get_target_uri().length() + 1];
     strcpy(target_uri, parser.get_target_uri().c_str());
     bool is_static = parse_uri(target_uri, file_name, cgi_args);
@@ -193,6 +197,7 @@ void HttpResponse::check_http_request(RequestParser parser) {
     if (stat(file_name, &file_info) < 0) {
         set_http_status(404);
         std::cout << "404 Not found: Tiny cloudn't find this file" << std::endl;
+        return;
     }
     set_file_info(file_info);
 }
