@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 16:30:10 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/01 18:02:42 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/01 21:59:01 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,17 +27,6 @@ TEST(HttpResponse, status_200) {
     resp.check_http_request(parser);
     EXPECT_EQ(200, resp.get_http_status());
 }
-
-// TEST(HttpResponse, status_403) {
-//     std::string content = read_file(TEST_DIR, "status_403.txt");
-//     RequestParser parser;
-//     int res = parser.parse_request(content);
-//     EXPECT_EQ(EXIT_SUCCESS, res);
-
-//     HttpResponse resp;
-//     resp.check_http_request(parser);
-//     EXPECT_EQ(403, resp.get_http_status());
-// }
 
 TEST(HttpResponse, status_404) {
     std::string content = read_file(TEST_DIR, "status_404.txt");

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/01 18:03:23 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/01 21:39:39 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,73 +80,92 @@ void HttpResponse::get_filetype(char *file_name, char *filetype) {
         strcpy(filetype, "text/plain");
 }
 
-void HttpResponse::serve_static(char *file_name, int filesize) {
-    char *srcp, filetype[MAXLINE];
+int HttpResponse::serve_static(char *file_name, int filesize) {
+    // Send response body to client
+    int src_fd = open(file_name, O_RDONLY, 0);
+    if (src_fd == -1) {
+        set_http_status(403);
+        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
+        return EXIT_FAILURE;
+    }
+    char *srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0));
+    close(src_fd);
 
+    char filetype[MAXLINE];
     // Send response headers to client
     get_filetype(file_name, filetype);
     std::stringstream ss;
-    ss << "HTTP/1.0, 200 OK\r\nServer: Tiny Web Server\r\nConnection: close\r\nContent-length: " << filesize << "\r\n"
+    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << filesize << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
     std::string out;
     out = ss.str();
     char resp_head[out.length() + 1];
     strcpy(resp_head, out.c_str());
     if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == -1) {
-        std::cout << "rio_writen error!" << std::endl;
-        return;
+        set_http_status(500);
+        std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
+        return EXIT_FAILURE;
     }
     std::cout << "Response headers:" << std::endl;
     std::cout << resp_head;
-
-    // Send response body to client
-    int src_fd = open(file_name, O_RDONLY, 0);
-    if (src_fd == -1) {
-        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
-        return;
+    if (rio_writen(get_conn_fd(), srcp, filesize) == -1) {
+        set_http_status(500);
+        std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
+        munmap(srcp, filesize);
+        return EXIT_FAILURE;
     }
-    srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0));
-    close(src_fd);
-    rio_writen(get_conn_fd(), srcp, filesize);
     munmap(srcp, filesize);
+
+    return EXIT_SUCCESS;
 }
 
-void HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
+int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
     char buf[MAXLINE], *emptylist[] = {NULL};
 
     // Return first part of HTTP response
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
-    rio_writen(get_conn_fd(), buf, strlen(buf));
-    sprintf(buf, "Server: Tiny Web Server\r\n");
-    rio_writen(get_conn_fd(), buf, strlen(buf));
-
+    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == -1) {
+        set_http_status(500);
+        std::cout << "[ERROR] serve_dynamic: rio_writen error!" << std::endl;
+        return EXIT_FAILURE;
+    }
+    sprintf(buf, "Server: Ultimate Web Server\r\n");
+    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == -1) {
+        set_http_status(500);
+        std::cout << "[ERROR] serve_dynamic: rio_writen error!" << std::endl;
+        return EXIT_FAILURE;
+    }
     if (fork() == 0) {
         setenv("QUERY_STRING", cgi_args, 1);
         dup2(get_conn_fd(), STDOUT_FILENO);
         execve(file_name, emptylist, environ);
     }
     wait(NULL);
+
+    return EXIT_FAILURE;
 }
 
 void HttpResponse::serve_error_page() {
     char file_name[MAXLINE] = "contents/error.html";
     struct stat sbuf;
     if (stat(file_name, &sbuf) < 0) {
-        std::cout << "Cloudn't find this file" << std::endl;
+        set_http_status(500);
+        std::cout << "[ERROR] serve_error_page: Cloudn't find this file" << std::endl;
         return;
     }
 
     char filetype[MAXLINE];
     get_filetype(file_name, filetype);
     std::stringstream ss;
-    ss << "HTTP/1.0, 200 OK\r\nServer: Tiny Web Server\r\nConnection: close\r\nContent-length: " << sbuf.st_size << "\r\n"
+    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Server\r\nConnection: close\r\nContent-length: " << sbuf.st_size << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
     std::string out;
     out = ss.str();
     char resp_head[out.length() + 1];
     strcpy(resp_head, out.c_str());
     if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == -1) {
-        std::cout << "rio_writen error!" << std::endl;
+        set_http_status(500);
+        std::cout << "[ERROR] serve_error_page: rio_writen error!" << std::endl;
         return;
     }
     std::cout << "Response headers:" << std::endl;
@@ -154,7 +173,8 @@ void HttpResponse::serve_error_page() {
 
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == -1) {
-        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
+        set_http_status(500);
+        std::cout << "[ERROR] serve_error_page: File open failed." << std::endl;
         return;
     }
     char *srcp;
@@ -196,7 +216,7 @@ void HttpResponse::check_http_request(RequestParser parser) {
     struct stat file_info;
     if (stat(file_name, &file_info) < 0) {
         set_http_status(404);
-        std::cout << "404 Not found: Tiny cloudn't find this file" << std::endl;
+        std::cout << "[ERROR] check_http_request: Cloudn't find this file" << std::endl;
         return;
     }
     set_file_info(file_info);
@@ -210,17 +230,21 @@ void HttpResponse::serve_contents() {
             if (!(S_ISREG(get_file_info().st_mode) ||
                   !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
                 set_http_status(403);
-                std::cout << "403 Forbidden: Tiny couldn't read the file" << std::endl;
+                std::cout << "[ERROR] serve_contents: Couldn't read the file" << std::endl;
                 serve_error_page();
             }
-            serve_static(get_file_name(), get_file_info().st_size);
+            if (serve_static(get_file_name(), get_file_info().st_size) == EXIT_FAILURE) {
+                serve_error_page();
+            }
         } else {
             if (!(S_ISREG(get_file_info().st_mode)) || !(S_IXUSR & get_file_info().st_mode)) {
                 set_http_status(403);
-                std::cout << "403 Forbidden: Tiny couldn't run the CGI program" << std::endl;
+                std::cout << "[ERROR] serve_contents: Couldn't run the CGI program" << std::endl;
                 serve_error_page();
             }
-            serve_dynamic(get_file_name(), get_cgi_args());
+            if (serve_dynamic(get_file_name(), get_cgi_args()) == EXIT_FAILURE) {
+                serve_error_page();
+            }
         }
     }
 }
