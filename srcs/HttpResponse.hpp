@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 20:40:16 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/01 21:29:11 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ class HttpResponse {
 
     bool parse_uri(char *uri, char *file_name, char *cgi_args);
     void get_filetype(char *file_name, char *filetype);
-    void serve_static(char *file_name, int filesize);
-    void serve_dynamic(char *file_name, char *cgi_args);
+    int serve_static(char *file_name, int filesize);
+    int serve_dynamic(char *file_name, char *cgi_args);
     void serve_error_page();
     RequestParser read_http_request();
     void check_http_request(RequestParser parser);
