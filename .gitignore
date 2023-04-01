@@ -6,3 +6,4 @@ test/*.o
 test/**/*.o
 google_test/
 .mypy_cache/
+contents/no_permit.html
