@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:02:02 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 17:14:42 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 20:40:44 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ class ServerConfig {
     void set_port(const std::string port);
     std::string get_port();
 
-
    private:
     std::string host_name;
     std::string port;
     std::string default_error_page;
     unsigned int client_body_size_limit;
+    bool is_default_server;
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 14:18:37 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 21:05:49 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,13 +42,13 @@ int open_listen_fd(char *port) {
     freeaddrinfo(listp);
     if (!p) {
         std::cout << "[ERROR] open_listen_fd: freeaddrinfo error" << std::endl;
-        return -1;
+        return FAILURE;
     }
     // Change listen_Fd from active socket to listen socket(wait connection request from client).
     if (listen(listen_fd, LISTENQ) < 0) {
         std::cout << "[ERROR] open_listen_fd: listen error" << std::endl;
         close(listen_fd);
-        return -1;
+        return FAILURE;
     }
 
     return listen_fd;

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 16:30:10 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/01 21:59:01 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 21:03:33 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ TEST(HttpResponse, status_200) {
     std::string content = read_file(TEST_DIR, "status_200.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_SUCCESS, res);
+    EXPECT_EQ(SUCCESS, res);
 
     HttpResponse resp;
     resp.check_http_request(parser);
@@ -32,7 +32,7 @@ TEST(HttpResponse, status_404) {
     std::string content = read_file(TEST_DIR, "status_404.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_SUCCESS, res);
+    EXPECT_EQ(SUCCESS, res);
 
     HttpResponse resp;
     resp.check_http_request(parser);
@@ -43,7 +43,7 @@ TEST(HttpResponse, status_411) {
     std::string content = read_file(TEST_DIR, "status_411.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_FAILURE, res);
+    EXPECT_EQ(FAILURE, res);
 
     HttpResponse resp;
     resp.check_http_request(parser);
@@ -54,7 +54,7 @@ TEST(HttpResponse, status_501) {
     std::string content = read_file(TEST_DIR, "status_501.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_FAILURE, res);
+    EXPECT_EQ(FAILURE, res);
 
     HttpResponse resp;
     resp.check_http_request(parser);
@@ -65,7 +65,7 @@ TEST(HttpResponse, status_505) {
     std::string content = read_file(TEST_DIR, "status_505.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_FAILURE, res);
+    EXPECT_EQ(FAILURE, res);
 
     HttpResponse resp;
     resp.check_http_request(parser);

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/01 17:29:42 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 21:01:34 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,9 @@
 #include <map>
 #include <sstream>
 #include <string>
+
+#define SUCCESS 0
+#define FAILURE -1
 
 class RequestParser {
    public:

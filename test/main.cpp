@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/21 06:55:42 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 20:53:52 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,12 @@ int open_client_fd(char *hostname, char *port) {
 
     for (p = listp; p; p = p->ai_next) {
         if ((client_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
-        if (connect(client_fd, p->ai_addr, p->ai_addrlen) != -1) break;
+        if (connect(client_fd, p->ai_addr, p->ai_addrlen) != FAIL) break;
         close(client_fd);
     }
     freeaddrinfo(listp);
     if (!p)
-        return -1;
+        return FAIL;
     else
         return client_fd;
 }
@@ -45,7 +45,7 @@ void call_server(char *argv[], std::string str) {
 
     rio_t rio;
     rio_readinitb(&rio, client_fd);
-    if (rio_writen(client_fd, buf, strlen(buf)) == -1) {
+    if (rio_writen(client_fd, buf, strlen(buf)) == FAIL) {
         std::cout << "rio_writen error" << std::endl;
         return;
     }
@@ -73,9 +73,9 @@ int main(int argc, char *argv[]) {
 
         if (fgets(buf, MAXLINE, stdin) != NULL) {
             // Write the string received in standard input to clientfd.
-            if (rio_writen(client_fd, buf, strlen(buf)) == -1) {
+            if (rio_writen(client_fd, buf, strlen(buf)) == FAIL) {
                 std::cout << "rio_writen error" << std::endl;
-                return -1;
+                return FAIL;
             }
             rio_readlineb(&rio, buf, MAXLINE, false);
             fputs(buf, stdout);
