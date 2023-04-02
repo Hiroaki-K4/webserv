@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/04/02 17:22:58 by hkubo            ###   ########.fr        #
+#    Updated: 2023/04/02 21:15:33 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,8 @@ SRCS := srcs/main.cpp \
 		srcs/HttpServer.cpp \
 		srcs/HttpResponse.cpp \
 		srcs/ServerConfig.cpp \
-		srcs/ConfigParser.cpp
+		srcs/ConfigParser.cpp \
+		srcs/utils.cpp
 
 OBJS := $(SRCS:%.cpp=%.o)
 
@@ -59,8 +60,7 @@ GTEST_ALL   := $(GTEST_DIR)/gtest/gtest-all.cc
 
 TESTER_NAME := ./tester
 TEST_SRCS := test/request_parser/test_request_parser.cpp \
-			 test/http_response/test_http_response.cpp \
-			 test/utils/utils.cpp
+			 test/http_response/test_http_response.cpp
 TEST_OBJS := $(filter-out srcs/main.o, $(OBJS)) $(TEST_SRCS:%.cpp=%.o)
 
 $(GTEST):
@@ -71,7 +71,7 @@ $(GTEST):
 	python googletest-release-1.11.0/googletest/scripts/fuse_gtest_files.py $(GTEST_DIR)
 	mv googletest-release-1.11.0 $(GTEST_DIR)
 
-test: CXXFLAGS := --std=c++11 -I$(GTEST_DIR) -g3 -fsanitize=address $(INCLUDE) -I./test/utils
+test: CXXFLAGS := --std=c++11 -I$(GTEST_DIR) -g3 -fsanitize=address $(INCLUDE)
 test: $(GTEST) $(TEST_OBJS)
 	$(CXX) $(CXXFLAGS) $(GTEST_MAIN) $(GTEST_ALL) \
 		-lpthread \

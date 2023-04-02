@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 20:56:24 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 20:56:25 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 21:14:02 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,6 @@
 #include <fstream>
 #include <sstream>
 
-std::string read_file(const std::string &test_dir, const std::string &file_name);
+std::string read_file(const std::string &dir, const std::string &file_name);
 
 #endif
