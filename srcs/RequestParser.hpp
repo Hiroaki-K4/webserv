@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 21:01:34 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/08 16:45:58 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <map>
 #include <sstream>
 #include <string>
+
+#include "utils.hpp"
 
 #define SUCCESS 0
 #define FAILURE -1
@@ -66,7 +68,6 @@ class RequestParser {
 
     int handle_request_method(const std::string token);
     int handle_http_version(const std::string token);
-    std::string trim_value(std::string line);
     bool is_valid_header();
     bool is_include_request_body();
 

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 21:03:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/08 16:46:10 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,16 +123,6 @@ int RequestParser::parse_request_line(std::string line) {
     }
 
     return SUCCESS;
-}
-
-std::string RequestParser::trim_value(std::string line) {
-    size_t begin = line.find_first_not_of(" ");
-    if (begin == std::string::npos) return "";
-
-    size_t end = line.find_last_not_of(" ");
-    size_t range = end - begin + 1;
-
-    return line.substr(begin, range);
 }
 
 int RequestParser::parse_request_header(std::string line) {

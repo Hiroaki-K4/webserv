@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:52 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/08 16:25:42 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/08 17:38:34 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,17 @@ class ConfigParser {
     int parse_config(const std::string file_name);
     void set_state(state line_state);
     state get_state();
+    void set_client_max_body_size(int client_max_body_size);
+    int get_client_max_body_size();
+    int check_client_max_body_size(std::string value);
+    int parse_outside_line(std::string line);
+    int parse_server_line(std::string line);
+    int parse_location_line(std::string line);
 
    private:
     std::vector<ServerConfig> servers;
     state line_state;
-    bool is_client_max_body_size;
-    unsigned int client_max_body_size;
+    int client_max_body_size;
 };
 
 #endif
