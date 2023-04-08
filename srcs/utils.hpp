@@ -13,9 +13,9 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <string>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 std::string read_file(const std::string &dir, const std::string &file_name);
 
