@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:52 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/08 17:38:34 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/08 21:35:35 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,9 @@ class ConfigParser {
     void set_client_max_body_size(int client_max_body_size);
     int get_client_max_body_size();
     int check_client_max_body_size(std::string value);
+    int check_listen(std::string value);
+    int check_server_name(std::string value);
+    int check_location(std::string value);
     int parse_outside_line(std::string line);
     int parse_server_line(std::string line);
     int parse_location_line(std::string line);

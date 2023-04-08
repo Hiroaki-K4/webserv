@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/08 17:54:51 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/08 21:36:31 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,13 @@ int ConfigParser::get_client_max_body_size() { return this->client_max_body_size
 int ConfigParser::check_client_max_body_size(std::string value) {
     std::string key = "client_max_body_size";
     size_t pos = value.find(key);
-    std::string trimed = trim_value(value.substr(pos+key.length()));
+    std::string trimed = trim_value(value.substr(pos + key.length()));
     if (trimed.length() <= 0) {
         std::cout << "[ERROR] ConfigParser::check_client_max_body_size: client_max_body_size is invalid" << std::endl;
         return FAILURE;
     }
-    if (trimed.at(trimed.length()-1) == ';') {
-        std::string client_size = trimed.substr(0, trimed.length()-1);
+    if (trimed.at(trimed.length() - 1) == ';') {
+        std::string client_size = trimed.substr(0, trimed.length() - 1);
         if (!is_number(client_size)) {
             std::cout << "[ERROR] ConfigParser::check_client_max_body_size: client_max_body_size is invalid" << std::endl;
             return FAILURE;
@@ -63,13 +63,43 @@ int ConfigParser::parse_outside_line(std::string line) {
     return SUCCESS;
 }
 
+int ConfigParser::check_listen(std::string value) {
+    (void)value;
+    return SUCCESS;
+}
+
+int ConfigParser::check_server_name(std::string value) {
+    (void)value;
+    return SUCCESS;
+}
+
+int ConfigParser::check_location(std::string value) {
+    (void)value;
+    return SUCCESS;
+}
+
 int ConfigParser::parse_server_line(std::string line) {
-    (void) line;
+    std::string value = trim_value(line);
+    size_t pos = 0;
+    if (value == "}") {
+        set_state(OUTSIDE);
+        return SUCCESS;
+    } else if ((pos = value.find("listen")) != std::string::npos) {
+        return check_listen(value);
+    } else if ((pos = value.find("server_name")) != std::string::npos) {
+        return check_server_name(value);
+    } else if ((pos = value.find("location")) != std::string::npos) {
+        return check_location(value);
+    } else {
+        std::cout << "[ERROR] ConfigParser::parse_server_line: server block is invalid" << std::endl;
+        return FAILURE;
+    }
+
     return SUCCESS;
 }
 
 int ConfigParser::parse_location_line(std::string line) {
-    (void) line;
+    (void)line;
     return SUCCESS;
 }
 
@@ -111,7 +141,6 @@ int ConfigParser::parse_config(const std::string file_name) {
             std::cout << "[ERROR] ConfigParser::parse_config: invalid line status" << std::endl;
             return FAILURE;
         }
-
     }
 
     return SUCCESS;
