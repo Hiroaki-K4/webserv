@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/19 21:05:26 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 21:05:44 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n) {
             if (errno == EINTR)  // interrupted by a signal while writing no data
                 nwriten = 0;
             else
-                return -1;
+                return FAILURE;
         }
         nleft -= nwriten;
         bufp += nwriten;
@@ -43,7 +43,7 @@ static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n) {
         rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, sizeof(rp->rio_buf));
         if (rp->rio_cnt < 0) {
             if (errno != EINTR) {
-                return -1;
+                return FAILURE;
             }
         } else if (rp->rio_cnt == 0) {
             std::cout << "EOF" << std::endl;
@@ -79,7 +79,7 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen, bool ignore_new_li
             else
                 break;  // EOF, some data was read
         } else {
-            return -1;  // Error
+            return FAILURE;  // Error
         }
     }
     *bufp = 0;

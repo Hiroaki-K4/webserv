@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/01 17:29:42 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:26:03 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,11 @@
 #include <map>
 #include <sstream>
 #include <string>
+
+#include "utils.hpp"
+
+#define SUCCESS 0
+#define FAILURE -1
 
 class RequestParser {
    public:
@@ -58,12 +63,11 @@ class RequestParser {
     const std::map<std::string, std::string> get_header();
     void set_body(const std::string body);
     std::string get_body();
-    void set_http_status(unsigned int http_status);
+    void set_http_status(const unsigned int http_status);
     unsigned int get_http_status();
 
     int handle_request_method(const std::string token);
     int handle_http_version(const std::string token);
-    std::string trim_value(std::string line);
     bool is_valid_header();
     bool is_include_request_body();
 

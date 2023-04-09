@@ -22,6 +22,8 @@
 #define MAXBUF 8192
 #define RIO_BUFSIZE 8192
 #define LISTENQ 1024  // Second argument to listen(). Maximum queue length of pending connections for sockfd.
+#define SUCCESS 0
+#define FAILURE -1
 
 // Persistent state for the robust I/O (rio) package
 typedef struct {

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 21:39:41 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/02 21:02:07 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ TEST(RequestParser, ok_normal_get) {
     std::string content = read_file(TEST_DIR, "ok_normal_get.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_SUCCESS, res);
+    EXPECT_EQ(SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -37,7 +37,7 @@ TEST(RequestParser, ok_normal_post) {
     std::string content = read_file(TEST_DIR, "ok_normal_post.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_SUCCESS, res);
+    EXPECT_EQ(SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -63,7 +63,7 @@ TEST(RequestParser, ok_multiple_header_keys) {
     std::string content = read_file(TEST_DIR, "ok_multiple_header_keys.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_SUCCESS, res);
+    EXPECT_EQ(SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -80,7 +80,7 @@ TEST(RequestParser, ok_normal_delete) {
     std::string content = read_file(TEST_DIR, "ok_normal_delete.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_SUCCESS, res);
+    EXPECT_EQ(SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -96,7 +96,7 @@ TEST(RequestParser, ok_post_with_chunk_data) {
     std::string content = read_file(TEST_DIR, "ok_post_with_chunk_data.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_SUCCESS, res);
+    EXPECT_EQ(SUCCESS, res);
 
     // Chect request line
     EXPECT_EQ(false, parser.get_is_error_request());
@@ -118,7 +118,7 @@ TEST(RequestParser, ng_request_header_wrong_space) {
     std::string content = read_file(TEST_DIR, "ng_request_header_wrong_space.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_FAILURE, res);
+    EXPECT_EQ(FAILURE, res);
 
     EXPECT_EQ(true, parser.get_is_error_request());
 }
@@ -127,7 +127,7 @@ TEST(RequestParser, ng_request_header_wrong_body_info) {
     std::string content = read_file(TEST_DIR, "ng_request_header_wrong_body_info.txt");
     RequestParser parser;
     int res = parser.parse_request(content);
-    EXPECT_EQ(EXIT_FAILURE, res);
+    EXPECT_EQ(FAILURE, res);
 
     EXPECT_EQ(true, parser.get_is_error_request());
 }

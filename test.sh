@@ -15,7 +15,6 @@ check_result() {
 # Test make command
 make > /dev/null
 check_result "make"
-# make test > /dev/null
-make test
+make test > /dev/null
 check_result "make test"
 make format

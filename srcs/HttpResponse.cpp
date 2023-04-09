@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/01 21:39:39 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:28:25 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@ HttpResponse::HttpResponse(int conn_fd) : http_status(200) { set_conn_fd(conn_fd
 
 HttpResponse::~HttpResponse() {}
 
-void HttpResponse::set_conn_fd(int conn_fd) { this->conn_fd = conn_fd; }
+void HttpResponse::set_conn_fd(const int conn_fd) { this->conn_fd = conn_fd; }
 
 int HttpResponse::get_conn_fd() { return this->conn_fd; }
 
-void HttpResponse::set_http_status(unsigned int http_status) { this->http_status = http_status; }
+void HttpResponse::set_http_status(const unsigned int http_status) { this->http_status = http_status; }
 
 unsigned int HttpResponse::get_http_status() { return this->http_status; };
 
@@ -30,15 +30,15 @@ void HttpResponse::set_is_static(bool is_static) { this->is_static = is_static; 
 
 bool HttpResponse::get_is_static() { return this->is_static; }
 
-void HttpResponse::set_file_name(char *file_name) { strcpy(this->file_name, file_name); }
+void HttpResponse::set_file_name(const char *file_name) { strcpy(this->file_name, file_name); }
 
 char *HttpResponse::get_file_name() { return this->file_name; }
 
-void HttpResponse::set_cgi_args(char *cgi_args) { strcpy(this->cgi_args, cgi_args); }
+void HttpResponse::set_cgi_args(const char *cgi_args) { strcpy(this->cgi_args, cgi_args); }
 
 char *HttpResponse::get_cgi_args() { return this->cgi_args; }
 
-void HttpResponse::set_file_info(struct stat file_info) { this->file_info = file_info; }
+void HttpResponse::set_file_info(const struct stat file_info) { this->file_info = file_info; }
 
 struct stat HttpResponse::get_file_info() {
     return this->file_info;
@@ -83,10 +83,10 @@ void HttpResponse::get_filetype(char *file_name, char *filetype) {
 int HttpResponse::serve_static(char *file_name, int filesize) {
     // Send response body to client
     int src_fd = open(file_name, O_RDONLY, 0);
-    if (src_fd == -1) {
+    if (src_fd == FAILURE) {
         set_http_status(403);
         std::cout << "[ERROR] serve_static: File open failed." << std::endl;
-        return EXIT_FAILURE;
+        return FAILURE;
     }
     char *srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0));
     close(src_fd);
@@ -101,22 +101,22 @@ int HttpResponse::serve_static(char *file_name, int filesize) {
     out = ss.str();
     char resp_head[out.length() + 1];
     strcpy(resp_head, out.c_str());
-    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == -1) {
+    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
-        return EXIT_FAILURE;
+        return FAILURE;
     }
     std::cout << "Response headers:" << std::endl;
     std::cout << resp_head;
-    if (rio_writen(get_conn_fd(), srcp, filesize) == -1) {
+    if (rio_writen(get_conn_fd(), srcp, filesize) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
         munmap(srcp, filesize);
-        return EXIT_FAILURE;
+        return FAILURE;
     }
     munmap(srcp, filesize);
 
-    return EXIT_SUCCESS;
+    return SUCCESS;
 }
 
 int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
@@ -124,16 +124,16 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
 
     // Return first part of HTTP response
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
-    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == -1) {
+    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_dynamic: rio_writen error!" << std::endl;
-        return EXIT_FAILURE;
+        return FAILURE;
     }
     sprintf(buf, "Server: Ultimate Web Server\r\n");
-    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == -1) {
+    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_dynamic: rio_writen error!" << std::endl;
-        return EXIT_FAILURE;
+        return FAILURE;
     }
     if (fork() == 0) {
         setenv("QUERY_STRING", cgi_args, 1);
@@ -142,7 +142,7 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
     }
     wait(NULL);
 
-    return EXIT_FAILURE;
+    return FAILURE;
 }
 
 void HttpResponse::serve_error_page() {
@@ -163,7 +163,7 @@ void HttpResponse::serve_error_page() {
     out = ss.str();
     char resp_head[out.length() + 1];
     strcpy(resp_head, out.c_str());
-    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == -1) {
+    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_error_page: rio_writen error!" << std::endl;
         return;
@@ -172,7 +172,7 @@ void HttpResponse::serve_error_page() {
     std::cout << resp_head;
 
     int src_fd = open(file_name, O_RDONLY, 0);
-    if (src_fd == -1) {
+    if (src_fd == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_error_page: File open failed." << std::endl;
         return;
@@ -233,7 +233,7 @@ void HttpResponse::serve_contents() {
                 std::cout << "[ERROR] serve_contents: Couldn't read the file" << std::endl;
                 serve_error_page();
             }
-            if (serve_static(get_file_name(), get_file_info().st_size) == EXIT_FAILURE) {
+            if (serve_static(get_file_name(), get_file_info().st_size) == FAILURE) {
                 serve_error_page();
             }
         } else {
@@ -242,7 +242,7 @@ void HttpResponse::serve_contents() {
                 std::cout << "[ERROR] serve_contents: Couldn't run the CGI program" << std::endl;
                 serve_error_page();
             }
-            if (serve_dynamic(get_file_name(), get_cgi_args()) == EXIT_FAILURE) {
+            if (serve_dynamic(get_file_name(), get_cgi_args()) == FAILURE) {
                 serve_error_page();
             }
         }

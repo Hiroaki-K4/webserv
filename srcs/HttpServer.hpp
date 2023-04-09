@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/03/26 14:16:23 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:26:59 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class HttpServer {
     HttpServer(int listen_fd);
     ~HttpServer();
 
-    void set_listen_fd(int listen_fd);
+    void set_listen_fd(const int listen_fd);
     int get_listen_fd();
     void simple_server_run();
     void multiple_io_server_run();
