@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:52 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 17:47:19 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:13:47 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class ConfigParser {
     void add_server(ServerConfig *server);
     int extract_config_string(std::string value, std::string key, std::string &result);
     int extract_config_number(std::string value, std::string key, int &result);
+    int extract_allow_method(std::string value);
     int get_client_max_body_size();
     int check_location(std::string value);
     int parse_outside_line(std::string line);

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 21:00:17 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:27:49 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,17 +22,17 @@ class HttpResponse {
     HttpResponse(int conn_fd);
     ~HttpResponse();
 
-    void set_conn_fd(int conn_fd);
+    void set_conn_fd(const int conn_fd);
     int get_conn_fd();
     void set_http_status(unsigned int http_status);
     unsigned int get_http_status();
     void set_is_static(bool is_static);
     bool get_is_static();
-    void set_file_name(char *file_name);
+    void set_file_name(const char *file_name);
     char *get_file_name();
-    void set_cgi_args(char *cgi_args);
+    void set_cgi_args(const char *cgi_args);
     char *get_cgi_args();
-    void set_file_info(struct stat file_info);
+    void set_file_info(const struct stat file_info);
     struct stat get_file_info();
 
     bool parse_uri(char *uri, char *file_name, char *cgi_args);

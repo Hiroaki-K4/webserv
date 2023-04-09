@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:57:56 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 18:02:16 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:23:43 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,18 @@ class ServerLocation {
    public:
     ServerLocation();
     ~ServerLocation();
-    void set_route(std::string route);
+    void set_route(const std::string route);
     std::string get_route();
-    void set_alias(std::string alias);
+    void set_alias(const std::string alias);
     std::string get_alias();
-    void set_root(std::string root);
+    void set_root(const std::string root);
     std::string get_root();
-    void set_index(std::string index);
+    void set_index(const std::string index);
     std::string get_index();
-    void set_error_page(std::string error_page);
+    void set_error_page(const std::string error_page);
     std::string get_error_page();
+    void set_allow_method(const std::vector<std::string> allow_method);
+    std::vector<std::string> get_allow_method();
 
    private:
     std::string route;

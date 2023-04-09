@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:01:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 17:19:39 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:25:05 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,11 @@ void ServerConfig::set_host_name(const std::string host_name) { this->host_name 
 
 std::string ServerConfig::get_host_name() { return this->host_name; }
 
-void ServerConfig::set_port(int port) { this->port = port; }
+void ServerConfig::set_port(const int port) { this->port = port; }
 
 int ServerConfig::get_port() { return this->port; }
 
-void ServerConfig::set_locations(std::vector<ServerLocation *> locations) { this->locations = locations; }
+void ServerConfig::set_locations(const std::vector<ServerLocation *> locations) { this->locations = locations; }
 
 std::vector<ServerLocation *> ServerConfig::get_locations() { return this->locations; }
 

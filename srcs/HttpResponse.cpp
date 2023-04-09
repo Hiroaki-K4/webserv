@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 21:05:07 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:28:25 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@ HttpResponse::HttpResponse(int conn_fd) : http_status(200) { set_conn_fd(conn_fd
 
 HttpResponse::~HttpResponse() {}
 
-void HttpResponse::set_conn_fd(int conn_fd) { this->conn_fd = conn_fd; }
+void HttpResponse::set_conn_fd(const int conn_fd) { this->conn_fd = conn_fd; }
 
 int HttpResponse::get_conn_fd() { return this->conn_fd; }
 
-void HttpResponse::set_http_status(unsigned int http_status) { this->http_status = http_status; }
+void HttpResponse::set_http_status(const unsigned int http_status) { this->http_status = http_status; }
 
 unsigned int HttpResponse::get_http_status() { return this->http_status; };
 
@@ -30,15 +30,15 @@ void HttpResponse::set_is_static(bool is_static) { this->is_static = is_static; 
 
 bool HttpResponse::get_is_static() { return this->is_static; }
 
-void HttpResponse::set_file_name(char *file_name) { strcpy(this->file_name, file_name); }
+void HttpResponse::set_file_name(const char *file_name) { strcpy(this->file_name, file_name); }
 
 char *HttpResponse::get_file_name() { return this->file_name; }
 
-void HttpResponse::set_cgi_args(char *cgi_args) { strcpy(this->cgi_args, cgi_args); }
+void HttpResponse::set_cgi_args(const char *cgi_args) { strcpy(this->cgi_args, cgi_args); }
 
 char *HttpResponse::get_cgi_args() { return this->cgi_args; }
 
-void HttpResponse::set_file_info(struct stat file_info) { this->file_info = file_info; }
+void HttpResponse::set_file_info(const struct stat file_info) { this->file_info = file_info; }
 
 struct stat HttpResponse::get_file_info() {
     return this->file_info;

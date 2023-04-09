@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/08 16:46:10 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:26:13 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void RequestParser::set_body(const std::string body) { this->body = body; }
 
 std::string RequestParser::get_body() { return this->body; }
 
-void RequestParser::set_http_status(unsigned int http_status) { this->http_status = http_status; }
+void RequestParser::set_http_status(const unsigned int http_status) { this->http_status = http_status; }
 
 unsigned int RequestParser::get_http_status() { return this->http_status; };
 

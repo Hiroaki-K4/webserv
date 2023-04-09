@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:02:02 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 17:18:21 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:25:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ class ServerConfig {
     ~ServerConfig();
     void set_host_name(const std::string host_name);
     std::string get_host_name();
-    void set_port(int port);
+    void set_port(const int port);
     int get_port();
-    void set_locations(std::vector<ServerLocation *> locations);
+    void set_locations(const std::vector<ServerLocation *> locations);
     std::vector<ServerLocation *> get_locations();
     void add_location(ServerLocation *location);
 

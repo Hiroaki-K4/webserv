@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/08 16:45:58 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 21:26:03 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ class RequestParser {
     const std::map<std::string, std::string> get_header();
     void set_body(const std::string body);
     std::string get_body();
-    void set_http_status(unsigned int http_status);
+    void set_http_status(const unsigned int http_status);
     unsigned int get_http_status();
 
     int handle_request_method(const std::string token);
