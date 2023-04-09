@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:52 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 14:52:14 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 17:10:42 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "ServerConfig.hpp"
+#include "ServerLocation.hpp"
 #include "utils.hpp"
 
 #define SUCCESS 0

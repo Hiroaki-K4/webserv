@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 16:37:30 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 17:23:17 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ int ConfigParser::check_server_name(std::string value) {
     size_t pos = value.find(key);
     std::string trimed = trim_value(value.substr(pos + key.length()));
     if (trimed.length() <= 0) {
-        std::cout << "[ERROR] ConfigParser::check_server_name: listen port is invalid" << std::endl;
+        std::cout << "[ERROR] ConfigParser::check_server_name: server name is invalid" << std::endl;
         return FAILURE;
     }
 
@@ -123,8 +123,40 @@ int ConfigParser::check_server_name(std::string value) {
 }
 
 int ConfigParser::check_location(std::string value) {
-    (void)value;
+    std::string key = "location";
+    size_t pos = value.find(key);
+    std::string trimed = trim_value(value.substr(pos + key.length()));
+    std::cout << "trimed_location: " << trimed << std::endl;
+    if (trimed.length() <= 0) {
+        std::cout << "[ERROR] ConfigParser::check_location: location is invalid" << std::endl;
+        return FAILURE;
+    }
+
+    std::string delimiter = " ";
+    pos = 0;
+    int token_count = 0;
+    std::string token;
+    std::string route;
+    while ((pos = trimed.find(delimiter)) != std::string::npos) {
+        if (token_count > 0) {
+            std::cout << "[ERROR] ConfigParser::check_location: location is invalid" << std::endl;
+            return FAILURE;
+        }
+        token = trimed.substr(0, pos);
+        route = token;
+        trimed.erase(0, pos + delimiter.length());
+        if (trimed != "{") {
+            std::cout << "[ERROR] ConfigParser::check_location: location is invalid" << std::endl;
+            return FAILURE;
+        }
+        token_count += 1;
+    }
+
+    ServerLocation *location = new ServerLocation();
+    location->set_route(route);
+    get_servers()[get_servers().size() - 1]->add_location(location);
     set_state(IN_LOCATION);
+
     return SUCCESS;
 }
 
@@ -196,6 +228,7 @@ int ConfigParser::parse_config(const std::string file_name) {
     std::cout << "server size: " << get_servers().size() << std::endl;
     std::cout << "server port: " << get_servers()[0]->get_port() << std::endl;
     std::cout << "server host: " << get_servers()[0]->get_host_name() << std::endl;
+    std::cout << "server route: " << get_servers()[0]->get_locations()[0]->get_route() << std::endl;
 
     return SUCCESS;
 }

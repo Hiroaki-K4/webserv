@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/04/02 21:15:33 by hkubo            ###   ########.fr        #
+#    Updated: 2023/04/09 17:03:10 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,7 @@ SRCS := srcs/main.cpp \
 		srcs/HttpServer.cpp \
 		srcs/HttpResponse.cpp \
 		srcs/ServerConfig.cpp \
+		srcs/ServerLocation.cpp \
 		srcs/ConfigParser.cpp \
 		srcs/utils.cpp
 
