@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:57:56 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 17:05:32 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 18:02:16 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,14 @@ class ServerLocation {
     ~ServerLocation();
     void set_route(std::string route);
     std::string get_route();
+    void set_alias(std::string alias);
+    std::string get_alias();
+    void set_root(std::string root);
+    std::string get_root();
+    void set_index(std::string index);
+    std::string get_index();
+    void set_error_page(std::string error_page);
+    std::string get_error_page();
 
    private:
     std::string route;

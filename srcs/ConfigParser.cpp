@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 17:47:16 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 18:06:51 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,13 +168,50 @@ int ConfigParser::parse_server_line(std::string line) {
 }
 
 int ConfigParser::parse_location_line(std::string line) {
-    // std::string value = trim_value(line);
-    // size_t pos = 0;
-    // if (value == "}") {
-    //     set_state(IN_SERVER);
-    //     return SUCCESS;
-    // } else if
-    (void)line;
+    std::string value = trim_value(line);
+    size_t pos = 0;
+    if (value == "}") {
+        set_state(IN_SERVER);
+        return SUCCESS;
+    } else if ((pos = value.find("alias")) != std::string::npos) {
+        std::string result;
+        int res = extract_config_string(value, "alias", result);
+        if (res == SUCCESS) {
+            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+            get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_alias(result);
+        }
+        return res;
+    } else if ((pos = value.find("root")) != std::string::npos) {
+        std::string result;
+        int res = extract_config_string(value, "root", result);
+        if (res == SUCCESS) {
+            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+            get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_root(result);
+        }
+        return res;
+    } else if ((pos = value.find("index")) != std::string::npos) {
+        std::string result;
+        int res = extract_config_string(value, "index", result);
+        if (res == SUCCESS) {
+            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+            get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_index(result);
+        }
+        return res;
+    } else if ((pos = value.find("error_page")) != std::string::npos) {
+        std::string result;
+        int res = extract_config_string(value, "error_page", result);
+        if (res == SUCCESS) {
+            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+            get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_error_page(result);
+        }
+        return res;
+    } else if ((pos = value.find("allow_method")) != std::string::npos) {
+        // TODO: Add the process of allow method
+    } else {
+        std::cout << "[ERROR] ConfigParser::parse_location_line: location block is invalid" << std::endl;
+        return FAILURE;
+    }
+
     return SUCCESS;
 }
 
@@ -223,6 +260,10 @@ int ConfigParser::parse_config(const std::string file_name) {
     std::cout << "server port: " << get_servers()[0]->get_port() << std::endl;
     std::cout << "server host: " << get_servers()[0]->get_host_name() << std::endl;
     std::cout << "server route: " << get_servers()[0]->get_locations()[0]->get_route() << std::endl;
+    std::cout << "server alias: " << get_servers()[0]->get_locations()[0]->get_alias() << std::endl;
+    std::cout << "server root: " << get_servers()[0]->get_locations()[0]->get_root() << std::endl;
+    std::cout << "server index: " << get_servers()[0]->get_locations()[0]->get_index() << std::endl;
+    std::cout << "server error_page: " << get_servers()[0]->get_locations()[0]->get_error_page() << std::endl;
 
     return SUCCESS;
 }
