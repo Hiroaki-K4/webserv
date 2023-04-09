@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 17:23:17 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 17:47:16 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,26 +37,42 @@ void ConfigParser::add_server(ServerConfig *server) {
     set_servers(new_servers);
 }
 
-int ConfigParser::check_client_max_body_size(std::string value) {
-    std::string key = "client_max_body_size";
+int ConfigParser::extract_config_string(std::string value, std::string key, std::string &result) {
     size_t pos = value.find(key);
     std::string trimed = trim_value(value.substr(pos + key.length()));
     if (trimed.length() <= 0) {
-        std::cout << "[ERROR] ConfigParser::check_client_max_body_size: client_max_body_size is invalid" << std::endl;
+        std::cout << "[ERROR] ConfigParser::extract_config_string: config line is invalid" << std::endl;
         return FAILURE;
     }
 
-    std::string client_size;
     if (trimed.at(trimed.length() - 1) == ';') {
-        client_size = trimed.substr(0, trimed.length() - 1);
+        result = trimed.substr(0, trimed.length() - 1);
     } else {
-        client_size = trimed;
+        result = trimed;
     }
-    if (!is_number(client_size)) {
-        std::cout << "[ERROR] ConfigParser::check_client_max_body_size: client_max_body_size is invalid" << std::endl;
+
+    return SUCCESS;
+}
+
+int ConfigParser::extract_config_number(std::string value, std::string key, int &result) {
+    size_t pos = value.find(key);
+    std::string trimed = trim_value(value.substr(pos + key.length()));
+    if (trimed.length() <= 0) {
+        std::cout << "[ERROR] ConfigParser::extract_config_number: config line is invalid" << std::endl;
         return FAILURE;
     }
-    set_client_max_body_size(string_to_int(client_size));
+
+    std::string num;
+    if (trimed.at(trimed.length() - 1) == ';') {
+        num = trimed.substr(0, trimed.length() - 1);
+    } else {
+        num = trimed;
+    }
+    if (!is_number(num)) {
+        std::cout << "[ERROR] ConfigParser::extract_config_number: config line is invalid" << std::endl;
+        return FAILURE;
+    }
+    result = string_to_int(num);
 
     return SUCCESS;
 }
@@ -70,55 +86,16 @@ int ConfigParser::parse_outside_line(std::string line) {
         add_server(server);
         return SUCCESS;
     } else if ((pos = value.find("client_max_body_size")) != std::string::npos) {
-        return check_client_max_body_size(value);
+        int result;
+        int res = extract_config_number(value, "client_max_body_size", result);
+        if (res == SUCCESS) {
+            set_client_max_body_size(result);
+        }
+        return res;
     } else {
         std::cout << "[ERROR] ConfigParser::parse_outside_line: config line is invalid" << std::endl;
         return FAILURE;
     }
-    return SUCCESS;
-}
-
-int ConfigParser::check_listen(std::string value) {
-    std::string key = "listen";
-    size_t pos = value.find(key);
-    std::string trimed = trim_value(value.substr(pos + key.length()));
-    if (trimed.length() <= 0) {
-        std::cout << "[ERROR] ConfigParser::check_listen: listen port is invalid" << std::endl;
-        return FAILURE;
-    }
-
-    std::string port_num;
-    if (trimed.at(trimed.length() - 1) == ';') {
-        port_num = trimed.substr(0, trimed.length() - 1);
-    } else {
-        port_num = trimed;
-    }
-    if (!is_number(port_num)) {
-        std::cout << "[ERROR] ConfigParser::check_client_max_body_size: client_max_body_size is invalid" << std::endl;
-        return FAILURE;
-    }
-    get_servers()[get_servers().size() - 1]->set_port(string_to_int(port_num));
-
-    return SUCCESS;
-}
-
-int ConfigParser::check_server_name(std::string value) {
-    std::string key = "server_name";
-    size_t pos = value.find(key);
-    std::string trimed = trim_value(value.substr(pos + key.length()));
-    if (trimed.length() <= 0) {
-        std::cout << "[ERROR] ConfigParser::check_server_name: server name is invalid" << std::endl;
-        return FAILURE;
-    }
-
-    std::string server_name;
-    if (trimed.at(trimed.length() - 1) == ';') {
-        server_name = trimed.substr(0, trimed.length() - 1);
-    } else {
-        server_name = trimed;
-    }
-    get_servers()[get_servers().size() - 1]->set_host_name(server_name);
-
     return SUCCESS;
 }
 
@@ -167,9 +144,19 @@ int ConfigParser::parse_server_line(std::string line) {
         set_state(OUTSIDE);
         return SUCCESS;
     } else if ((pos = value.find("listen")) != std::string::npos) {
-        return check_listen(value);
+        int result;
+        int res = extract_config_number(value, "listen", result);
+        if (res == SUCCESS) {
+            get_servers()[get_servers().size() - 1]->set_port(result);
+        }
+        return res;
     } else if ((pos = value.find("server_name")) != std::string::npos) {
-        return check_server_name(value);
+        std::string result;
+        int res = extract_config_string(value, "server_name", result);
+        if (res == SUCCESS) {
+            get_servers()[get_servers().size() - 1]->set_host_name(result);
+        }
+        return res;
     } else if ((pos = value.find("location")) != std::string::npos) {
         return check_location(value);
     } else {
@@ -181,6 +168,12 @@ int ConfigParser::parse_server_line(std::string line) {
 }
 
 int ConfigParser::parse_location_line(std::string line) {
+    // std::string value = trim_value(line);
+    // size_t pos = 0;
+    // if (value == "}") {
+    //     set_state(IN_SERVER);
+    //     return SUCCESS;
+    // } else if
     (void)line;
     return SUCCESS;
 }
@@ -225,6 +218,7 @@ int ConfigParser::parse_config(const std::string file_name) {
         }
     }
 
+    std::cout << "client size: " << get_client_max_body_size() << std::endl;
     std::cout << "server size: " << get_servers().size() << std::endl;
     std::cout << "server port: " << get_servers()[0]->get_port() << std::endl;
     std::cout << "server host: " << get_servers()[0]->get_host_name() << std::endl;

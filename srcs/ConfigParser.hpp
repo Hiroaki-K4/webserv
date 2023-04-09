@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:52 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 17:10:42 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/09 17:47:19 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,9 @@ class ConfigParser {
     std::vector<ServerConfig *> get_servers();
     void set_client_max_body_size(int client_max_body_size);
     void add_server(ServerConfig *server);
+    int extract_config_string(std::string value, std::string key, std::string &result);
+    int extract_config_number(std::string value, std::string key, int &result);
     int get_client_max_body_size();
-    int check_client_max_body_size(std::string value);
-    int check_listen(std::string value);
-    int check_server_name(std::string value);
     int check_location(std::string value);
     int parse_outside_line(std::string line);
     int parse_server_line(std::string line);
