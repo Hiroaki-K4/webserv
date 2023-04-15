@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/15 14:54:28 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/15 17:19:27 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,9 +109,16 @@ int ConfigParser::extract_allow_method(std::string value) {
     while ((pos = methods.find(delimiter)) != std::string::npos) {
         token = methods.substr(0, pos);
         methods.erase(0, pos + delimiter.length());
-        std::cout << "method token: " << token << std::endl;
         if (token == "GET" || token == "POST" || token == "DELETE") {
             methods_vec.push_back(token);
+        } else {
+            std::cout << "[ERROR] ConfigParser::extract_allow_method: allow method is invalid" << std::endl;
+            return FAILURE;
+        }
+    }
+    if (methods != "") {
+        if (methods == "GET" || methods == "POST" || methods == "DELETE") {
+            methods_vec.push_back(methods);
         } else {
             std::cout << "[ERROR] ConfigParser::extract_allow_method: allow method is invalid" << std::endl;
             return FAILURE;
@@ -142,6 +149,35 @@ int ConfigParser::parse_outside_line(std::string line) {
         std::cout << "[ERROR] ConfigParser::parse_outside_line: config line is invalid" << std::endl;
         return FAILURE;
     }
+    return SUCCESS;
+}
+
+int ConfigParser::get_error_page(std::string line) {
+    std::string delimiter = " ";
+    size_t pos = 0;
+    std::string error_status;
+    std::vector<std::string> methods_vec;
+    while ((pos = line.find(delimiter)) != std::string::npos) {
+        error_status = line.substr(0, pos);
+        line.erase(0, pos + delimiter.length());
+        if (is_number(error_status)) {
+            break;
+        } else {
+            std::cout << "[ERROR] ConfigParser::get_error_page: error page is invalid" << std::endl;
+            return FAILURE;
+        }
+    }
+
+    if (line != "") {
+        unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+        std::map<int, std::string> error_pages = get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->get_error_pages();
+        error_pages[string_to_int(error_status)] = line;
+        get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_error_pages(error_pages);
+    } else {
+        std::cout << "[ERROR] ConfigParser::get_error_page: error page is invalid" << std::endl;
+        return FAILURE;
+    }
+
     return SUCCESS;
 }
 
@@ -247,8 +283,7 @@ int ConfigParser::parse_location_line(std::string line) {
         std::string result;
         int res = extract_config_string(value, "error_page", result);
         if (res == SUCCESS) {
-            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
-            get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_error_page(result);
+            return get_error_page(result);
         }
         return res;
     } else if ((pos = value.find("allow_method")) != std::string::npos) {
@@ -309,7 +344,6 @@ int ConfigParser::parse_config(const std::string file_name) {
     std::cout << "server alias: " << get_servers()[0]->get_locations()[0]->get_alias() << std::endl;
     std::cout << "server root: " << get_servers()[0]->get_locations()[0]->get_root() << std::endl;
     std::cout << "server index: " << get_servers()[0]->get_locations()[0]->get_index() << std::endl;
-    std::cout << "server error_page: " << get_servers()[0]->get_locations()[0]->get_error_page() << std::endl;
     std::cout << "server allow_method: " << get_servers()[0]->get_locations()[0]->get_allow_method()[0] << std::endl;
 
     return SUCCESS;
