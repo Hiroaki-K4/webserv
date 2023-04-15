@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:20:12 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/15 14:54:28 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,16 @@ ConfigParser::ConfigParser() : OUTSIDE("OUTSIDE"), IN_SERVER("IN_SERVER"), IN_LO
     set_client_max_body_size(-1);
 }
 
-ConfigParser::~ConfigParser() {}
+ConfigParser::~ConfigParser() {
+    std::vector<ServerConfig *> servers = get_servers();
+    for (unsigned int i = 0; i < servers.size(); i++) {
+        std::vector<ServerLocation *> locations = servers[i]->get_locations();
+        for (unsigned int j = 0; j < locations.size(); j++) {
+            delete locations[j];
+        }
+        delete servers[i];
+    }
+}
 
 void ConfigParser::set_state(state line_state) { this->line_state = line_state; }
 

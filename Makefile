@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/04/09 17:03:10 by hkubo            ###   ########.fr        #
+#    Updated: 2023/04/15 14:38:36 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -61,7 +61,8 @@ GTEST_ALL   := $(GTEST_DIR)/gtest/gtest-all.cc
 
 TESTER_NAME := ./tester
 TEST_SRCS := test/request_parser/test_request_parser.cpp \
-			 test/http_response/test_http_response.cpp
+			 test/http_response/test_http_response.cpp \
+			 test/config_parser/test_config_parser.cpp
 TEST_OBJS := $(filter-out srcs/main.o, $(OBJS)) $(TEST_SRCS:%.cpp=%.o)
 
 $(GTEST):
