@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 16:29:06 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:38:59 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,4 +73,40 @@ TEST(ConfigParser, ok_multiple_host) {
     EXPECT_EQ(1, locations2.size());
     EXPECT_EQ("/", locations2[0]->get_route());
     EXPECT_EQ("./docs/dir/", locations2[0]->get_alias());
+}
+
+TEST(ConfigParser, ok_multiple_port) {
+    ConfigParser config;
+    config.parse_config("multiple_port.conf");
+    std::vector<ServerConfig *> servers = config.get_servers();
+    std::vector<ServerLocation *> locations1 = servers[0]->get_locations();
+    std::vector<ServerLocation *> locations2 = servers[1]->get_locations();
+
+    EXPECT_EQ(2, servers.size());
+
+    EXPECT_EQ(4242, servers[0]->get_port());
+    EXPECT_EQ(1, locations1.size());
+    EXPECT_EQ("/", locations1[0]->get_route());
+    EXPECT_EQ("./docs/", locations1[0]->get_alias());
+
+    EXPECT_EQ(2121, servers[1]->get_port());
+    EXPECT_EQ(1, locations2.size());
+    EXPECT_EQ("/", locations2[0]->get_route());
+    EXPECT_EQ("./docs/dir/", locations2[0]->get_alias());
+}
+
+TEST(ConfigParser, ok_multiple_route) {
+    ConfigParser config;
+    config.parse_config("multiple_route.conf");
+    std::vector<ServerConfig *> servers = config.get_servers();
+    std::vector<ServerLocation *> locations = servers[0]->get_locations();
+
+    EXPECT_EQ(1, servers.size());
+
+    EXPECT_EQ(4242, servers[0]->get_port());
+    EXPECT_EQ(2, locations.size());
+    EXPECT_EQ("/a/", locations[0]->get_route());
+    EXPECT_EQ("./docs/", locations[0]->get_alias());
+    EXPECT_EQ("/b/", locations[1]->get_route());
+    EXPECT_EQ("./docs/dir/", locations[1]->get_alias());
 }
