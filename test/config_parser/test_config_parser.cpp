@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/15 17:20:14 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:20:15 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,20 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ(2, locations[0]->get_allow_method().size());
     EXPECT_EQ("GET", locations[0]->get_allow_method()[0]);
     EXPECT_EQ("POST", locations[0]->get_allow_method()[1]);
+}
+
+TEST(ConfigParser, ok_error_page) {
+    ConfigParser config;
+    config.parse_config("error_page.conf");
+    std::vector<ServerConfig *> servers = config.get_servers();
+    std::vector<ServerLocation *> locations = servers[0]->get_locations();
+
+    EXPECT_EQ(1, servers.size());
+    EXPECT_EQ(4242, servers[0]->get_port());
+    EXPECT_EQ(1, locations.size());
+    EXPECT_EQ("/", locations[0]->get_route());
+    EXPECT_EQ("./docs/", locations[0]->get_alias());
+    EXPECT_EQ(2, locations[0]->get_error_pages().size());
+    EXPECT_EQ("/error_page/403.html", locations[0]->get_error_pages()[403]);
+    EXPECT_EQ("/error_page/404.html", locations[0]->get_error_pages()[404]);
 }

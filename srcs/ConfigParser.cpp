@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/15 17:19:27 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:24:01 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,10 @@ int ConfigParser::get_client_max_body_size() { return this->client_max_body_size
 
 void ConfigParser::add_server(ServerConfig *server) {
     std::vector<ServerConfig *> new_servers;
+    std::vector<ServerConfig *> exist_servers = get_servers();
+    for (std::vector<ServerConfig *>::iterator it = exist_servers.begin() ; it != exist_servers.end(); ++it) {
+        new_servers.push_back(*it);
+    }
     new_servers.push_back(server);
     set_servers(new_servers);
 }
@@ -335,16 +339,6 @@ int ConfigParser::parse_config(const std::string file_name) {
             return FAILURE;
         }
     }
-
-    std::cout << "client size: " << get_client_max_body_size() << std::endl;
-    std::cout << "server size: " << get_servers().size() << std::endl;
-    std::cout << "server port: " << get_servers()[0]->get_port() << std::endl;
-    std::cout << "server host: " << get_servers()[0]->get_host_name() << std::endl;
-    std::cout << "server route: " << get_servers()[0]->get_locations()[0]->get_route() << std::endl;
-    std::cout << "server alias: " << get_servers()[0]->get_locations()[0]->get_alias() << std::endl;
-    std::cout << "server root: " << get_servers()[0]->get_locations()[0]->get_root() << std::endl;
-    std::cout << "server index: " << get_servers()[0]->get_locations()[0]->get_index() << std::endl;
-    std::cout << "server allow_method: " << get_servers()[0]->get_locations()[0]->get_allow_method()[0] << std::endl;
 
     return SUCCESS;
 }
