@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 16:57:33 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 17:47:10 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,6 @@ int ConfigParser::check_location(std::string value) {
     std::string key = "location";
     size_t pos = value.find(key);
     std::string trimed = trim_value(value.substr(pos + key.length()));
-    std::cout << "trimed_location: " << trimed << std::endl;
     if (trimed.length() <= 0) {
         std::cout << "[ERROR] ConfigParser::check_location: location is invalid" << std::endl;
         return FAILURE;
@@ -319,12 +318,11 @@ int ConfigParser::parse_config(const std::string file_name) {
     std::string line;
     while (1) {
         std::getline(data, line, '\n');
-        std::cout << "line: " << line << std::endl;
         if (data.bad()) {
             std::cout << "[ERROR] ConfigParser::parse_config: getline badbit error" << std::endl;
             return FAILURE;
         } else if (data.eof()) {
-            std::cout << "[INFO] ConfigParser::parse_config: Reached EOF" << std::endl;
+            std::cout << "[INFO] ConfigParser::parse_config: Complete reading config file" << std::endl;
             break;
         }
 
@@ -333,17 +331,14 @@ int ConfigParser::parse_config(const std::string file_name) {
         }
 
         if (get_state() == OUTSIDE) {
-            std::cout << "line status: " << get_state() << std::endl;
             if (parse_outside_line(line) == FAILURE) {
                 return FAILURE;
             }
         } else if (get_state() == IN_SERVER) {
-            std::cout << "line status: " << get_state() << std::endl;
             if (parse_server_line(line) == FAILURE) {
                 return FAILURE;
             }
         } else if (get_state() == IN_LOCATION) {
-            std::cout << "line status: " << get_state() << std::endl;
             if (parse_location_line(line) == FAILURE) {
                 return FAILURE;
             }

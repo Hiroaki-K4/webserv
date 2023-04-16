@@ -10,13 +10,13 @@ make
 ```
 
 ## How to run server
-./webserv <port>
+Run ./webserv [config file]. You can choose the config file from configs directory.
 
 ```bash
-./webserv 8080
+./webserv default.conf
 ```
 
-If you ccess http://localhost:8080/, you will get static page like the image below.
+If you access http://localhost:8080/, you will get static page like the image below.
 
 <img src='images/satsuma_hog.png' width='400'>
 

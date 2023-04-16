@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 16:48:11 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 17:13:41 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ(59, config.get_client_max_body_size());
     EXPECT_EQ(1, servers.size());
     EXPECT_EQ(8080, servers[0]->get_port());
-    EXPECT_EQ("example.com", servers[0]->get_host_name());
+    EXPECT_EQ("localhost", servers[0]->get_host_name());
     EXPECT_EQ(1, locations.size());
     EXPECT_EQ("/", locations[0]->get_route());
     EXPECT_EQ("./docs/", locations[0]->get_alias());
