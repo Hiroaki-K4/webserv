@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 16:20:15 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:29:06 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,26 @@ TEST(ConfigParser, ok_error_page) {
     EXPECT_EQ(2, locations[0]->get_error_pages().size());
     EXPECT_EQ("/error_page/403.html", locations[0]->get_error_pages()[403]);
     EXPECT_EQ("/error_page/404.html", locations[0]->get_error_pages()[404]);
+}
+
+TEST(ConfigParser, ok_multiple_host) {
+    ConfigParser config;
+    config.parse_config("multiple_host.conf");
+    std::vector<ServerConfig *> servers = config.get_servers();
+    std::vector<ServerLocation *> locations1 = servers[0]->get_locations();
+    std::vector<ServerLocation *> locations2 = servers[1]->get_locations();
+
+    EXPECT_EQ(2, servers.size());
+
+    EXPECT_EQ(80, servers[0]->get_port());
+    EXPECT_EQ("example.com", servers[0]->get_host_name());
+    EXPECT_EQ(1, locations1.size());
+    EXPECT_EQ("/", locations1[0]->get_route());
+    EXPECT_EQ("./docs/", locations1[0]->get_alias());
+
+    EXPECT_EQ(80, servers[1]->get_port());
+    EXPECT_EQ("webserv.com", servers[1]->get_host_name());
+    EXPECT_EQ(1, locations2.size());
+    EXPECT_EQ("/", locations2[0]->get_route());
+    EXPECT_EQ("./docs/dir/", locations2[0]->get_alias());
 }
