@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/08 16:25:52 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 17:41:45 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,28 @@
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        std::cout << "[ERROR] main: Usage: " << argv[0] << " <port>" << std::endl;
+        std::cout << "[ERROR] main: Usage: " << argv[0] << " <config file>" << std::endl;
         return EXIT_FAILURE;
     }
+
     ConfigParser config_parser;
-    config_parser.parse_config("default.conf");
-    int listen_fd = open_listen_fd(argv[1]);
+    int res = config_parser.parse_config(argv[1]);
+    if (res == FAILURE) {
+        return EXIT_FAILURE;
+    }
+
+    std::vector<ServerConfig *> servers = config_parser.get_servers();
+    std::stringstream ss;
+    ss << servers[0]->get_port();
+    char port[MAXLINE];
+    strcpy(port, ss.str().c_str());
+    int listen_fd = open_listen_fd(port);
     std::cout << "listen_fd: " << listen_fd << std::endl;
     if (listen_fd < 0) {
         return EXIT_FAILURE;
     }
 
     HttpServer server(listen_fd);
-    // server.simple_server_run();
     server.multiple_io_server_run();
 
     return EXIT_FAILURE;
