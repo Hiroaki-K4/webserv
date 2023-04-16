@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:58:29 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:24:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/15 17:19:51 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,9 @@ void ServerLocation::set_index(const std::string index) { this->index = index; }
 
 std::string ServerLocation::get_index() { return this->index; }
 
-void ServerLocation::set_error_page(const std::string error_page) { this->error_page = error_page; }
+void ServerLocation::set_error_pages(const std::map<int, std::string> error_pages) { this->error_pages = error_pages; }
 
-std::string ServerLocation::get_error_page() { return this->error_page; }
+std::map<int, std::string> ServerLocation::get_error_pages() { return this->error_pages; }
 
 void ServerLocation::set_allow_method(const std::vector<std::string> allow_method) { this->allow_method = allow_method; }
 

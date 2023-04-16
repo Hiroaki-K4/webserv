@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:20:12 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:57:33 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,16 @@ ConfigParser::ConfigParser() : OUTSIDE("OUTSIDE"), IN_SERVER("IN_SERVER"), IN_LO
     set_client_max_body_size(-1);
 }
 
-ConfigParser::~ConfigParser() {}
+ConfigParser::~ConfigParser() {
+    std::vector<ServerConfig *> servers = get_servers();
+    for (unsigned int i = 0; i < servers.size(); i++) {
+        std::vector<ServerLocation *> locations = servers[i]->get_locations();
+        for (unsigned int j = 0; j < locations.size(); j++) {
+            delete locations[j];
+        }
+        delete servers[i];
+    }
+}
 
 void ConfigParser::set_state(state line_state) { this->line_state = line_state; }
 
@@ -33,6 +42,10 @@ int ConfigParser::get_client_max_body_size() { return this->client_max_body_size
 
 void ConfigParser::add_server(ServerConfig *server) {
     std::vector<ServerConfig *> new_servers;
+    std::vector<ServerConfig *> exist_servers = get_servers();
+    for (std::vector<ServerConfig *>::iterator it = exist_servers.begin(); it != exist_servers.end(); ++it) {
+        new_servers.push_back(*it);
+    }
     new_servers.push_back(server);
     set_servers(new_servers);
 }
@@ -100,9 +113,16 @@ int ConfigParser::extract_allow_method(std::string value) {
     while ((pos = methods.find(delimiter)) != std::string::npos) {
         token = methods.substr(0, pos);
         methods.erase(0, pos + delimiter.length());
-        std::cout << "method token: " << token << std::endl;
         if (token == "GET" || token == "POST" || token == "DELETE") {
             methods_vec.push_back(token);
+        } else {
+            std::cout << "[ERROR] ConfigParser::extract_allow_method: allow method is invalid" << std::endl;
+            return FAILURE;
+        }
+    }
+    if (methods != "") {
+        if (methods == "GET" || methods == "POST" || methods == "DELETE") {
+            methods_vec.push_back(methods);
         } else {
             std::cout << "[ERROR] ConfigParser::extract_allow_method: allow method is invalid" << std::endl;
             return FAILURE;
@@ -133,6 +153,35 @@ int ConfigParser::parse_outside_line(std::string line) {
         std::cout << "[ERROR] ConfigParser::parse_outside_line: config line is invalid" << std::endl;
         return FAILURE;
     }
+    return SUCCESS;
+}
+
+int ConfigParser::get_error_page(std::string line) {
+    std::string delimiter = " ";
+    size_t pos = 0;
+    std::string error_status;
+    std::vector<std::string> methods_vec;
+    while ((pos = line.find(delimiter)) != std::string::npos) {
+        error_status = line.substr(0, pos);
+        line.erase(0, pos + delimiter.length());
+        if (is_number(error_status)) {
+            break;
+        } else {
+            std::cout << "[ERROR] ConfigParser::get_error_page: error page is invalid" << std::endl;
+            return FAILURE;
+        }
+    }
+
+    if (line != "") {
+        unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+        std::map<int, std::string> error_pages = get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->get_error_pages();
+        error_pages[string_to_int(error_status)] = line;
+        get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_error_pages(error_pages);
+    } else {
+        std::cout << "[ERROR] ConfigParser::get_error_page: error page is invalid" << std::endl;
+        return FAILURE;
+    }
+
     return SUCCESS;
 }
 
@@ -238,8 +287,7 @@ int ConfigParser::parse_location_line(std::string line) {
         std::string result;
         int res = extract_config_string(value, "error_page", result);
         if (res == SUCCESS) {
-            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
-            get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_error_page(result);
+            return get_error_page(result);
         }
         return res;
     } else if ((pos = value.find("allow_method")) != std::string::npos) {
@@ -249,6 +297,19 @@ int ConfigParser::parse_location_line(std::string line) {
         return FAILURE;
     }
 
+    return SUCCESS;
+}
+
+int ConfigParser::check_host_port() {
+    std::vector<ServerConfig *> servers = get_servers();
+    for (unsigned int i = 0; i < servers.size() - 1; i++) {
+        for (unsigned int j = i + 1; j < servers.size(); j++) {
+            if (servers[i]->get_host_name() == servers[j]->get_host_name() && servers[i]->get_port() == servers[j]->get_port()) {
+                std::cout << "[ERROR] ConfigParser::check_host_port: Some servers have duplicate host and port" << std::endl;
+                return FAILURE;
+            }
+        }
+    }
     return SUCCESS;
 }
 
@@ -292,16 +353,5 @@ int ConfigParser::parse_config(const std::string file_name) {
         }
     }
 
-    std::cout << "client size: " << get_client_max_body_size() << std::endl;
-    std::cout << "server size: " << get_servers().size() << std::endl;
-    std::cout << "server port: " << get_servers()[0]->get_port() << std::endl;
-    std::cout << "server host: " << get_servers()[0]->get_host_name() << std::endl;
-    std::cout << "server route: " << get_servers()[0]->get_locations()[0]->get_route() << std::endl;
-    std::cout << "server alias: " << get_servers()[0]->get_locations()[0]->get_alias() << std::endl;
-    std::cout << "server root: " << get_servers()[0]->get_locations()[0]->get_root() << std::endl;
-    std::cout << "server index: " << get_servers()[0]->get_locations()[0]->get_index() << std::endl;
-    std::cout << "server error_page: " << get_servers()[0]->get_locations()[0]->get_error_page() << std::endl;
-    std::cout << "server allow_method: " << get_servers()[0]->get_locations()[0]->get_allow_method()[0] << std::endl;
-
-    return SUCCESS;
+    return check_host_port();
 }

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:57:56 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:23:43 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/15 17:19:41 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define SERVERLOCATION_HPP
 
 #include <iostream>
+#include <map>
 #include <vector>
 
 class ServerLocation {
@@ -28,8 +29,8 @@ class ServerLocation {
     std::string get_root();
     void set_index(const std::string index);
     std::string get_index();
-    void set_error_page(const std::string error_page);
-    std::string get_error_page();
+    void set_error_pages(const std::map<int, std::string> error_pages);
+    std::map<int, std::string> get_error_pages();
     void set_allow_method(const std::vector<std::string> allow_method);
     std::vector<std::string> get_allow_method();
 
@@ -39,6 +40,7 @@ class ServerLocation {
     std::string root;
     std::string index;
     std::string error_page;
+    std::map<int, std::string> error_pages;
     std::vector<std::string> allow_method;
 };
 
