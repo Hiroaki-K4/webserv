@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:52 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/15 16:55:06 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:49:40 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class ConfigParser {
     int parse_outside_line(std::string line);
     int parse_server_line(std::string line);
     int parse_location_line(std::string line);
+    int check_host_port();
 
    private:
     std::vector<ServerConfig *> servers;

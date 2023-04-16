@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 16:38:59 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:48:11 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,4 +109,10 @@ TEST(ConfigParser, ok_multiple_route) {
     EXPECT_EQ("./docs/", locations[0]->get_alias());
     EXPECT_EQ("/b/", locations[1]->get_route());
     EXPECT_EQ("./docs/dir/", locations[1]->get_alias());
+}
+
+TEST(ConfigParser, ng_invalid_port) {
+    ConfigParser config;
+    int res = config.parse_config("invalid_port.conf");
+    EXPECT_EQ(FAILURE, res);
 }

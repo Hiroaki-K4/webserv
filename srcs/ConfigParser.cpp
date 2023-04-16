@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 16:39:07 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/16 16:57:33 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int ConfigParser::get_client_max_body_size() { return this->client_max_body_size
 void ConfigParser::add_server(ServerConfig *server) {
     std::vector<ServerConfig *> new_servers;
     std::vector<ServerConfig *> exist_servers = get_servers();
-    for (std::vector<ServerConfig *>::iterator it = exist_servers.begin() ; it != exist_servers.end(); ++it) {
+    for (std::vector<ServerConfig *>::iterator it = exist_servers.begin(); it != exist_servers.end(); ++it) {
         new_servers.push_back(*it);
     }
     new_servers.push_back(server);
@@ -300,6 +300,19 @@ int ConfigParser::parse_location_line(std::string line) {
     return SUCCESS;
 }
 
+int ConfigParser::check_host_port() {
+    std::vector<ServerConfig *> servers = get_servers();
+    for (unsigned int i = 0; i < servers.size() - 1; i++) {
+        for (unsigned int j = i + 1; j < servers.size(); j++) {
+            if (servers[i]->get_host_name() == servers[j]->get_host_name() && servers[i]->get_port() == servers[j]->get_port()) {
+                std::cout << "[ERROR] ConfigParser::check_host_port: Some servers have duplicate host and port" << std::endl;
+                return FAILURE;
+            }
+        }
+    }
+    return SUCCESS;
+}
+
 int ConfigParser::parse_config(const std::string file_name) {
     std::string config_info = read_file(config_dir, file_name);
     std::istringstream data(config_info);
@@ -340,5 +353,5 @@ int ConfigParser::parse_config(const std::string file_name) {
         }
     }
 
-    return SUCCESS;
+    return check_host_port();
 }

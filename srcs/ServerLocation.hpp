@@ -14,8 +14,8 @@
 #define SERVERLOCATION_HPP
 
 #include <iostream>
-#include <vector>
 #include <map>
+#include <vector>
 
 class ServerLocation {
    public:
