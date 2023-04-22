@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 21:11:15 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 21:46:12 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 HttpResponse::HttpResponse() : http_status(200), default_root_dir("contents") {}
 
-HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_status(200) {
+HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_status(200), default_root_dir("contents") {
     set_conn_fd(conn_fd);
     set_server_config(server_config);
 }
@@ -55,12 +55,11 @@ void HttpResponse::set_server_config(const ServerConfig server_config) { this->s
 
 ServerConfig HttpResponse::get_server_config() { return this->server_config; }
 
-bool HttpResponse::check_uri_is_static(char *uri) {
-    if (!strstr(uri, "cgi")) {
+bool HttpResponse::check_uri_is_static(const std::string uri) {
+    if (uri.find("cgi") == std::string::npos) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 int HttpResponse::create_static_file_name(char *uri, char *file_name) {
@@ -68,6 +67,15 @@ int HttpResponse::create_static_file_name(char *uri, char *file_name) {
     strcat(file_name, uri);
     if (uri[strlen(uri) - 1] == '/') {
         strcat(file_name, "home.html");
+    }
+
+    return SUCCESS;
+}
+
+int HttpResponse::create_static_file_name2(std::string uri, std::string &file_name) {
+    file_name = get_default_root_dir() + uri;
+    if (uri[uri.length() - 1] == '/') {
+        file_name = file_name + "home.html";
     }
 
     return SUCCESS;
@@ -230,10 +238,13 @@ int HttpResponse::check_http_request(RequestParser parser) {
     char target_uri[parser.get_target_uri().length() + 1];
     strcpy(target_uri, parser.get_target_uri().c_str());
 
-    set_is_static(check_uri_is_static(target_uri));
+    set_is_static(check_uri_is_static(parser.get_target_uri()));
     char file_name[MAXLINE];
     if (get_is_static()) {
+        std::string file_name2;
         create_static_file_name(target_uri, file_name);
+        // TODO: Change char * variables to std::string
+        create_static_file_name2(parser.get_target_uri(), file_name2);
         set_file_name(file_name);
     } else {
         char cgi_args[MAXLINE];
