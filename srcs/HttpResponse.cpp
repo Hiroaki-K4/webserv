@@ -6,13 +6,13 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 17:20:10 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 21:11:15 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
 
-HttpResponse::HttpResponse() : http_status(200) {}
+HttpResponse::HttpResponse() : http_status(200), default_root_dir("contents") {}
 
 HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_status(200) {
     set_conn_fd(conn_fd);
@@ -39,11 +39,17 @@ char *HttpResponse::get_file_name() { return this->file_name; }
 
 void HttpResponse::set_cgi_args(const char *cgi_args) { strcpy(this->cgi_args, cgi_args); }
 
+void HttpResponse::set_default_root_dir(const std::string default_root_dir) { this->default_root_dir = default_root_dir; }
+
+std::string HttpResponse::get_default_root_dir() { return this->default_root_dir; }
+
 char *HttpResponse::get_cgi_args() { return this->cgi_args; }
 
 void HttpResponse::set_file_info(const struct stat file_info) { this->file_info = file_info; }
 
-struct stat HttpResponse::get_file_info() { return this->file_info; }
+struct stat HttpResponse::get_file_info() {
+    return this->file_info;
+}
 
 void HttpResponse::set_server_config(const ServerConfig server_config) { this->server_config = server_config; }
 

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 17:11:23 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 21:09:02 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #define HTTPRESPONSE_HPP
 
 #include "RequestParser.hpp"
-#include "webserv.hpp"
 #include "ServerConfig.hpp"
+#include "webserv.hpp"
 
 class HttpResponse {
    public:
@@ -33,6 +33,8 @@ class HttpResponse {
     char *get_file_name();
     void set_cgi_args(const char *cgi_args);
     char *get_cgi_args();
+    void set_default_root_dir(const std::string default_root_dir);
+    std::string get_default_root_dir();
     void set_file_info(const struct stat file_info);
     struct stat get_file_info();
     void set_server_config(const ServerConfig server_config);
@@ -55,6 +57,7 @@ class HttpResponse {
     unsigned int http_status;
     char file_name[MAXLINE];
     char cgi_args[MAXLINE];
+    std::string default_root_dir;
     struct stat file_info;
     ServerConfig server_config;
 };
