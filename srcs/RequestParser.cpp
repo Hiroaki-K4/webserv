@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:26:13 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 15:49:23 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ int RequestParser::handle_http_version(const std::string token) {
         set_is_error_request(true);
         return FAILURE;
     }
+
     return SUCCESS;
 }
 

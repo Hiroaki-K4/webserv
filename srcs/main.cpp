@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 15:30:34 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 16:03:44 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     }
 
     HttpServer server(listen_fd);
-    server.multiple_io_server_run();
+    server.multiple_io_server_run(*(servers[0]));
 
     return EXIT_FAILURE;
 }
