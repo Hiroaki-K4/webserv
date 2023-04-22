@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 16:01:46 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 17:20:10 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,27 +49,37 @@ void HttpResponse::set_server_config(const ServerConfig server_config) { this->s
 
 ServerConfig HttpResponse::get_server_config() { return this->server_config; }
 
-bool HttpResponse::parse_uri(char *uri, char *file_name, char *cgi_args) {
-    char *ptr;
-
-    if (!strstr(uri, "cgi")) {  // Static content
-        strcpy(cgi_args, "");
-        strcpy(file_name, "contents");
-        strcat(file_name, uri);
-        if (uri[strlen(uri) - 1] == '/') strcat(file_name, "home.html");
+bool HttpResponse::check_uri_is_static(char *uri) {
+    if (!strstr(uri, "cgi")) {
         return true;
     } else {
-        ptr = index(uri, '?');
-        if (ptr) {
-            strcpy(cgi_args, ptr + 1);
-            *ptr = '\0';  // Change ? to null terminator
-        } else {
-            strcpy(cgi_args, "");
-        }
-        strcpy(file_name, "./contents");
-        strcat(file_name, uri);
         return false;
     }
+}
+
+int HttpResponse::create_static_file_name(char *uri, char *file_name) {
+    strcpy(file_name, "contents");
+    strcat(file_name, uri);
+    if (uri[strlen(uri) - 1] == '/') {
+        strcat(file_name, "home.html");
+    }
+
+    return SUCCESS;
+}
+
+int HttpResponse::create_dynamic_file_name_and_cgi_args(char *uri, char *file_name, char *cgi_args) {
+    char *ptr;
+    ptr = index(uri, '?');
+    if (ptr) {
+        strcpy(cgi_args, ptr + 1);
+        *ptr = '\0';  // Change ? to null terminator
+    } else {
+        strcpy(cgi_args, "");
+    }
+    strcpy(file_name, "./contents");
+    strcat(file_name, uri);
+
+    return SUCCESS;
 }
 
 void HttpResponse::get_filetype(char *file_name, char *filetype) {
@@ -182,6 +192,7 @@ void HttpResponse::serve_error_page() {
         std::cout << "[ERROR] serve_error_page: File open failed." << std::endl;
         return;
     }
+
     char *srcp;
     srcp = static_cast<char *>(mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
     std::cout << "srcp: " << srcp << std::endl;
@@ -204,27 +215,38 @@ RequestParser HttpResponse::read_http_request() {
     return parser;
 }
 
-void HttpResponse::check_http_request(RequestParser parser) {
+int HttpResponse::check_http_request(RequestParser parser) {
     if (parser.get_is_error_request()) {
         set_http_status(parser.get_http_status());
-        return;
+        return FAILURE;
     }
 
-    char file_name[MAXLINE], cgi_args[MAXLINE];
     char target_uri[parser.get_target_uri().length() + 1];
     strcpy(target_uri, parser.get_target_uri().c_str());
-    bool is_static = parse_uri(target_uri, file_name, cgi_args);
-    set_is_static(is_static);
-    set_file_name(file_name);
-    set_cgi_args(cgi_args);
+
+    set_is_static(check_uri_is_static(target_uri));
+    char file_name[MAXLINE];
+    if (get_is_static()) {
+        create_static_file_name(target_uri, file_name);
+        set_file_name(file_name);
+    } else {
+        char cgi_args[MAXLINE];
+        create_dynamic_file_name_and_cgi_args(target_uri, file_name, cgi_args);
+        set_file_name(file_name);
+        set_cgi_args(cgi_args);
+    }
+
     std::cout << "is_static: " << get_is_static() << " file_name: " << get_file_name() << " cgi_args: " << get_cgi_args() << std::endl;
+
     struct stat file_info;
     if (stat(file_name, &file_info) < 0) {
         set_http_status(404);
         std::cout << "[ERROR] check_http_request: Cloudn't find this file" << std::endl;
-        return;
+        return FAILURE;
     }
     set_file_info(file_info);
+
+    return SUCCESS;
 }
 
 void HttpResponse::serve_contents() {

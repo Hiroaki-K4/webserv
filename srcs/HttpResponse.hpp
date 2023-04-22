@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 16:02:07 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 17:11:23 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,13 +38,15 @@ class HttpResponse {
     void set_server_config(const ServerConfig server_config);
     ServerConfig get_server_config();
 
-    bool parse_uri(char *uri, char *file_name, char *cgi_args);
+    int create_static_file_name(char *uri, char *file_name);
+    int create_dynamic_file_name_and_cgi_args(char *uri, char *file_name, char *cgi_args);
+    bool check_uri_is_static(char *uri);
     void get_filetype(char *file_name, char *filetype);
     int serve_static(char *file_name, int filesize);
     int serve_dynamic(char *file_name, char *cgi_args);
     void serve_error_page();
     RequestParser read_http_request();
-    void check_http_request(RequestParser parser);
+    int check_http_request(RequestParser parser);
     void serve_contents();
 
    private:
