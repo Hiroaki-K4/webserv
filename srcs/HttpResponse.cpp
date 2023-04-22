@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:28:25 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 16:01:46 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,10 @@
 
 HttpResponse::HttpResponse() : http_status(200) {}
 
-HttpResponse::HttpResponse(int conn_fd) : http_status(200) { set_conn_fd(conn_fd); }
+HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_status(200) {
+    set_conn_fd(conn_fd);
+    set_server_config(server_config);
+}
 
 HttpResponse::~HttpResponse() {}
 
@@ -40,9 +43,11 @@ char *HttpResponse::get_cgi_args() { return this->cgi_args; }
 
 void HttpResponse::set_file_info(const struct stat file_info) { this->file_info = file_info; }
 
-struct stat HttpResponse::get_file_info() {
-    return this->file_info;
-}
+struct stat HttpResponse::get_file_info() { return this->file_info; }
+
+void HttpResponse::set_server_config(const ServerConfig server_config) { this->server_config = server_config; }
+
+ServerConfig HttpResponse::get_server_config() { return this->server_config; }
 
 bool HttpResponse::parse_uri(char *uri, char *file_name, char *cgi_args) {
     char *ptr;

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 17:47:10 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 15:39:17 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,7 +313,10 @@ int ConfigParser::check_host_port() {
 }
 
 int ConfigParser::parse_config(const std::string file_name) {
-    std::string config_info = read_file(config_dir, file_name);
+    std::string config_info;
+    if (read_file(config_dir, file_name, config_info) == FAILURE) {
+        return FAILURE;
+    }
     std::istringstream data(config_info);
     std::string line;
     while (1) {

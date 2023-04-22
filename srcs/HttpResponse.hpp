@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:27:49 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 16:02:07 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,12 @@
 
 #include "RequestParser.hpp"
 #include "webserv.hpp"
+#include "ServerConfig.hpp"
 
 class HttpResponse {
    public:
     HttpResponse();
-    HttpResponse(int conn_fd);
+    HttpResponse(int conn_fd, ServerConfig server_config);
     ~HttpResponse();
 
     void set_conn_fd(const int conn_fd);
@@ -34,6 +35,8 @@ class HttpResponse {
     char *get_cgi_args();
     void set_file_info(const struct stat file_info);
     struct stat get_file_info();
+    void set_server_config(const ServerConfig server_config);
+    ServerConfig get_server_config();
 
     bool parse_uri(char *uri, char *file_name, char *cgi_args);
     void get_filetype(char *file_name, char *filetype);
@@ -48,11 +51,10 @@ class HttpResponse {
     int conn_fd;
     bool is_static;
     unsigned int http_status;
-
-    // request info
     char file_name[MAXLINE];
     char cgi_args[MAXLINE];
     struct stat file_info;
+    ServerConfig server_config;
 };
 
 #endif

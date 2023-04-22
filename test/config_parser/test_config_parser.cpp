@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 17:13:41 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 15:45:35 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,5 +114,11 @@ TEST(ConfigParser, ok_multiple_route) {
 TEST(ConfigParser, ng_invalid_port) {
     ConfigParser config;
     int res = config.parse_config("invalid_port.conf");
+    EXPECT_EQ(FAILURE, res);
+}
+
+TEST(ConfigParser, ng_not_exist_config) {
+    ConfigParser config;
+    int res = config.parse_config("not_exist.conf");
     EXPECT_EQ(FAILURE, res);
 }

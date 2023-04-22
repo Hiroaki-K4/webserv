@@ -6,20 +6,24 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 20:56:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/08 17:45:01 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 15:40:03 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
-std::string read_file(const std::string &dir, const std::string &file_name) {
+int read_file(const std::string &dir, const std::string &file_name, std::string &content) {
     std::string file_path = dir + file_name;
     std::ifstream ifs(file_path.c_str());
+    if (!ifs) {
+        std::cout << "[ERROR] read_file: config file is invalid" << std::endl;
+        return FAILURE;
+    }
     std::stringstream ss;
     ss << ifs.rdbuf();
-    std::string file_content = ss.str();
+    content = ss.str();
 
-    return file_content;
+    return SUCCESS;
 }
 
 std::string trim_value(std::string line) {
