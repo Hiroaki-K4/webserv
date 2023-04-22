@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:27:07 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/22 15:29:36 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,21 +23,6 @@ HttpServer::~HttpServer() { std::cout << "Goodbye, Webserv." << std::endl; }
 void HttpServer::set_listen_fd(const int listen_fd) { this->listen_fd = listen_fd; }
 
 int HttpServer::get_listen_fd() { return this->listen_fd; }
-
-void HttpServer::simple_server_run() {
-    while (1) {
-        struct sockaddr_storage clientaddr;
-        socklen_t client_len = sizeof(clientaddr);
-        int conn_fd = accept(get_listen_fd(), (sockaddr *)&clientaddr, &client_len);
-        std::cout << "conn_fd: " << conn_fd << std::endl;
-        char host_name[MAXLINE], port[MAXLINE];
-        getnameinfo((sockaddr *)&clientaddr, client_len, host_name, MAXLINE, port, MAXLINE, 0);
-        std::cout << "Accepted connection from " << host_name << ":" << port << std::endl;
-        HttpResponse resp(conn_fd);
-        resp.serve_contents();
-        close(conn_fd);
-    }
-}
 
 void HttpServer::multiple_io_server_run() {
     fd_set read_set, ready_set;
