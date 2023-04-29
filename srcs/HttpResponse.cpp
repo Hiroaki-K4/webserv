@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 21:46:12 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/29 17:10:46 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,17 +62,7 @@ bool HttpResponse::check_uri_is_static(const std::string uri) {
     return false;
 }
 
-int HttpResponse::create_static_file_name(char *uri, char *file_name) {
-    strcpy(file_name, "contents");
-    strcat(file_name, uri);
-    if (uri[strlen(uri) - 1] == '/') {
-        strcat(file_name, "home.html");
-    }
-
-    return SUCCESS;
-}
-
-int HttpResponse::create_static_file_name2(std::string uri, std::string &file_name) {
+int HttpResponse::create_static_file_name(std::string uri, std::string &file_name) {
     file_name = get_default_root_dir() + uri;
     if (uri[uri.length() - 1] == '/') {
         file_name = file_name + "home.html";
@@ -81,17 +71,14 @@ int HttpResponse::create_static_file_name2(std::string uri, std::string &file_na
     return SUCCESS;
 }
 
-int HttpResponse::create_dynamic_file_name_and_cgi_args(char *uri, char *file_name, char *cgi_args) {
-    char *ptr;
-    ptr = index(uri, '?');
-    if (ptr) {
-        strcpy(cgi_args, ptr + 1);
-        *ptr = '\0';  // Change ? to null terminator
-    } else {
-        strcpy(cgi_args, "");
+int HttpResponse::create_dynamic_file_name_and_cgi_args(std::string uri, std::string &file_name, std::string &cgi_args) {
+    std::size_t found = uri.find('?');
+    if (found != std::string::npos) {
+        cgi_args = uri.substr(found + 1);
+        uri = uri.substr(0, found);
     }
-    strcpy(file_name, "./contents");
-    strcat(file_name, uri);
+
+    file_name = "./contents" + uri;
 
     return SUCCESS;
 }
@@ -235,28 +222,24 @@ int HttpResponse::check_http_request(RequestParser parser) {
         return FAILURE;
     }
 
-    char target_uri[parser.get_target_uri().length() + 1];
-    strcpy(target_uri, parser.get_target_uri().c_str());
-
     set_is_static(check_uri_is_static(parser.get_target_uri()));
-    char file_name[MAXLINE];
+
+    std::string file_name;
     if (get_is_static()) {
-        std::string file_name2;
-        create_static_file_name(target_uri, file_name);
-        // TODO: Change char * variables to std::string
-        create_static_file_name2(parser.get_target_uri(), file_name2);
-        set_file_name(file_name);
+        create_static_file_name(parser.get_target_uri(), file_name);
+        std::cout << "file_name: " << file_name << std::endl;
+        set_file_name(file_name.c_str());
     } else {
-        char cgi_args[MAXLINE];
-        create_dynamic_file_name_and_cgi_args(target_uri, file_name, cgi_args);
-        set_file_name(file_name);
-        set_cgi_args(cgi_args);
+        std::string cgi_args;
+        create_dynamic_file_name_and_cgi_args(parser.get_target_uri(), file_name, cgi_args);
+        set_file_name(file_name.c_str());
+        set_cgi_args(cgi_args.c_str());
     }
 
     std::cout << "is_static: " << get_is_static() << " file_name: " << get_file_name() << " cgi_args: " << get_cgi_args() << std::endl;
 
     struct stat file_info;
-    if (stat(file_name, &file_info) < 0) {
+    if (stat(file_name.c_str(), &file_info) < 0) {
         set_http_status(404);
         std::cout << "[ERROR] check_http_request: Cloudn't find this file" << std::endl;
         return FAILURE;

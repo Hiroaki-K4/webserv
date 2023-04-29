@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 21:34:15 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/29 17:11:30 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,8 @@ class HttpResponse {
     void set_server_config(const ServerConfig server_config);
     ServerConfig get_server_config();
 
-    int create_static_file_name(char *uri, char *file_name);
-    int create_static_file_name2(std::string uri, std::string &file_name);
-    int create_dynamic_file_name_and_cgi_args(char *uri, char *file_name, char *cgi_args);
+    int create_static_file_name(std::string uri, std::string &file_name);
+    int create_dynamic_file_name_and_cgi_args(std::string uri, std::string &file_name, std::string &cgi_args);
     bool check_uri_is_static(const std::string uri);
     void get_filetype(char *file_name, char *filetype);
     int serve_static(char *file_name, int filesize);
