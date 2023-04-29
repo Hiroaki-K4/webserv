@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/29 17:10:46 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/29 18:10:26 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,25 @@ RequestParser HttpResponse::read_http_request() {
     return parser;
 }
 
+int HttpResponse::create_search_dir(std::string target_uri, std::string &search_dir) {
+    std::cout << "create_search_dir: " << target_uri << std::endl;
+    std::cout << "create_search_dir: " << search_dir << std::endl;
+
+    size_t found = 0;
+    while (found < target_uri.length()) {
+        found = target_uri.find('/', found);
+        std::cout << "found2: " << found << std::endl;
+        if (found == std::string::npos) {
+            break;
+        }
+        std::string route = target_uri.substr(0, found + 1);
+        std::cout << "route: " << route << std::endl;
+        // TODO: Add a process to find a search directory from location
+        found += 1;
+    }
+    return SUCCESS;
+}
+
 int HttpResponse::check_http_request(RequestParser parser) {
     if (parser.get_is_error_request()) {
         set_http_status(parser.get_http_status());
@@ -225,9 +244,11 @@ int HttpResponse::check_http_request(RequestParser parser) {
     set_is_static(check_uri_is_static(parser.get_target_uri()));
 
     std::string file_name;
+    std::string search_dir;
+    create_search_dir(parser.get_target_uri(), search_dir);
     if (get_is_static()) {
+        std::cout << "parser.get_target_uri: " << parser.get_target_uri() << std::endl;
         create_static_file_name(parser.get_target_uri(), file_name);
-        std::cout << "file_name: " << file_name << std::endl;
         set_file_name(file_name.c_str());
     } else {
         std::string cgi_args;
