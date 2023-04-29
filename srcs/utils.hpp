@@ -14,9 +14,9 @@
 #define UTILS_HPP
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <iostream>
 
 #define SUCCESS 0
 #define FAILURE -1
