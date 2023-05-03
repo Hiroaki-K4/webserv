@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/29 21:28:41 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/03 16:26:21 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,7 @@ bool HttpResponse::check_location_info(std::string route, ServerLocation **locat
 
     std::vector<ServerLocation *> locations = get_server_config().get_locations();
     std::vector<std::string> routes;
-    for(std::vector<ServerLocation *>::iterator itr = locations.begin(); itr != locations.end(); ++itr) {
+    for (std::vector<ServerLocation *>::iterator itr = locations.begin(); itr != locations.end(); ++itr) {
         if (route == (*itr)->get_route()) {
             *location = (*itr);
             have_location = true;
@@ -243,10 +243,10 @@ int HttpResponse::create_search_dir(std::string target_uri, std::string &search_
         ServerLocation *location = new ServerLocation();
         if (check_location_info(route, &location)) {
             search_dir = location->get_root();
-            // TODO: Fix memory leak
-            delete []location;
+            delete location;
             return SUCCESS;
         }
+        delete location;
         found += 1;
     }
 
