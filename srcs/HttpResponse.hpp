@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/29 17:11:30 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/04/29 21:25:35 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "RequestParser.hpp"
 #include "ServerConfig.hpp"
+#include "ServerLocation.hpp"
 #include "webserv.hpp"
 
 class HttpResponse {
@@ -48,6 +49,8 @@ class HttpResponse {
     int serve_dynamic(char *file_name, char *cgi_args);
     void serve_error_page();
     RequestParser read_http_request();
+    bool check_location_info(std::string route, ServerLocation **location);
+    int create_search_dir(std::string target_uri, std::string &search_dir);
     int check_http_request(RequestParser parser);
     void serve_contents();
 

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 15:45:35 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/03 16:26:05 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ(1, locations.size());
     EXPECT_EQ("/", locations[0]->get_route());
     EXPECT_EQ("./docs/", locations[0]->get_alias());
-    EXPECT_EQ("/var/www/html", locations[0]->get_root());
+    EXPECT_EQ("contents/", locations[0]->get_root());
     EXPECT_EQ("index.html", locations[0]->get_index());
     EXPECT_EQ(1, locations[0]->get_error_pages().size());
     EXPECT_EQ("/error_page/404.html", locations[0]->get_error_pages()[404]);

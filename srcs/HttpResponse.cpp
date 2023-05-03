@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/29 17:10:46 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/03 16:26:21 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,43 @@ RequestParser HttpResponse::read_http_request() {
     return parser;
 }
 
+bool HttpResponse::check_location_info(std::string route, ServerLocation **location) {
+    bool have_location = false;
+
+    std::vector<ServerLocation *> locations = get_server_config().get_locations();
+    std::vector<std::string> routes;
+    for (std::vector<ServerLocation *>::iterator itr = locations.begin(); itr != locations.end(); ++itr) {
+        if (route == (*itr)->get_route()) {
+            *location = (*itr);
+            have_location = true;
+        }
+    }
+
+    return have_location;
+}
+
+int HttpResponse::create_search_dir(std::string target_uri, std::string &search_dir) {
+    size_t found = 0;
+    while (found < target_uri.length()) {
+        found = target_uri.find('/', found);
+        if (found == std::string::npos) {
+            break;
+        }
+        std::string route = target_uri.substr(0, found + 1);
+
+        ServerLocation *location = new ServerLocation();
+        if (check_location_info(route, &location)) {
+            search_dir = location->get_root();
+            delete location;
+            return SUCCESS;
+        }
+        delete location;
+        found += 1;
+    }
+
+    return SUCCESS;
+}
+
 int HttpResponse::check_http_request(RequestParser parser) {
     if (parser.get_is_error_request()) {
         set_http_status(parser.get_http_status());
@@ -225,9 +262,14 @@ int HttpResponse::check_http_request(RequestParser parser) {
     set_is_static(check_uri_is_static(parser.get_target_uri()));
 
     std::string file_name;
+    std::string search_dir;
+    create_search_dir(parser.get_target_uri(), search_dir);
+    if (search_dir != "") {
+        set_default_root_dir(search_dir);
+    }
     if (get_is_static()) {
+        std::cout << "parser.get_target_uri: " << parser.get_target_uri() << std::endl;
         create_static_file_name(parser.get_target_uri(), file_name);
-        std::cout << "file_name: " << file_name << std::endl;
         set_file_name(file_name.c_str());
     } else {
         std::string cgi_args;
