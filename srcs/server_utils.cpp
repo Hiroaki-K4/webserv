@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 21:05:49 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/03 17:21:57 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "RequestParser.hpp"
 #include "webserv.hpp"
 
-int open_listen_fd(char *port) {
+int open_listen_fd(char *host_name, char *port) {
     int listen_fd, opt_val = 1;
     char buf[20];
     struct addrinfo hints, *listp, *p;
@@ -24,7 +24,10 @@ int open_listen_fd(char *port) {
     // When specifying multiple flags in ai_flags, specify them by bitwise OR them.
     hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;  // AI_PASSIVE->server
     hints.ai_flags = AI_NUMERICSERV;              // port should be string include port number.
-    getaddrinfo(NULL, port, &hints, &listp);
+    if (getaddrinfo(host_name, port, &hints, &listp) < 0) {
+        std::cout << "[ERROR] open_listen_fd: server info is invalid" << std::endl;
+        return FAILURE;
+    }
 
     for (p = listp; p; p = p->ai_next) {
         if ((listen_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
