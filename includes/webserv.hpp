@@ -37,6 +37,6 @@ void rio_readinitb(rio_t *rp, int fd);
 ssize_t rio_writen(int fd, void *usrbuf, size_t n);
 ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen, bool ignore_new_line);
 void serve_contents(int fd);
-int open_listen_fd(char *port);
+int open_listen_fd(char *host_name, char *port);
 
 #endif
