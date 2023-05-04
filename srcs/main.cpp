@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/04 16:46:20 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/04 17:03:34 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,10 @@ int main(int argc, char *argv[]) {
     std::vector<ServerConfig *> servers = config_parser.get_servers();
 
     pthread_t *thread = (pthread_t *)malloc(sizeof(pthread_t) * servers.size());
-    if (!thread) return EXIT_FAILURE;
+    if (!thread) {
+        std::cout << "[ERROR] main: thread allocation failed" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     for (unsigned int i = 0; i < servers.size(); i++) {
         if (pthread_create(&thread[i], NULL, server_thread, servers[i]) != 0) {
