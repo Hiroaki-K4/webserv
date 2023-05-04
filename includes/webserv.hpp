@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
