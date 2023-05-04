@@ -44,7 +44,7 @@ make client
 ./client ::1 8080 1 0
 ```
 
-You can request static contents from the server. In the example below, the server will return the contents of home.html
+You can request static contents from the server. In the example below, the server will return the contents of index.html
 
 ```bash
 GET / HTTP/1.1

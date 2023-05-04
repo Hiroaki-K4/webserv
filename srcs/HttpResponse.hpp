@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/29 21:25:35 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/04 17:25:45 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ class HttpResponse {
     char *get_cgi_args();
     void set_default_root_dir(const std::string default_root_dir);
     std::string get_default_root_dir();
+    void set_default_file(const std::string default_file);
+    std::string get_default_file();
     void set_file_info(const struct stat file_info);
     struct stat get_file_info();
     void set_server_config(const ServerConfig server_config);
@@ -50,7 +52,7 @@ class HttpResponse {
     void serve_error_page();
     RequestParser read_http_request();
     bool check_location_info(std::string route, ServerLocation **location);
-    int create_search_dir(std::string target_uri, std::string &search_dir);
+    int extract_location_info(std::string target_uri, std::string &search_dir);
     int check_http_request(RequestParser parser);
     void serve_contents();
 
@@ -61,6 +63,7 @@ class HttpResponse {
     char file_name[MAXLINE];
     char cgi_args[MAXLINE];
     std::string default_root_dir;
+    std::string default_file;
     struct stat file_info;
     ServerConfig server_config;
 };

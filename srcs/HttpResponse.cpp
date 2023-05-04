@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/03 16:26:21 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/04 17:38:40 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,10 @@ void HttpResponse::set_default_root_dir(const std::string default_root_dir) { th
 
 std::string HttpResponse::get_default_root_dir() { return this->default_root_dir; }
 
+void HttpResponse::set_default_file(const std::string default_file) { this->default_file = default_file; }
+
+std::string HttpResponse::get_default_file() { return this->default_file; }
+
 char *HttpResponse::get_cgi_args() { return this->cgi_args; }
 
 void HttpResponse::set_file_info(const struct stat file_info) { this->file_info = file_info; }
@@ -65,7 +69,7 @@ bool HttpResponse::check_uri_is_static(const std::string uri) {
 int HttpResponse::create_static_file_name(std::string uri, std::string &file_name) {
     file_name = get_default_root_dir() + uri;
     if (uri[uri.length() - 1] == '/') {
-        file_name = file_name + "home.html";
+        file_name = file_name + get_default_file();
     }
 
     return SUCCESS;
@@ -231,7 +235,7 @@ bool HttpResponse::check_location_info(std::string route, ServerLocation **locat
     return have_location;
 }
 
-int HttpResponse::create_search_dir(std::string target_uri, std::string &search_dir) {
+int HttpResponse::extract_location_info(std::string target_uri, std::string &search_dir) {
     size_t found = 0;
     while (found < target_uri.length()) {
         found = target_uri.find('/', found);
@@ -243,6 +247,7 @@ int HttpResponse::create_search_dir(std::string target_uri, std::string &search_
         ServerLocation *location = new ServerLocation();
         if (check_location_info(route, &location)) {
             search_dir = location->get_root();
+            set_default_file(location->get_index());
             delete location;
             return SUCCESS;
         }
@@ -263,12 +268,11 @@ int HttpResponse::check_http_request(RequestParser parser) {
 
     std::string file_name;
     std::string search_dir;
-    create_search_dir(parser.get_target_uri(), search_dir);
+    extract_location_info(parser.get_target_uri(), search_dir);
     if (search_dir != "") {
         set_default_root_dir(search_dir);
     }
     if (get_is_static()) {
-        std::cout << "parser.get_target_uri: " << parser.get_target_uri() << std::endl;
         create_static_file_name(parser.get_target_uri(), file_name);
         set_file_name(file_name.c_str());
     } else {
