@@ -16,7 +16,7 @@
 #include "webserv.hpp"
 
 void *server_thread(void *arg) {
-    ServerConfig* server = (ServerConfig *)arg;
+    ServerConfig *server = (ServerConfig *)arg;
 
     std::stringstream ss;
     ss << server->get_port();
@@ -40,12 +40,11 @@ void *server_thread(void *arg) {
     return NULL;
 }
 
-void exit_thread(pthread_t *thread, int thread_num)
-{
-	for (int i = 0; i < thread_num; i++) {
-		pthread_join(thread[i], NULL);
-	}
-	free(thread);
+void exit_thread(pthread_t *thread, int thread_num) {
+    for (int i = 0; i < thread_num; i++) {
+        pthread_join(thread[i], NULL);
+    }
+    free(thread);
 }
 
 int main(int argc, char *argv[]) {
@@ -62,8 +61,7 @@ int main(int argc, char *argv[]) {
     std::vector<ServerConfig *> servers = config_parser.get_servers();
 
     pthread_t *thread = (pthread_t *)malloc(sizeof(pthread_t) * servers.size());
-    if (!thread)
-        return EXIT_FAILURE;
+    if (!thread) return EXIT_FAILURE;
 
     for (unsigned int i = 0; i < servers.size(); i++) {
         if (pthread_create(&thread[i], NULL, server_thread, servers[i]) != 0) {
