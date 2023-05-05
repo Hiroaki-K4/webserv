@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/04 17:25:45 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/05 17:08:14 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ class HttpResponse {
     struct stat get_file_info();
     void set_server_config(const ServerConfig server_config);
     ServerConfig get_server_config();
+    void set_location(const ServerLocation location);
+    ServerLocation get_location();
 
     int create_static_file_name(std::string uri, std::string &file_name);
     int create_dynamic_file_name_and_cgi_args(std::string uri, std::string &file_name, std::string &cgi_args);
@@ -66,6 +68,7 @@ class HttpResponse {
     std::string default_file;
     struct stat file_info;
     ServerConfig server_config;
+    ServerLocation location;
 };
 
 #endif

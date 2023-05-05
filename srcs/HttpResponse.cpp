@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/04 17:38:40 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/05 17:24:15 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,10 @@ bool HttpResponse::check_uri_is_static(const std::string uri) {
     }
     return false;
 }
+
+void HttpResponse::set_location(const ServerLocation location) { this->location = location; }
+
+ServerLocation HttpResponse::get_location() { return this->location; }
 
 int HttpResponse::create_static_file_name(std::string uri, std::string &file_name) {
     file_name = get_default_root_dir() + uri;
@@ -166,7 +170,15 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
 }
 
 void HttpResponse::serve_error_page() {
-    char file_name[MAXLINE] = "contents/error.html";
+    std::string error_file_name;
+    if (get_location().get_error_pages().find(get_http_status()) != get_location().get_error_pages().end()) {
+        error_file_name = get_location().get_root() + get_location().get_error_pages()[get_http_status()];
+    } else {
+        error_file_name = get_location().get_root() + "error.html";
+    }
+    char file_name[MAXLINE];
+    strcpy(file_name, error_file_name.c_str());
+
     struct stat sbuf;
     if (stat(file_name, &sbuf) < 0) {
         set_http_status(500);
@@ -248,6 +260,7 @@ int HttpResponse::extract_location_info(std::string target_uri, std::string &sea
         if (check_location_info(route, &location)) {
             search_dir = location->get_root();
             set_default_file(location->get_index());
+            set_location(*location);
             delete location;
             return SUCCESS;
         }
