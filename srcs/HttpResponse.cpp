@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/05 17:24:15 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/05 18:24:04 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,10 @@ void HttpResponse::set_server_config(const ServerConfig server_config) { this->s
 
 ServerConfig HttpResponse::get_server_config() { return this->server_config; }
 
+void HttpResponse::set_request_parser(RequestParser *request_parser) { this->request_parser = request_parser; }
+
+RequestParser *HttpResponse::get_request_parser() { return this->request_parser; }
+
 bool HttpResponse::check_uri_is_static(const std::string uri) {
     if (uri.find("cgi") == std::string::npos) {
         return true;
@@ -104,7 +108,7 @@ void HttpResponse::get_filetype(char *file_name, char *filetype) {
         strcpy(filetype, "text/plain");
 }
 
-int HttpResponse::serve_static(char *file_name, int filesize) {
+int HttpResponse::serve_static_with_get_method(char *file_name, int file_size) {
     // Send response body to client
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == FAILURE) {
@@ -112,14 +116,14 @@ int HttpResponse::serve_static(char *file_name, int filesize) {
         std::cout << "[ERROR] serve_static: File open failed." << std::endl;
         return FAILURE;
     }
-    char *srcp = static_cast<char *>(mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0));
+    char *srcp = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
     close(src_fd);
 
     char filetype[MAXLINE];
     // Send response headers to client
     get_filetype(file_name, filetype);
     std::stringstream ss;
-    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << filesize << "\r\n"
+    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << file_size << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
     std::string out;
     out = ss.str();
@@ -132,15 +136,31 @@ int HttpResponse::serve_static(char *file_name, int filesize) {
     }
     std::cout << "Response headers:" << std::endl;
     std::cout << resp_head;
-    if (rio_writen(get_conn_fd(), srcp, filesize) == FAILURE) {
+    if (rio_writen(get_conn_fd(), srcp, file_size) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
-        munmap(srcp, filesize);
+        munmap(srcp, file_size);
         return FAILURE;
     }
-    munmap(srcp, filesize);
+    munmap(srcp, file_size);
 
     return SUCCESS;
+}
+
+int HttpResponse::serve_static(char *file_name, int file_size) {
+    if (get_location().get_allow_method().size() > 0 &&
+        std::find(get_location().get_allow_method().begin(), get_location().get_allow_method().end(), get_request_parser()->get_request_method()) ==
+            get_location().get_allow_method().end()) {
+        std::cout << "[ERROR] HttpResponse::serve_static: Request method is not allowed" << std::endl;
+        return FAILURE;
+    }
+
+    // TODO: Add POST and DELETE
+    // if (get_request_parser()->get_request_method() == "GET") {
+    //     return serve_static_with_get_method(file_name, file_size);
+    // }
+
+    return serve_static_with_get_method(file_name, file_size);
 }
 
 int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
@@ -277,6 +297,7 @@ int HttpResponse::check_http_request(RequestParser parser) {
         return FAILURE;
     }
 
+    set_request_parser(&parser);
     set_is_static(check_uri_is_static(parser.get_target_uri()));
 
     std::string file_name;

@@ -6,12 +6,14 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/05 17:08:14 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/05 18:06:27 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPRESPONSE_HPP
 #define HTTPRESPONSE_HPP
+
+#include <algorithm>
 
 #include "RequestParser.hpp"
 #include "ServerConfig.hpp"
@@ -44,12 +46,15 @@ class HttpResponse {
     ServerConfig get_server_config();
     void set_location(const ServerLocation location);
     ServerLocation get_location();
+    void set_request_parser(RequestParser *request_parser);
+    RequestParser *get_request_parser();
 
     int create_static_file_name(std::string uri, std::string &file_name);
     int create_dynamic_file_name_and_cgi_args(std::string uri, std::string &file_name, std::string &cgi_args);
     bool check_uri_is_static(const std::string uri);
     void get_filetype(char *file_name, char *filetype);
-    int serve_static(char *file_name, int filesize);
+    int serve_static_with_get_method(char *file_name, int file_size);
+    int serve_static(char *file_name, int file_size);
     int serve_dynamic(char *file_name, char *cgi_args);
     void serve_error_page();
     RequestParser read_http_request();
@@ -69,6 +74,7 @@ class HttpResponse {
     struct stat file_info;
     ServerConfig server_config;
     ServerLocation location;
+    RequestParser *request_parser;
 };
 
 #endif
