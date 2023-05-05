@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/03 16:26:05 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/05 17:25:37 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ("contents/", locations[0]->get_root());
     EXPECT_EQ("index.html", locations[0]->get_index());
     EXPECT_EQ(1, locations[0]->get_error_pages().size());
-    EXPECT_EQ("/error_page/404.html", locations[0]->get_error_pages()[404]);
+    EXPECT_EQ("404_error.html", locations[0]->get_error_pages()[404]);
     EXPECT_EQ(2, locations[0]->get_allow_method().size());
     EXPECT_EQ("GET", locations[0]->get_allow_method()[0]);
     EXPECT_EQ("POST", locations[0]->get_allow_method()[1]);
