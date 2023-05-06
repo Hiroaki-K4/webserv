@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/05 17:25:37 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 18:24:13 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,15 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ(2, locations[0]->get_allow_method().size());
     EXPECT_EQ("GET", locations[0]->get_allow_method()[0]);
     EXPECT_EQ("POST", locations[0]->get_allow_method()[1]);
+}
+
+TEST(ConfigParser, ok_autoindex) {
+    ConfigParser config;
+    config.parse_config("autoindex.conf");
+    std::vector<ServerConfig *> servers = config.get_servers();
+    std::vector<ServerLocation *> locations = servers[0]->get_locations();
+
+    EXPECT_EQ(true, locations[0]->get_autoindex());
 }
 
 TEST(ConfigParser, ok_error_page) {
