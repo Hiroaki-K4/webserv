@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:26:03 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 17:02:06 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class RequestParser {
     const body_type RAW;
 
     RequestParser();
+    RequestParser(int client_max_body_size);
     ~RequestParser();
     void set_state(state line_state);
     state get_state();
@@ -65,6 +66,8 @@ class RequestParser {
     std::string get_body();
     void set_http_status(const unsigned int http_status);
     unsigned int get_http_status();
+    void set_client_max_body_size(int client_max_body_size);
+    int get_client_max_body_size();
 
     int handle_request_method(const std::string token);
     int handle_http_version(const std::string token);
@@ -88,6 +91,7 @@ class RequestParser {
     std::string body;
     unsigned int http_status;
     bool is_error_request;
+    int client_max_body_size;
 };
 
 #endif

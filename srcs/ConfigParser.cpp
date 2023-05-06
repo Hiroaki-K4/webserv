@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 15:39:17 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 16:28:17 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 ConfigParser::ConfigParser() : OUTSIDE("OUTSIDE"), IN_SERVER("IN_SERVER"), IN_LOCATION("IN_LOCATION") {
     set_state(OUTSIDE);
-    set_client_max_body_size(-1);
+    set_client_max_body_size(1024);
 }
 
 ConfigParser::~ConfigParser() {

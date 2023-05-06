@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/27 08:18:00 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/22 15:44:16 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 17:20:16 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,17 @@ TEST(RequestParser, ng_request_header_wrong_body_info) {
     std::string content;
     read_file(TEST_DIR, "ng_request_header_wrong_body_info.txt", content);
     RequestParser parser;
+    int res = parser.parse_request(content);
+    EXPECT_EQ(FAILURE, res);
+
+    EXPECT_EQ(true, parser.get_is_error_request());
+}
+
+TEST(RequestParser, ng_client_max_body_size) {
+    std::string content;
+    read_file(TEST_DIR, "ok_normal_post.txt", content);
+    int client_max_body_size = 67;
+    RequestParser parser(client_max_body_size);
     int res = parser.parse_request(content);
     EXPECT_EQ(FAILURE, res);
 

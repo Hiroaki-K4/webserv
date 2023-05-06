@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:02:02 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/09 21:25:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 16:50:14 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ class ServerConfig {
     std::string get_host_name();
     void set_port(const int port);
     int get_port();
+    void set_client_max_body_size(int client_max_body_size);
+    int get_client_max_body_size();
     void set_locations(const std::vector<ServerLocation *> locations);
     std::vector<ServerLocation *> get_locations();
     void add_location(ServerLocation *location);
@@ -35,6 +37,7 @@ class ServerConfig {
     int port;
     std::string default_error_page;
     bool is_default_server;
+    int client_max_body_size;
     std::vector<ServerLocation *> locations;
 };
 
