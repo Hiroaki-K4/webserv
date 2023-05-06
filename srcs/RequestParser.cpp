@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/04 17:38:24 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 17:19:25 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,23 @@ RequestParser::RequestParser()
     set_state(REQ_LINE);
     set_is_error_request(false);
     set_http_status(500);
+    set_client_max_body_size(1024);
+}
+
+RequestParser::RequestParser(int client_max_body_size)
+    : REQ_LINE("REQ_LINE"),
+      REQ_HEADER("REQ_HEADER"),
+      REQ_BODY("REQ_BODY"),
+      GET("GET"),
+      POST("POST"),
+      DELETE("DELETE"),
+      HTTP_VERSION("HTTP/1.1"),
+      ENCODING("ENCODING"),
+      RAW("RAW") {
+    set_state(REQ_LINE);
+    set_is_error_request(false);
+    set_http_status(500);
+    set_client_max_body_size(client_max_body_size);
 }
 
 RequestParser::~RequestParser() { std::cout << "Goodbye, RequestParser." << std::endl; }
@@ -68,6 +85,10 @@ std::string RequestParser::get_body() { return this->body; }
 void RequestParser::set_http_status(const unsigned int http_status) { this->http_status = http_status; }
 
 unsigned int RequestParser::get_http_status() { return this->http_status; };
+
+void RequestParser::set_client_max_body_size(int client_max_body_size) { this->client_max_body_size = client_max_body_size; }
+
+int RequestParser::get_client_max_body_size() { return this->client_max_body_size; }
 
 int RequestParser::handle_request_method(const std::string token) {
     if (token == GET || token == POST || token == DELETE) {
@@ -157,6 +178,12 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
     if (get_body_type() == RAW) {
         int content_len;
         std::istringstream(get_header().at("Content-Length")) >> content_len;
+        if (content_len > get_client_max_body_size()) {
+            std::cout << "[ERROR] RequestParser::parse_request_body: client body size is too big" << std::endl;
+            set_http_status(400);
+            set_is_error_request(true);
+            return FAILURE;
+        }
         char buf[content_len + 1];
 
         data.read(buf, content_len);
@@ -166,7 +193,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         return SUCCESS;
     } else if (get_body_type() == ENCODING) {
         unsigned int chunk_size;
-        unsigned int length = 0;
+        int length = 0;
         std::string body;
         while (1) {
             std::getline(data, line, '\n');
@@ -186,6 +213,12 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
                 std::cout << "[INFO] RequestParser::parse_request_body: Reached EOF" << std::endl;
                 break;
             }
+        }
+        if (length > get_client_max_body_size()) {
+            std::cout << "[ERROR] RequestParser::parse_request_body: client body size is too big" << std::endl;
+            set_http_status(400);
+            set_is_error_request(true);
+            return FAILURE;
         }
         set_body(body);
         std::stringstream ss;
@@ -282,8 +315,7 @@ int RequestParser::parse_request(const std::string request) {
         if (is_valid_header()) {
             if (is_include_request_body()) {
                 set_state(REQ_BODY);
-                parse_request_body(request, line_count);
-                return SUCCESS;
+                return parse_request_body(request, line_count);
             } else {
                 return SUCCESS;
             }

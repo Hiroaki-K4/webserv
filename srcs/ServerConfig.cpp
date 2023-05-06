@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:01:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/16 16:44:50 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 16:51:42 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,10 @@ std::string ServerConfig::get_host_name() { return this->host_name; }
 void ServerConfig::set_port(const int port) { this->port = port; }
 
 int ServerConfig::get_port() { return this->port; }
+
+void ServerConfig::set_client_max_body_size(int client_max_body_size) { this->client_max_body_size = client_max_body_size; }
+
+int ServerConfig::get_client_max_body_size() { return this->client_max_body_size; }
 
 void ServerConfig::set_locations(const std::vector<ServerLocation *> locations) { this->locations = locations; }
 

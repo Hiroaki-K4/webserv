@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/04 17:03:34 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 16:54:33 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,9 @@ int main(int argc, char *argv[]) {
     }
 
     std::vector<ServerConfig *> servers = config_parser.get_servers();
+    for (unsigned int i = 0; i < servers.size(); i++) {
+        servers[i]->set_client_max_body_size(config_parser.get_client_max_body_size());
+    }
 
     pthread_t *thread = (pthread_t *)malloc(sizeof(pthread_t) * servers.size());
     if (!thread) {

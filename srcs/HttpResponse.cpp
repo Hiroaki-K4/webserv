@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/05 18:24:04 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 17:20:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,7 +246,7 @@ RequestParser HttpResponse::read_http_request() {
     std::cout << "Request headers:" << std::endl;
     std::cout << buf;
 
-    RequestParser parser;
+    RequestParser parser(get_server_config().get_client_max_body_size());
     parser.parse_request(buf);
 
     return parser;
