@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/06 16:28:17 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 18:22:02 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,6 +258,21 @@ int ConfigParser::parse_location_line(std::string line) {
     if (value == "}") {
         set_state(IN_SERVER);
         return SUCCESS;
+    } else if ((pos = value.find("autoindex")) != std::string::npos) {
+        std::string result;
+        int res = extract_config_string(value, "autoindex", result);
+        if (res == SUCCESS) {
+            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+            if (result == "on") {
+                get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_autoindex(true);
+            } else if (result == "off") {
+                get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_autoindex(false);
+            } else {
+                std::cout << "[ERROR] ConfigParser::parse_location_line: The value of autoindex is wrong" << std::endl;
+                return FAILURE;
+            }
+        }
+        return res;
     } else if ((pos = value.find("alias")) != std::string::npos) {
         std::string result;
         int res = extract_config_string(value, "alias", result);

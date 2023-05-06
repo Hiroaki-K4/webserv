@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:57:56 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/15 17:19:41 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/06 17:49:18 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ class ServerLocation {
     std::map<int, std::string> get_error_pages();
     void set_allow_method(const std::vector<std::string> allow_method);
     std::vector<std::string> get_allow_method();
+    void set_autoindex(bool autoindex);
+    bool get_autoindex();
 
    private:
     std::string route;
@@ -40,6 +42,7 @@ class ServerLocation {
     std::string root;
     std::string index;
     std::string error_page;
+    bool autoindex;
     std::map<int, std::string> error_pages;
     std::vector<std::string> allow_method;
 };
