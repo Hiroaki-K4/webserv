@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/13 18:10:08 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/13 18:16:44 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,27 +131,7 @@ std::string HttpResponse::create_response_header(char *file_name, int file_size)
     return ss.str();
 }
 
-int HttpResponse::serve_static_with_get_method(char *file_name, int file_size) {
-    int src_fd = open(file_name, O_RDONLY, 0);
-    if (src_fd == FAILURE) {
-        set_http_status(403);
-        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
-        return FAILURE;
-    }
-    close(src_fd);
-
-    // Create response body
-    char *res_body = create_response_body(file_name, file_size);
-    if (!res_body) {
-        munmap(res_body, file_size);
-        return FAILURE;
-    }
-
-    // Create response header
-    std::string out = create_response_header(file_name, file_size);
-    char res_head[out.length() + 1];
-    strcpy(res_head, out.c_str());
-
+int HttpResponse::serve_static_with_get_method(char *res_head, char *res_body, int file_size) {
     // Send response header
     if (rio_writen(get_conn_fd(), res_head, strlen(res_head)) == FAILURE) {
         set_http_status(500);
@@ -186,7 +166,27 @@ int HttpResponse::serve_static(char *file_name, int file_size) {
     //     return serve_static_with_get_method(file_name, file_size);
     // }
 
-    return serve_static_with_get_method(file_name, file_size);
+    int src_fd = open(file_name, O_RDONLY, 0);
+    if (src_fd == FAILURE) {
+        set_http_status(403);
+        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
+        return FAILURE;
+    }
+    close(src_fd);
+
+    // Create response body
+    char *res_body = create_response_body(file_name, file_size);
+    if (!res_body) {
+        munmap(res_body, file_size);
+        return FAILURE;
+    }
+
+    // Create response header
+    std::string out = create_response_header(file_name, file_size);
+    char res_head[out.length() + 1];
+    strcpy(res_head, out.c_str());
+
+    return serve_static_with_get_method(res_head, res_body, file_size);
 }
 
 int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {

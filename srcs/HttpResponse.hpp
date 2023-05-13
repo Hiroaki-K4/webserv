@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/13 18:07:32 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/13 18:15:38 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ class HttpResponse {
     void get_filetype(char *file_name, char *filetype);
     char *create_response_body(char *file_name, int file_size);
     std::string create_response_header(char *file_name, int file_size);
-    int serve_static_with_get_method(char *file_name, int file_size);
+    int serve_static_with_get_method(char *res_head, char *res_body, int file_size);
     int serve_static(char *file_name, int file_size);
     int serve_dynamic(char *file_name, char *cgi_args);
     void serve_error_page();
