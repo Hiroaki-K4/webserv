@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/13 18:16:44 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/13 21:16:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ bool HttpResponse::check_uri_is_static(const std::string uri) {
     if (uri.find("cgi") == std::string::npos) {
         return true;
     }
+
     return false;
 }
 
@@ -153,6 +154,17 @@ int HttpResponse::serve_static_with_get_method(char *res_head, char *res_body, i
     return SUCCESS;
 }
 
+int HttpResponse::serve_autoindex() {
+    // TODO: Add code
+    // Get curent folder hierarchy
+    // Get Last modified time of file
+    // Get file size
+    // Create response header
+    // Create response body
+    // Cal serve_static_with_get_method
+    return SUCCESS;
+}
+
 int HttpResponse::serve_static(char *file_name, int file_size) {
     if (get_location().get_allow_method().size() > 0 &&
         std::find(get_location().get_allow_method().begin(), get_location().get_allow_method().end(), get_request_parser()->get_request_method()) ==
@@ -160,11 +172,6 @@ int HttpResponse::serve_static(char *file_name, int file_size) {
         std::cout << "[ERROR] HttpResponse::serve_static: Request method is not allowed" << std::endl;
         return FAILURE;
     }
-
-    // TODO: Add POST and DELETE
-    // if (get_request_parser()->get_request_method() == "GET") {
-    //     return serve_static_with_get_method(file_name, file_size);
-    // }
 
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == FAILURE) {
@@ -174,17 +181,17 @@ int HttpResponse::serve_static(char *file_name, int file_size) {
     }
     close(src_fd);
 
+    // Create response header
+    std::string out = create_response_header(file_name, file_size);
+    char res_head[out.length() + 1];
+    strcpy(res_head, out.c_str());
+
     // Create response body
     char *res_body = create_response_body(file_name, file_size);
     if (!res_body) {
         munmap(res_body, file_size);
         return FAILURE;
     }
-
-    // Create response header
-    std::string out = create_response_header(file_name, file_size);
-    char res_head[out.length() + 1];
-    strcpy(res_head, out.c_str());
 
     return serve_static_with_get_method(res_head, res_body, file_size);
 }
@@ -329,6 +336,10 @@ int HttpResponse::check_http_request(RequestParser parser) {
     std::string file_name;
     std::string search_dir;
     extract_location_info(parser.get_target_uri(), search_dir);
+
+    if (get_location().get_autoindex()) {
+        return SUCCESS;
+    }
     if (search_dir != "") {
         set_default_root_dir(search_dir);
     }
@@ -366,8 +377,16 @@ void HttpResponse::serve_contents() {
                 std::cout << "[ERROR] serve_contents: Couldn't read the file" << std::endl;
                 serve_error_page();
             }
-            if (serve_static(get_file_name(), get_file_info().st_size) == FAILURE) {
-                serve_error_page();
+            if (get_location().get_autoindex()) {
+                std::cout << "static and autoindex" << std::endl;
+                if (serve_autoindex() == FAILURE) {
+                    serve_error_page();
+                }
+            }
+            else {
+                if (serve_static(get_file_name(), get_file_info().st_size) == FAILURE) {
+                    serve_error_page();
+                }
             }
         } else {
             if (!(S_ISREG(get_file_info().st_mode)) || !(S_IXUSR & get_file_info().st_mode)) {
