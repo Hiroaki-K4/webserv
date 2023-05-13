@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/06 17:20:29 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/13 18:10:08 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,41 +108,67 @@ void HttpResponse::get_filetype(char *file_name, char *filetype) {
         strcpy(filetype, "text/plain");
 }
 
+char *HttpResponse::create_response_body(char *file_name, int file_size) {
+    int src_fd = open(file_name, O_RDONLY, 0);
+    if (src_fd == FAILURE) {
+        set_http_status(403);
+        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
+        return NULL;
+    }
+    char *res_body = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
+    close(src_fd);
+
+    return res_body;
+}
+
+std::string HttpResponse::create_response_header(char *file_name, int file_size) {
+    char filetype[MAXLINE];
+    get_filetype(file_name, filetype);
+    std::stringstream ss;
+    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << file_size << "\r\n"
+       << "Content-type: " << filetype << "\r\n\r\n";
+
+    return ss.str();
+}
+
 int HttpResponse::serve_static_with_get_method(char *file_name, int file_size) {
-    // Send response body to client
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == FAILURE) {
         set_http_status(403);
         std::cout << "[ERROR] serve_static: File open failed." << std::endl;
         return FAILURE;
     }
-    char *srcp = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
     close(src_fd);
 
-    char filetype[MAXLINE];
-    // Send response headers to client
-    get_filetype(file_name, filetype);
-    std::stringstream ss;
-    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << file_size << "\r\n"
-       << "Content-type: " << filetype << "\r\n\r\n";
-    std::string out;
-    out = ss.str();
-    char resp_head[out.length() + 1];
-    strcpy(resp_head, out.c_str());
-    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
+    // Create response body
+    char *res_body = create_response_body(file_name, file_size);
+    if (!res_body) {
+        munmap(res_body, file_size);
+        return FAILURE;
+    }
+
+    // Create response header
+    std::string out = create_response_header(file_name, file_size);
+    char res_head[out.length() + 1];
+    strcpy(res_head, out.c_str());
+
+    // Send response header
+    if (rio_writen(get_conn_fd(), res_head, strlen(res_head)) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
         return FAILURE;
     }
     std::cout << "Response headers:" << std::endl;
-    std::cout << resp_head;
-    if (rio_writen(get_conn_fd(), srcp, file_size) == FAILURE) {
+    std::cout << res_head;
+
+    // Send response body
+    if (rio_writen(get_conn_fd(), res_body, file_size) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
-        munmap(srcp, file_size);
+        munmap(res_body, file_size);
         return FAILURE;
     }
-    munmap(srcp, file_size);
+    munmap(res_body, file_size);
 
     return SUCCESS;
 }
