@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/06 18:24:13 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/13 17:26:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ(2, locations[0]->get_allow_method().size());
     EXPECT_EQ("GET", locations[0]->get_allow_method()[0]);
     EXPECT_EQ("POST", locations[0]->get_allow_method()[1]);
+    EXPECT_EQ(false, locations[0]->get_autoindex());
 }
 
 TEST(ConfigParser, ok_autoindex) {

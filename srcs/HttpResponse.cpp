@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/06 17:20:29 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/14 18:02:03 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ bool HttpResponse::check_uri_is_static(const std::string uri) {
     if (uri.find("cgi") == std::string::npos) {
         return true;
     }
+
     return false;
 }
 
@@ -108,41 +109,111 @@ void HttpResponse::get_filetype(char *file_name, char *filetype) {
         strcpy(filetype, "text/plain");
 }
 
-int HttpResponse::serve_static_with_get_method(char *file_name, int file_size) {
-    // Send response body to client
+char *HttpResponse::create_response_body(char *file_name, int file_size) {
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == FAILURE) {
         set_http_status(403);
         std::cout << "[ERROR] serve_static: File open failed." << std::endl;
-        return FAILURE;
+        return NULL;
     }
-    char *srcp = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
+    char *res_body = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
     close(src_fd);
 
+    return res_body;
+}
+
+std::string HttpResponse::create_response_header(char *file_name, int file_size) {
     char filetype[MAXLINE];
-    // Send response headers to client
     get_filetype(file_name, filetype);
     std::stringstream ss;
     ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << file_size << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
-    std::string out;
-    out = ss.str();
-    char resp_head[out.length() + 1];
-    strcpy(resp_head, out.c_str());
-    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
+
+    return ss.str();
+}
+
+int HttpResponse::serve_static_with_get_method(char *res_head, char *res_body, int file_size) {
+    // Send response header
+    if (rio_writen(get_conn_fd(), res_head, strlen(res_head)) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
         return FAILURE;
     }
     std::cout << "Response headers:" << std::endl;
-    std::cout << resp_head;
-    if (rio_writen(get_conn_fd(), srcp, file_size) == FAILURE) {
+    std::cout << res_head;
+
+    // Send response body
+    if (rio_writen(get_conn_fd(), res_body, file_size) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
-        munmap(srcp, file_size);
+        munmap(res_body, file_size);
         return FAILURE;
     }
-    munmap(srcp, file_size);
+    munmap(res_body, file_size);
+
+    return SUCCESS;
+}
+
+std::string HttpResponse::get_last_modified_time(std::string target) {
+    std::string time;
+    struct stat res;
+    if (stat(target.c_str(), &res) == 0) {
+        time = ctime(&(res.st_mtime));
+    }
+
+    return time;
+}
+
+std::string HttpResponse::create_page_link(std::string target) {
+    std::ostringstream port;
+    port << get_server_config().get_port();
+    std::string link = "http://" + get_server_config().get_host_name() + ":" + port.str() + get_request_parser()->get_target_uri() + target;
+
+    return link;
+}
+
+int HttpResponse::serve_autoindex() {
+    DIR *dir;
+    struct dirent *dirent;
+    std::string curr_dir = get_default_root_dir() + get_request_parser()->get_target_uri();
+    dir = opendir(curr_dir.c_str());
+    std::stringstream content;
+    if (dir) {
+        content << "<html>\r\n<head><title>Index of " << curr_dir << "</title></head>\r\n<body>\r\n<h1>Index of " << curr_dir << "</h1>\r\n";
+        while ((dirent = readdir(dir)) != NULL) {
+            std::string target = curr_dir + dirent->d_name;
+            std::string modified_time = get_last_modified_time(target);
+            std::string link = create_page_link(dirent->d_name);
+            if (is_request_uri_dir(target)) {
+                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " -<br>\r\n";
+            } else {
+                std::ifstream in(target.c_str(), std::ifstream::ate | std::ifstream::binary);
+                unsigned int size = in.tellg();
+                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " " << size << "<br>\r\n";
+            }
+        }
+        content << "</body>\r\n</html>";
+        closedir(dir);
+    } else {
+        std::cout << "[ERROR] HttpResponse::serve_autoindex: Can't open autoindex target folder" << std::endl;
+        return FAILURE;
+    }
+
+    // Create response header
+    char file_type[MAXLINE];
+    strcpy(file_type, "text/html");
+    std::stringstream res_header;
+    res_header << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << content.str().length() << "\r\n"
+               << "Content-type: " << file_type << "\r\n\r\n";
+    char header[MAXLINE];
+    strcpy(header, res_header.str().c_str());
+
+    // Create response body
+    char body[content.str().length()];
+    strcpy(body, content.str().c_str());
+
+    // Call serve_static_with_get_method
+    serve_static_with_get_method(header, body, content.str().length());
 
     return SUCCESS;
 }
@@ -155,12 +226,27 @@ int HttpResponse::serve_static(char *file_name, int file_size) {
         return FAILURE;
     }
 
-    // TODO: Add POST and DELETE
-    // if (get_request_parser()->get_request_method() == "GET") {
-    //     return serve_static_with_get_method(file_name, file_size);
-    // }
+    int src_fd = open(file_name, O_RDONLY, 0);
+    if (src_fd == FAILURE) {
+        set_http_status(403);
+        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
+        return FAILURE;
+    }
+    close(src_fd);
 
-    return serve_static_with_get_method(file_name, file_size);
+    // Create response header
+    std::string out = create_response_header(file_name, file_size);
+    char res_head[out.length() + 1];
+    strcpy(res_head, out.c_str());
+
+    // Create response body
+    char *res_body = create_response_body(file_name, file_size);
+    if (!res_body) {
+        munmap(res_body, file_size);
+        return FAILURE;
+    }
+
+    return serve_static_with_get_method(res_head, res_body, file_size);
 }
 
 int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
@@ -303,6 +389,10 @@ int HttpResponse::check_http_request(RequestParser parser) {
     std::string file_name;
     std::string search_dir;
     extract_location_info(parser.get_target_uri(), search_dir);
+
+    if (get_location().get_autoindex()) {
+        return SUCCESS;
+    }
     if (search_dir != "") {
         set_default_root_dir(search_dir);
     }
@@ -329,19 +419,37 @@ int HttpResponse::check_http_request(RequestParser parser) {
     return SUCCESS;
 }
 
+bool HttpResponse::is_request_uri_dir(std::string uri) {
+    struct stat s;
+    if (stat(uri.c_str(), &s) == 0) {
+        if (s.st_mode & S_IFDIR) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void HttpResponse::serve_contents() {
     if (get_http_status() >= 400) {
         serve_error_page();
     } else {
         if (get_is_static()) {
-            if (!(S_ISREG(get_file_info().st_mode) ||
-                  !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
-                set_http_status(403);
-                std::cout << "[ERROR] serve_contents: Couldn't read the file" << std::endl;
-                serve_error_page();
-            }
-            if (serve_static(get_file_name(), get_file_info().st_size) == FAILURE) {
-                serve_error_page();
+            if (get_location().get_autoindex() && is_request_uri_dir(get_default_root_dir() + get_request_parser()->get_target_uri())) {
+                std::cout << "static and autoindex" << std::endl;
+                if (serve_autoindex() == FAILURE) {
+                    serve_error_page();
+                }
+            } else {
+                if (!(S_ISREG(get_file_info().st_mode) ||
+                      !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
+                    set_http_status(403);
+                    std::cout << "[ERROR] serve_contents: Couldn't read the file" << std::endl;
+                    serve_error_page();
+                }
+                if (serve_static(get_file_name(), get_file_info().st_size) == FAILURE) {
+                    serve_error_page();
+                }
             }
         } else {
             if (!(S_ISREG(get_file_info().st_mode)) || !(S_IXUSR & get_file_info().st_mode)) {

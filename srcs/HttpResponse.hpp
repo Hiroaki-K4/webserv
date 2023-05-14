@@ -6,14 +6,17 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/05 18:06:27 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/14 17:50:25 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPRESPONSE_HPP
 #define HTTPRESPONSE_HPP
 
+#include <dirent.h>
+
 #include <algorithm>
+#include <fstream>
 
 #include "RequestParser.hpp"
 #include "ServerConfig.hpp"
@@ -53,12 +56,18 @@ class HttpResponse {
     int create_dynamic_file_name_and_cgi_args(std::string uri, std::string &file_name, std::string &cgi_args);
     bool check_uri_is_static(const std::string uri);
     void get_filetype(char *file_name, char *filetype);
-    int serve_static_with_get_method(char *file_name, int file_size);
+    char *create_response_body(char *file_name, int file_size);
+    std::string create_response_header(char *file_name, int file_size);
+    int serve_static_with_get_method(char *res_head, char *res_body, int file_size);
+    int serve_autoindex();
     int serve_static(char *file_name, int file_size);
     int serve_dynamic(char *file_name, char *cgi_args);
     void serve_error_page();
     RequestParser read_http_request();
     bool check_location_info(std::string route, ServerLocation **location);
+    bool is_request_uri_dir(std::string uri);
+    std::string get_last_modified_time(std::string target);
+    std::string create_page_link(std::string target);
     int extract_location_info(std::string target_uri, std::string &search_dir);
     int check_http_request(RequestParser parser);
     void serve_contents();
