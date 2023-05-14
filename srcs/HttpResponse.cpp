@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/13 21:16:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/14 18:02:03 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,14 +154,67 @@ int HttpResponse::serve_static_with_get_method(char *res_head, char *res_body, i
     return SUCCESS;
 }
 
+std::string HttpResponse::get_last_modified_time(std::string target) {
+    std::string time;
+    struct stat res;
+    if (stat(target.c_str(), &res) == 0) {
+        time = ctime(&(res.st_mtime));
+    }
+
+    return time;
+}
+
+std::string HttpResponse::create_page_link(std::string target) {
+    std::ostringstream port;
+    port << get_server_config().get_port();
+    std::string link = "http://" + get_server_config().get_host_name() + ":" + port.str() + get_request_parser()->get_target_uri() + target;
+
+    return link;
+}
+
 int HttpResponse::serve_autoindex() {
-    // TODO: Add code
-    // Get curent folder hierarchy
-    // Get Last modified time of file
-    // Get file size
+    DIR *dir;
+    struct dirent *dirent;
+    std::string curr_dir = get_default_root_dir() + get_request_parser()->get_target_uri();
+    dir = opendir(curr_dir.c_str());
+    std::stringstream content;
+    if (dir) {
+        content << "<html>\r\n<head><title>Index of " << curr_dir << "</title></head>\r\n<body>\r\n<h1>Index of " << curr_dir << "</h1>\r\n";
+        while ((dirent = readdir(dir)) != NULL) {
+            std::string target = curr_dir + dirent->d_name;
+            std::string modified_time = get_last_modified_time(target);
+            std::string link = create_page_link(dirent->d_name);
+            if (is_request_uri_dir(target)) {
+                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " -<br>\r\n";
+            } else {
+                std::ifstream in(target.c_str(), std::ifstream::ate | std::ifstream::binary);
+                unsigned int size = in.tellg();
+                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " " << size << "<br>\r\n";
+            }
+        }
+        content << "</body>\r\n</html>";
+        closedir(dir);
+    } else {
+        std::cout << "[ERROR] HttpResponse::serve_autoindex: Can't open autoindex target folder" << std::endl;
+        return FAILURE;
+    }
+
     // Create response header
+    char file_type[MAXLINE];
+    strcpy(file_type, "text/html");
+    std::stringstream res_header;
+    res_header << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << content.str().length() << "\r\n"
+               << "Content-type: " << file_type << "\r\n\r\n";
+    char header[MAXLINE];
+    strcpy(header, res_header.str().c_str());
+
     // Create response body
-    // Cal serve_static_with_get_method
+    char body[content.str().length()];
+    strcpy(body, content.str().c_str());
+
+    // Call serve_static_with_get_method
+    serve_static_with_get_method(header, body, content.str().length());
+
     return SUCCESS;
 }
 
@@ -366,24 +419,34 @@ int HttpResponse::check_http_request(RequestParser parser) {
     return SUCCESS;
 }
 
+bool HttpResponse::is_request_uri_dir(std::string uri) {
+    struct stat s;
+    if (stat(uri.c_str(), &s) == 0) {
+        if (s.st_mode & S_IFDIR) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void HttpResponse::serve_contents() {
     if (get_http_status() >= 400) {
         serve_error_page();
     } else {
         if (get_is_static()) {
-            if (!(S_ISREG(get_file_info().st_mode) ||
-                  !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
-                set_http_status(403);
-                std::cout << "[ERROR] serve_contents: Couldn't read the file" << std::endl;
-                serve_error_page();
-            }
-            if (get_location().get_autoindex()) {
+            if (get_location().get_autoindex() && is_request_uri_dir(get_default_root_dir() + get_request_parser()->get_target_uri())) {
                 std::cout << "static and autoindex" << std::endl;
                 if (serve_autoindex() == FAILURE) {
                     serve_error_page();
                 }
-            }
-            else {
+            } else {
+                if (!(S_ISREG(get_file_info().st_mode) ||
+                      !(S_IRUSR & get_file_info().st_mode))) {  // S_ISREG -> normal file?, S_IRUSR -> have read permission?
+                    set_http_status(403);
+                    std::cout << "[ERROR] serve_contents: Couldn't read the file" << std::endl;
+                    serve_error_page();
+                }
                 if (serve_static(get_file_name(), get_file_info().st_size) == FAILURE) {
                     serve_error_page();
                 }

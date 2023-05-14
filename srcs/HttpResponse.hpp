@@ -6,14 +6,17 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/13 21:04:55 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/14 17:50:25 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPRESPONSE_HPP
 #define HTTPRESPONSE_HPP
 
+#include <dirent.h>
+
 #include <algorithm>
+#include <fstream>
 
 #include "RequestParser.hpp"
 #include "ServerConfig.hpp"
@@ -62,6 +65,9 @@ class HttpResponse {
     void serve_error_page();
     RequestParser read_http_request();
     bool check_location_info(std::string route, ServerLocation **location);
+    bool is_request_uri_dir(std::string uri);
+    std::string get_last_modified_time(std::string target);
+    std::string create_page_link(std::string target);
     int extract_location_info(std::string target_uri, std::string &search_dir);
     int check_http_request(RequestParser parser);
     void serve_contents();
