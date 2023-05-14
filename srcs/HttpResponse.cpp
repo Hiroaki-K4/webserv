@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/14 18:02:03 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/14 21:35:17 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,16 @@ std::string HttpResponse::create_page_link(std::string target) {
     return link;
 }
 
+std::string HttpResponse::create_html_spaces(std::string str, unsigned int align_num) {
+    unsigned int spaces_num = align_num - str.length();
+    std::stringstream ss;
+    for (unsigned int i = 0; i < spaces_num; i++) {
+        ss << "&nbsp;";
+    }
+
+    return ss.str();
+}
+
 int HttpResponse::serve_autoindex() {
     DIR *dir;
     struct dirent *dirent;
@@ -184,12 +194,17 @@ int HttpResponse::serve_autoindex() {
             std::string target = curr_dir + dirent->d_name;
             std::string modified_time = get_last_modified_time(target);
             std::string link = create_page_link(dirent->d_name);
+            // TODO: Support too long file name
+            // Add spaces between modified time and file size
+            std::string name_spaces = create_html_spaces(dirent->d_name, 50);
             if (is_request_uri_dir(target)) {
-                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " -<br>\r\n";
+                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << name_spaces << modified_time
+                        << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -<br>\r\n";
             } else {
                 std::ifstream in(target.c_str(), std::ifstream::ate | std::ifstream::binary);
-                unsigned int size = in.tellg();
-                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " " << size << "<br>\r\n";
+                unsigned int file_size = in.tellg();
+                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << name_spaces << modified_time
+                        << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " << file_size << "<br>\r\n";
             }
         }
         content << "</body>\r\n</html>";
