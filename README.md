@@ -31,6 +31,17 @@ If the wrong page is accessed(http://localhost:8080/Gryffindor), an error page w
 <img src='images/error_page.png' width='400'>
 
 <br></br>
+## About autoindex
+You can turn on directory listing by configuration file.
+
+```bash
+./webserv autoindex.conf
+```
+
+<img src='images/autoindex.png' width='500'>
+
+
+<br></br>
 ## How to build client
 
 ```bash
