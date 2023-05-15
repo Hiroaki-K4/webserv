@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/14 18:02:03 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/15 20:11:28 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,16 @@ std::string HttpResponse::create_page_link(std::string target) {
     return link;
 }
 
+std::string HttpResponse::create_html_spaces(std::string str, unsigned int align_num) {
+    unsigned int spaces_num = align_num - str.length();
+    std::stringstream ss;
+    for (unsigned int i = 0; i < spaces_num; i++) {
+        ss << "&nbsp;";
+    }
+
+    return ss.str();
+}
+
 int HttpResponse::serve_autoindex() {
     DIR *dir;
     struct dirent *dirent;
@@ -183,13 +193,28 @@ int HttpResponse::serve_autoindex() {
         while ((dirent = readdir(dir)) != NULL) {
             std::string target = curr_dir + dirent->d_name;
             std::string modified_time = get_last_modified_time(target);
+            if (modified_time[8] == ' ') {
+                modified_time.erase(8, 1);
+            }
             std::string link = create_page_link(dirent->d_name);
+            std::string align_d_name = dirent->d_name;
+            unsigned int align_size = 50;
+            if (align_d_name.length() > align_size) {
+                align_d_name = align_d_name.substr(0, align_size);
+            }
+
+            // Create spaces for alignment
+            std::string name_spaces = create_html_spaces(align_d_name, align_size);
+            std::string modified_time_spaces = create_html_spaces(modified_time, 40);
+
             if (is_request_uri_dir(target)) {
-                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " -<br>\r\n";
+                content << "<a href=\"" << link << "\">" << align_d_name << "</a> " << name_spaces << modified_time << modified_time_spaces
+                        << "-<br>\r\n";
             } else {
                 std::ifstream in(target.c_str(), std::ifstream::ate | std::ifstream::binary);
-                unsigned int size = in.tellg();
-                content << "<a href=\"" << link << "\">" << dirent->d_name << "</a> " << modified_time << " " << size << "<br>\r\n";
+                unsigned int file_size = in.tellg();
+                content << "<a href=\"" << link << "\">" << align_d_name << "</a> " << name_spaces << modified_time << modified_time_spaces
+                        << file_size << "<br>\r\n";
             }
         }
         content << "</body>\r\n</html>";
