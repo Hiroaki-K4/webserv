@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/15 20:11:28 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/20 17:58:09 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,8 @@ int HttpResponse::serve_autoindex() {
     dir = opendir(curr_dir.c_str());
     std::stringstream content;
     if (dir) {
-        content << "<html>\r\n<head><title>Index of " << curr_dir << "</title></head>\r\n<body>\r\n<h1>Index of " << curr_dir << "</h1>\r\n";
+        content << "<html>\r\n<head><title>Index of " << get_request_parser()->get_target_uri() << "</title></head>\r\n<body>\r\n<h1>Index of "
+                << get_request_parser()->get_target_uri() << "</h1>\r\n";
         while ((dirent = readdir(dir)) != NULL) {
             std::string target = curr_dir + dirent->d_name;
             std::string modified_time = get_last_modified_time(target);
@@ -392,7 +393,6 @@ int HttpResponse::extract_location_info(std::string target_uri, std::string &sea
             search_dir = location->get_root();
             set_default_file(location->get_index());
             set_location(*location);
-            delete location;
             return SUCCESS;
         }
         delete location;
