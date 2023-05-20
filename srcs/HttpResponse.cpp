@@ -6,13 +6,13 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/20 18:23:44 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/20 21:54:15 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
 
-HttpResponse::HttpResponse() : http_status(200), default_root_dir("contents") {}
+HttpResponse::HttpResponse() : http_status(200), default_root_dir("contents"), have_location(false) {}
 
 HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_status(200), default_root_dir("contents") {
     set_conn_fd(conn_fd);
@@ -307,7 +307,7 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
     }
     wait(NULL);
 
-    return FAILURE;
+    return SUCCESS;
 }
 
 void HttpResponse::serve_error_page() {
@@ -431,7 +431,7 @@ int HttpResponse::check_http_request(RequestParser parser) {
     std::string search_dir;
     extract_location_info(parser.get_target_uri(), search_dir);
 
-    if (get_location()->get_autoindex()) {
+    if (get_have_location() && get_location()->get_autoindex()) {
         return SUCCESS;
     }
     if (search_dir != "") {
