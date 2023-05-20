@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/20 17:58:09 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/20 18:23:44 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,14 @@ HttpResponse::HttpResponse() : http_status(200), default_root_dir("contents") {}
 HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_status(200), default_root_dir("contents") {
     set_conn_fd(conn_fd);
     set_server_config(server_config);
+    set_have_location(false);
 }
 
-HttpResponse::~HttpResponse() {}
+HttpResponse::~HttpResponse() {
+    if (get_have_location()) {
+        delete get_location();
+    }
+}
 
 void HttpResponse::set_conn_fd(const int conn_fd) { this->conn_fd = conn_fd; }
 
@@ -63,6 +68,10 @@ void HttpResponse::set_request_parser(RequestParser *request_parser) { this->req
 
 RequestParser *HttpResponse::get_request_parser() { return this->request_parser; }
 
+void HttpResponse::set_have_location(bool have_location) { this->have_location = have_location; }
+
+bool HttpResponse::get_have_location() { return this->have_location; }
+
 bool HttpResponse::check_uri_is_static(const std::string uri) {
     if (uri.find("cgi") == std::string::npos) {
         return true;
@@ -71,9 +80,9 @@ bool HttpResponse::check_uri_is_static(const std::string uri) {
     return false;
 }
 
-void HttpResponse::set_location(const ServerLocation location) { this->location = location; }
+void HttpResponse::set_location(ServerLocation *location) { this->location = location; }
 
-ServerLocation HttpResponse::get_location() { return this->location; }
+ServerLocation *HttpResponse::get_location() { return this->location; }
 
 int HttpResponse::create_static_file_name(std::string uri, std::string &file_name) {
     file_name = get_default_root_dir() + uri;
@@ -245,9 +254,9 @@ int HttpResponse::serve_autoindex() {
 }
 
 int HttpResponse::serve_static(char *file_name, int file_size) {
-    if (get_location().get_allow_method().size() > 0 &&
-        std::find(get_location().get_allow_method().begin(), get_location().get_allow_method().end(), get_request_parser()->get_request_method()) ==
-            get_location().get_allow_method().end()) {
+    if (get_location()->get_allow_method().size() > 0 &&
+        std::find(get_location()->get_allow_method().begin(), get_location()->get_allow_method().end(), get_request_parser()->get_request_method()) ==
+            get_location()->get_allow_method().end()) {
         std::cout << "[ERROR] HttpResponse::serve_static: Request method is not allowed" << std::endl;
         return FAILURE;
     }
@@ -303,10 +312,10 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
 
 void HttpResponse::serve_error_page() {
     std::string error_file_name;
-    if (get_location().get_error_pages().find(get_http_status()) != get_location().get_error_pages().end()) {
-        error_file_name = get_location().get_root() + get_location().get_error_pages()[get_http_status()];
+    if (get_location()->get_error_pages().find(get_http_status()) != get_location()->get_error_pages().end()) {
+        error_file_name = get_location()->get_root() + get_location()->get_error_pages()[get_http_status()];
     } else {
-        error_file_name = get_location().get_root() + "error.html";
+        error_file_name = get_location()->get_root() + "error.html";
     }
     char file_name[MAXLINE];
     strcpy(file_name, error_file_name.c_str());
@@ -371,7 +380,13 @@ bool HttpResponse::check_location_info(std::string route, ServerLocation **locat
     std::vector<std::string> routes;
     for (std::vector<ServerLocation *>::iterator itr = locations.begin(); itr != locations.end(); ++itr) {
         if (route == (*itr)->get_route()) {
-            *location = (*itr);
+            (*location)->set_route((*itr)->get_route());
+            (*location)->set_alias((*itr)->get_alias());
+            (*location)->set_root((*itr)->get_root());
+            (*location)->set_index((*itr)->get_index());
+            (*location)->set_error_pages((*itr)->get_error_pages());
+            (*location)->set_allow_method((*itr)->get_allow_method());
+            (*location)->set_autoindex((*itr)->get_autoindex());
             have_location = true;
         }
     }
@@ -392,7 +407,8 @@ int HttpResponse::extract_location_info(std::string target_uri, std::string &sea
         if (check_location_info(route, &location)) {
             search_dir = location->get_root();
             set_default_file(location->get_index());
-            set_location(*location);
+            set_location(location);
+            set_have_location(true);
             return SUCCESS;
         }
         delete location;
@@ -415,7 +431,7 @@ int HttpResponse::check_http_request(RequestParser parser) {
     std::string search_dir;
     extract_location_info(parser.get_target_uri(), search_dir);
 
-    if (get_location().get_autoindex()) {
+    if (get_location()->get_autoindex()) {
         return SUCCESS;
     }
     if (search_dir != "") {
@@ -460,7 +476,7 @@ void HttpResponse::serve_contents() {
         serve_error_page();
     } else {
         if (get_is_static()) {
-            if (get_location().get_autoindex() && is_request_uri_dir(get_default_root_dir() + get_request_parser()->get_target_uri())) {
+            if (get_location()->get_autoindex() && is_request_uri_dir(get_default_root_dir() + get_request_parser()->get_target_uri())) {
                 std::cout << "static and autoindex" << std::endl;
                 if (serve_autoindex() == FAILURE) {
                     serve_error_page();
