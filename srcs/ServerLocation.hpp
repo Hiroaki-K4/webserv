@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:57:56 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/06 17:49:18 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 16:18:20 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ class ServerLocation {
     std::string get_alias();
     void set_root(const std::string root);
     std::string get_root();
+    void set_is_cgi(bool is_cgi);
+    bool get_is_cgi();
     void set_index(const std::string index);
     std::string get_index();
     void set_error_pages(const std::map<int, std::string> error_pages);
@@ -42,6 +44,7 @@ class ServerLocation {
     std::string root;
     std::string index;
     std::string error_page;
+    bool is_cgi;
     bool autoindex;
     std::map<int, std::string> error_pages;
     std::vector<std::string> allow_method;

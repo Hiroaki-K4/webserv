@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/20 17:29:06 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 16:26:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,6 +269,21 @@ int ConfigParser::parse_location_line(std::string line) {
                 get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_autoindex(false);
             } else {
                 std::cout << "[ERROR] ConfigParser::parse_location_line: The value of autoindex is wrong" << std::endl;
+                return FAILURE;
+            }
+        }
+        return res;
+    } else if ((pos = value.find("is_cgi")) != std::string::npos) {
+        std::string result;
+        int res = extract_config_string(value, "is_cgi", result);
+        if (res == SUCCESS) {
+            unsigned int size = get_servers()[get_servers().size() - 1]->get_locations().size();
+            if (result == "on") {
+                get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_is_cgi(true);
+            } else if (result == "off") {
+                get_servers()[get_servers().size() - 1]->get_locations()[size - 1]->set_is_cgi(false);
+            } else {
+                std::cout << "[ERROR] ConfigParser::parse_location_line: The value of is_cgi is wrong" << std::endl;
                 return FAILURE;
             }
         }

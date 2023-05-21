@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 14:05:41 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 14:17:01 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ void HttpResponse::set_have_location(bool have_location) { this->have_location =
 
 bool HttpResponse::get_have_location() { return this->have_location; }
 
+// TODO: Update cgi check
 bool HttpResponse::check_uri_is_static(const std::string uri) {
     if (uri.find("cgi") == std::string::npos) {
         return true;
