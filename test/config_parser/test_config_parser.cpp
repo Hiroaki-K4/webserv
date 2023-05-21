@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/13 17:26:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 16:29:08 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ(1, servers.size());
     EXPECT_EQ(8080, servers[0]->get_port());
     EXPECT_EQ("localhost", servers[0]->get_host_name());
-    EXPECT_EQ(1, locations.size());
+    EXPECT_EQ(2, locations.size());
     EXPECT_EQ("/", locations[0]->get_route());
     EXPECT_EQ("./docs/", locations[0]->get_alias());
     EXPECT_EQ("contents/", locations[0]->get_root());
@@ -36,6 +36,11 @@ TEST(ConfigParser, ok_default) {
     EXPECT_EQ("GET", locations[0]->get_allow_method()[0]);
     EXPECT_EQ("POST", locations[0]->get_allow_method()[1]);
     EXPECT_EQ(false, locations[0]->get_autoindex());
+    EXPECT_EQ(false, locations[0]->get_is_cgi());
+    EXPECT_EQ(true, locations[1]->get_is_cgi());
+    EXPECT_EQ("contents/", locations[1]->get_root());
+    EXPECT_EQ("index.cgi", locations[1]->get_index());
+    EXPECT_EQ(3, locations[1]->get_allow_method().size());
 }
 
 TEST(ConfigParser, ok_autoindex) {

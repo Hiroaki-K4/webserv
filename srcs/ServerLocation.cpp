@@ -6,13 +6,13 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:58:29 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/06 17:52:15 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 16:20:24 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerLocation.hpp"
 
-ServerLocation::ServerLocation() { set_autoindex(false); }
+ServerLocation::ServerLocation() : is_cgi(false), autoindex(false) {}
 
 ServerLocation::~ServerLocation() {}
 
@@ -27,6 +27,10 @@ std::string ServerLocation::get_alias() { return this->alias; }
 void ServerLocation::set_root(const std::string root) { this->root = root; }
 
 std::string ServerLocation::get_root() { return this->root; }
+
+void ServerLocation::set_is_cgi(bool is_cgi) { this->is_cgi = is_cgi; }
+
+bool ServerLocation::get_is_cgi() { return this->is_cgi; }
 
 void ServerLocation::set_index(const std::string index) { this->index = index; }
 
