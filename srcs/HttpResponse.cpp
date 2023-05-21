@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 13:42:40 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 14:05:41 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,15 @@ std::string HttpResponse::get_last_modified_time(std::string target) {
 std::string HttpResponse::create_page_link(std::string target) {
     std::ostringstream port;
     port << get_server_config().get_port();
-    std::string link = "http://" + get_server_config().get_host_name() + ":" + port.str() + get_request_parser()->get_target_uri() + target;
+    std::cout << "create_page_link_target: " << target << std::endl;
+    std::cout << "last: " << get_request_parser()->get_target_uri()[get_request_parser()->get_target_uri().length() - 1] << std::endl;
+    std::string link;
+    if (get_request_parser()->get_target_uri()[get_request_parser()->get_target_uri().length() - 1] == '/') {
+        link = "http://" + get_server_config().get_host_name() + ":" + port.str() + get_request_parser()->get_target_uri() + target;
+    } else {
+        link = "http://" + get_server_config().get_host_name() + ":" + port.str() + get_request_parser()->get_target_uri() + "/" + target;
+    }
+    std::cout << "link: " << link << std::endl;
 
     return link;
 }
