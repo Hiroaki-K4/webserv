@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/14 21:01:33 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/20 18:19:59 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,12 @@ class HttpResponse {
     struct stat get_file_info();
     void set_server_config(const ServerConfig server_config);
     ServerConfig get_server_config();
-    void set_location(const ServerLocation location);
-    ServerLocation get_location();
+    void set_location(ServerLocation *location);
+    ServerLocation *get_location();
     void set_request_parser(RequestParser *request_parser);
     RequestParser *get_request_parser();
+    void set_have_location(bool have_location);
+    bool get_have_location();
 
     int create_static_file_name(std::string uri, std::string &file_name);
     int create_dynamic_file_name_and_cgi_args(std::string uri, std::string &file_name, std::string &cgi_args);
@@ -84,7 +86,8 @@ class HttpResponse {
     std::string default_file;
     struct stat file_info;
     ServerConfig server_config;
-    ServerLocation location;
+    bool have_location;
+    ServerLocation *location;
     RequestParser *request_parser;
 };
 

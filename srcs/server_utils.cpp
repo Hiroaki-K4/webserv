@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 22:12:06 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/03 17:21:57 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/20 21:28:20 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int open_listen_fd(char *host_name, char *port) {
 
     for (p = listp; p; p = p->ai_next) {
         if ((listen_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
+
         setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, static_cast<const void *>(&opt_val), sizeof(int));
 
         // bind function ask the kernel to relate server socket address and socket
