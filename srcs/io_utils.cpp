@@ -6,36 +6,38 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 21:08:49 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 21:30:22 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 
-void io_readinitb(io *rp, int fd) {
-    rp->io_fd = fd;
-    rp->io_cnt = 0;
-    rp->io_bufptr = rp->io_buf;
+void io_readinitb(io *io_s, int fd) {
+    io_s->io_fd = fd;
+    io_s->io_cnt = 0;
+    io_s->io_bufptr = io_s->io_buf;
 }
 
-ssize_t io_writen(int fd, void *usrbuf, size_t n) {
-    size_t nleft = n;
-    ssize_t nwriten;
-    char *bufp = static_cast<char *>(usrbuf);
+ssize_t io_writen(int fd, void *input, size_t len) {
+    size_t left_word_len = len;
+    ssize_t writen_len;
+    char *buf_p = static_cast<char *>(input);
 
-    while (nleft > 0) {
-        if ((nwriten = write(fd, bufp, nleft)) <= 0) {
+    while (left_word_len > 0) {
+        if ((writen_len = write(fd, buf_p, left_word_len)) <= 0) {
             if (errno == EINTR)  // interrupted by a signal while writing no data
-                nwriten = 0;
+                writen_len = 0;
             else
                 return FAILURE;
         }
-        nleft -= nwriten;
-        bufp += nwriten;
+        left_word_len -= writen_len;
+        buf_p += writen_len;
     }
-    return n;
+
+    return len;
 }
 
+// TODO: Refactor io_read
 static ssize_t io_read(io *rp, char *usrbuf, size_t n) {
     int cnt;
 
@@ -59,6 +61,7 @@ static ssize_t io_read(io *rp, char *usrbuf, size_t n) {
     memcpy(usrbuf, rp->io_bufptr, cnt);
     rp->io_bufptr += cnt;
     rp->io_cnt -= cnt;
+
     return cnt;
 }
 
@@ -84,5 +87,6 @@ ssize_t io_readlineb(io *rp, void *usrbuf, size_t maxlen, bool ignore_new_line) 
         }
     }
     *bufp = 0;
+
     return n - 1;
 }
