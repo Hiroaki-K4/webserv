@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 13:22:25 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 13:42:40 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -312,7 +312,8 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
 
 void HttpResponse::serve_error_page() {
     std::string error_file_name;
-    if (get_location()->get_error_pages().find(get_http_status()) != get_location()->get_error_pages().end()) {
+    std::map<int, std::string>::iterator it = get_location()->get_error_pages().find(500);
+    if (it != get_location()->get_error_pages().end()) {
         error_file_name = get_location()->get_root() + get_location()->get_error_pages()[get_http_status()];
     } else {
         error_file_name = get_location()->get_root() + "error.html";
@@ -330,6 +331,7 @@ void HttpResponse::serve_error_page() {
     char filetype[MAXLINE];
     get_filetype(file_name, filetype);
     std::stringstream ss;
+    // TODO: Fix error http status
     ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Server\r\nConnection: close\r\nContent-length: " << sbuf.st_size << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
     std::string out;
