@@ -1,24 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   rio_utils.cpp                                      :+:      :+:    :+:   */
+/*   io_utils.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 13:55:24 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 21:08:49 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 
-void rio_readinitb(rio_t *rp, int fd) {
-    rp->rio_fd = fd;
-    rp->rio_cnt = 0;
-    rp->rio_bufptr = rp->rio_buf;
+void io_readinitb(io *rp, int fd) {
+    rp->io_fd = fd;
+    rp->io_cnt = 0;
+    rp->io_bufptr = rp->io_buf;
 }
 
-ssize_t rio_writen(int fd, void *usrbuf, size_t n) {
+ssize_t io_writen(int fd, void *usrbuf, size_t n) {
     size_t nleft = n;
     ssize_t nwriten;
     char *bufp = static_cast<char *>(usrbuf);
@@ -36,38 +36,39 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n) {
     return n;
 }
 
-static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n) {
+static ssize_t io_read(io *rp, char *usrbuf, size_t n) {
     int cnt;
 
-    while (rp->rio_cnt <= 0) {
-        rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, sizeof(rp->rio_buf));
-        if (rp->rio_cnt < 0) {
+    while (rp->io_cnt <= 0) {
+        std::cout << "ok" << std::endl;
+        rp->io_cnt = read(rp->io_fd, rp->io_buf, sizeof(rp->io_buf));
+        if (rp->io_cnt < 0) {
             if (errno != EINTR) {
                 return FAILURE;
             }
-        } else if (rp->rio_cnt == 0) {
+        } else if (rp->io_cnt == 0) {
             std::cout << "EOF" << std::endl;
             return 0;
         } else {
-            rp->rio_bufptr = rp->rio_buf;
+            rp->io_bufptr = rp->io_buf;
         }
     }
 
     cnt = n;
-    if (rp->rio_cnt < (int)n) cnt = rp->rio_cnt;
-    memcpy(usrbuf, rp->rio_bufptr, cnt);
-    rp->rio_bufptr += cnt;
-    rp->rio_cnt -= cnt;
+    if (rp->io_cnt < (int)n) cnt = rp->io_cnt;
+    memcpy(usrbuf, rp->io_bufptr, cnt);
+    rp->io_bufptr += cnt;
+    rp->io_cnt -= cnt;
     return cnt;
 }
 
-ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen, bool ignore_new_line) {
+ssize_t io_readlineb(io *rp, void *usrbuf, size_t maxlen, bool ignore_new_line) {
     int rc;
     size_t n;
     char c, *bufp = static_cast<char *>(usrbuf);
 
     for (n = 1; n < maxlen; n++) {
-        if ((rc = rio_read(rp, &c, 1)) == 1) {
+        if ((rc = io_read(rp, &c, 1)) == 1) {
             *bufp++ = c;
             if (ignore_new_line && c == '\n') {
                 n++;

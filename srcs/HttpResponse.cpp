@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 17:38:58 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 21:11:02 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ std::string HttpResponse::create_response_header(char *file_name, int file_size)
     char filetype[MAXLINE];
     get_filetype(file_name, filetype);
     std::stringstream ss;
-    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << file_size << "\r\n"
+    ss << "HTTP/1.1 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << file_size << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
 
     return ss.str();
@@ -142,18 +142,18 @@ std::string HttpResponse::create_response_header(char *file_name, int file_size)
 
 int HttpResponse::serve_static_with_get_method(char *res_head, char *res_body, int file_size) {
     // Send response header
-    if (rio_writen(get_conn_fd(), res_head, strlen(res_head)) == FAILURE) {
+    if (io_writen(get_conn_fd(), res_head, strlen(res_head)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_static: io_writen error!" << std::endl;
         return FAILURE;
     }
     std::cout << "Response headers:" << std::endl;
     std::cout << res_head;
 
     // Send response body
-    if (rio_writen(get_conn_fd(), res_body, file_size) == FAILURE) {
+    if (io_writen(get_conn_fd(), res_body, file_size) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_static: rio_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_static: io_writen error!" << std::endl;
         munmap(res_body, file_size);
         return FAILURE;
     }
@@ -245,7 +245,7 @@ int HttpResponse::serve_autoindex() {
     char file_type[MAXLINE];
     strcpy(file_type, "text/html");
     std::stringstream res_header;
-    res_header << "HTTP/1.0, 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << content.str().length() << "\r\n"
+    res_header << "HTTP/1.1 200 OK\r\nServer: Ultimate Web Server\r\nConnection: close\r\nContent-length: " << content.str().length() << "\r\n"
                << "Content-type: " << file_type << "\r\n\r\n";
     char header[MAXLINE];
     strcpy(header, res_header.str().c_str());
@@ -295,16 +295,16 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
     char buf[MAXLINE], *emptylist[] = {NULL};
 
     // Return first part of HTTP response
-    sprintf(buf, "HTTP/1.0 200 OK\r\n");
-    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
+    sprintf(buf, "HTTP/1.1 200 OK\r\n");
+    if (io_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_dynamic: rio_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_dynamic: io_writen error!" << std::endl;
         return FAILURE;
     }
     sprintf(buf, "Server: Ultimate Web Server\r\n");
-    if (rio_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
+    if (io_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_dynamic: rio_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_dynamic: io_writen error!" << std::endl;
         return FAILURE;
     }
     if (fork() == 0) {
@@ -339,15 +339,15 @@ void HttpResponse::serve_error_page() {
     get_filetype(file_name, filetype);
     std::stringstream ss;
     // TODO: Fix error http status
-    ss << "HTTP/1.0, 200 OK\r\nServer: Ultimate Server\r\nConnection: close\r\nContent-length: " << sbuf.st_size << "\r\n"
+    ss << "HTTP/1.1 200 OK\r\nServer: Ultimate Server\r\nConnection: close\r\nContent-length: " << sbuf.st_size << "\r\n"
        << "Content-type: " << filetype << "\r\n\r\n";
     std::string out;
     out = ss.str();
     char resp_head[out.length() + 1];
     strcpy(resp_head, out.c_str());
-    if (rio_writen(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
+    if (io_writen(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_error_page: rio_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_error_page: io_writen error!" << std::endl;
         return;
     }
     std::cout << "Response headers:" << std::endl;
@@ -364,15 +364,15 @@ void HttpResponse::serve_error_page() {
     srcp = static_cast<char *>(mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
     std::cout << "srcp: " << srcp << std::endl;
     close(src_fd);
-    rio_writen(get_conn_fd(), srcp, sbuf.st_size);
+    io_writen(get_conn_fd(), srcp, sbuf.st_size);
     munmap(srcp, sbuf.st_size);
 }
 
 RequestParser HttpResponse::read_http_request() {
     char buf[MAXLINE];
-    rio_t rio;
-    rio_readinitb(&rio, get_conn_fd());
-    rio_readlineb(&rio, buf, MAXLINE, true);
+    io io;
+    io_readinitb(&io, get_conn_fd());
+    io_readlineb(&io, buf, MAXLINE, true);
     std::cout << "Request headers:" << std::endl;
     std::cout << buf;
 
