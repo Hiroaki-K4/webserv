@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/20 21:54:15 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 13:22:25 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ char *HttpResponse::create_response_body(char *file_name, int file_size) {
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == FAILURE) {
         set_http_status(403);
-        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
+        std::cout << "[ERROR] create_response_body: File open failed. Failed file name is " << std::string(file_name) << "." << std::endl;
         return NULL;
     }
     char *res_body = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
@@ -264,7 +264,7 @@ int HttpResponse::serve_static(char *file_name, int file_size) {
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == FAILURE) {
         set_http_status(403);
-        std::cout << "[ERROR] serve_static: File open failed." << std::endl;
+        std::cout << "[ERROR] serve_static: File open failed. Failed file name is " << std::string(file_name) << "." << std::endl;
         return FAILURE;
     }
     close(src_fd);
@@ -347,7 +347,7 @@ void HttpResponse::serve_error_page() {
     int src_fd = open(file_name, O_RDONLY, 0);
     if (src_fd == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_error_page: File open failed." << std::endl;
+        std::cout << "[ERROR] serve_error_page: File open failed. Failed file name is " << std::string(file_name) << "." << std::endl;
         return;
     }
 
@@ -431,7 +431,8 @@ int HttpResponse::check_http_request(RequestParser parser) {
     std::string search_dir;
     extract_location_info(parser.get_target_uri(), search_dir);
 
-    if (get_have_location() && get_location()->get_autoindex()) {
+    if (get_have_location() && get_location()->get_autoindex() &&
+        is_request_uri_dir(get_default_root_dir() + get_request_parser()->get_target_uri())) {
         return SUCCESS;
     }
     if (search_dir != "") {
