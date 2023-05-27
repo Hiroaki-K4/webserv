@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 21:11:02 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/27 16:15:45 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -372,7 +372,7 @@ RequestParser HttpResponse::read_http_request() {
     char buf[MAXLINE];
     io io;
     io_readinitb(&io, get_conn_fd());
-    io_readlineb(&io, buf, MAXLINE, true);
+    io_read_line(&io, buf, MAXLINE, true);
     std::cout << "Request headers:" << std::endl;
     std::cout << buf;
 
