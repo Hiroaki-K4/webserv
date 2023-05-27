@@ -27,9 +27,9 @@
 #define FAILURE -1
 
 typedef struct {
-    int io_fd;                 // Descriptor for this internal buf
-    int io_cnt;                // Unread bytes in internal buf
-    char *io_bufptr;           // Next unread byte in internal buf
+    int io_fd;  // Descriptor for this internal buf
+    int read_count;
+    char *io_buf_ptr;         // Next unread byte in internal buf
     char io_buf[IO_BUFSIZE];  // Internal buffer
 } io;
 

@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 21:30:22 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/27 16:00:42 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void io_readinitb(io *io_s, int fd) {
     io_s->io_fd = fd;
-    io_s->io_cnt = 0;
-    io_s->io_bufptr = io_s->io_buf;
+    io_s->read_count = 0;
+    io_s->io_buf_ptr = io_s->io_buf;
 }
 
 ssize_t io_writen(int fd, void *input, size_t len) {
@@ -37,41 +37,38 @@ ssize_t io_writen(int fd, void *input, size_t len) {
     return len;
 }
 
-// TODO: Refactor io_read
-static ssize_t io_read(io *rp, char *usrbuf, size_t n) {
-    int cnt;
-
-    while (rp->io_cnt <= 0) {
-        std::cout << "ok" << std::endl;
-        rp->io_cnt = read(rp->io_fd, rp->io_buf, sizeof(rp->io_buf));
-        if (rp->io_cnt < 0) {
+static int io_read(io *io_s, char *read_buf, size_t n) {
+    while (io_s->read_count <= 0) {
+        io_s->read_count = read(io_s->io_fd, io_s->io_buf, sizeof(io_s->io_buf));
+        if (io_s->read_count < 0) {
             if (errno != EINTR) {
+                std::cout << "[ERROR] io_read: read error" << std::endl;
                 return FAILURE;
             }
-        } else if (rp->io_cnt == 0) {
-            std::cout << "EOF" << std::endl;
-            return 0;
+        } else if (io_s->read_count == 0) {
+            std::cout << "[INFO] io_read: EOF" << std::endl;
+            return SUCCESS;
         } else {
-            rp->io_bufptr = rp->io_buf;
+            io_s->io_buf_ptr = io_s->io_buf;
         }
     }
 
-    cnt = n;
-    if (rp->io_cnt < (int)n) cnt = rp->io_cnt;
-    memcpy(usrbuf, rp->io_bufptr, cnt);
-    rp->io_bufptr += cnt;
-    rp->io_cnt -= cnt;
+    int pass_count = n;
+    if (io_s->read_count < (int)n) pass_count = io_s->read_count;
+    memcpy(read_buf, io_s->io_buf_ptr, pass_count);
+    io_s->io_buf_ptr += pass_count;
+    io_s->read_count -= pass_count;
 
-    return cnt;
+    return pass_count;
 }
 
-ssize_t io_readlineb(io *rp, void *usrbuf, size_t maxlen, bool ignore_new_line) {
+ssize_t io_readlineb(io *io_s, void *usrbuf, size_t maxlen, bool ignore_new_line) {
     int rc;
     size_t n;
     char c, *bufp = static_cast<char *>(usrbuf);
 
     for (n = 1; n < maxlen; n++) {
-        if ((rc = io_read(rp, &c, 1)) == 1) {
+        if ((rc = io_read(io_s, &c, 1)) == 1) {
             *bufp++ = c;
             if (ignore_new_line && c == '\n') {
                 n++;
