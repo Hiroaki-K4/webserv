@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:16:04 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/27 16:19:06 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,9 @@ void call_server(char *argv[], std::string str) {
     std::cout << "client_fd: " << client_fd << std::endl;
 
     io io;
-    io_readinitb(&io, client_fd);
-    if (io_writen(client_fd, buf, strlen(buf)) == FAIL) {
-        std::cout << "io_writen error" << std::endl;
+    io_init(&io, client_fd);
+    if (io_write(client_fd, buf, strlen(buf)) == FAIL) {
+        std::cout << "io_write error" << std::endl;
         return;
     }
 
@@ -68,12 +68,12 @@ int main(int argc, char *argv[]) {
         client_fd = open_client_fd(argv[1], argv[2]);
         std::cout << "client_fd: " << client_fd << std::endl;
         io io;
-        io_readinitb(&io, client_fd);
+        io_init(&io, client_fd);
 
         if (fgets(buf, MAXLINE, stdin) != NULL) {
             // Write the string received in standard input to clientfd.
-            if (io_writen(client_fd, buf, strlen(buf)) == FAIL) {
-                std::cout << "io_writen error" << std::endl;
+            if (io_write(client_fd, buf, strlen(buf)) == FAIL) {
+                std::cout << "io_write error" << std::endl;
                 return FAIL;
             }
             io_read_line(&io, buf, MAXLINE, false);

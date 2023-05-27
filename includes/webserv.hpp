@@ -33,8 +33,8 @@ typedef struct {
     char io_buf[IO_BUFSIZE];  // Internal buffer
 } io;
 
-void io_readinitb(io *io_s, int fd);
-ssize_t io_writen(int fd, void *input, size_t len);
+void io_init(io *io_s, int fd);
+ssize_t io_write(int fd, void *input, size_t len);
 int io_read_line(io *rp, void *read_buf, size_t maxlen, bool ignore_new_line);
 void serve_contents(int fd);
 int open_listen_fd(char *host_name, char *port);

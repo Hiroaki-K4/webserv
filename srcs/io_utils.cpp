@@ -6,19 +6,19 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:15:27 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/27 16:18:39 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 
-void io_readinitb(io *io_s, int fd) {
+void io_init(io *io_s, int fd) {
     io_s->io_fd = fd;
     io_s->read_count = 0;
     io_s->io_buf_ptr = io_s->io_buf;
 }
 
-ssize_t io_writen(int fd, void *input, size_t len) {
+ssize_t io_write(int fd, void *input, size_t len) {
     size_t left_word_len = len;
     ssize_t writen_len;
     char *buf_p = static_cast<char *>(input);

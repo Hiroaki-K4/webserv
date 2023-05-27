@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:15:45 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/27 16:19:06 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,18 +142,18 @@ std::string HttpResponse::create_response_header(char *file_name, int file_size)
 
 int HttpResponse::serve_static_with_get_method(char *res_head, char *res_body, int file_size) {
     // Send response header
-    if (io_writen(get_conn_fd(), res_head, strlen(res_head)) == FAILURE) {
+    if (io_write(get_conn_fd(), res_head, strlen(res_head)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_static: io_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_static: io_write error!" << std::endl;
         return FAILURE;
     }
     std::cout << "Response headers:" << std::endl;
     std::cout << res_head;
 
     // Send response body
-    if (io_writen(get_conn_fd(), res_body, file_size) == FAILURE) {
+    if (io_write(get_conn_fd(), res_body, file_size) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_static: io_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_static: io_write error!" << std::endl;
         munmap(res_body, file_size);
         return FAILURE;
     }
@@ -296,15 +296,15 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
 
     // Return first part of HTTP response
     sprintf(buf, "HTTP/1.1 200 OK\r\n");
-    if (io_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
+    if (io_write(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_dynamic: io_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_dynamic: io_write error!" << std::endl;
         return FAILURE;
     }
     sprintf(buf, "Server: Ultimate Web Server\r\n");
-    if (io_writen(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
+    if (io_write(get_conn_fd(), buf, strlen(buf)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_dynamic: io_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_dynamic: io_write error!" << std::endl;
         return FAILURE;
     }
     if (fork() == 0) {
@@ -345,9 +345,9 @@ void HttpResponse::serve_error_page() {
     out = ss.str();
     char resp_head[out.length() + 1];
     strcpy(resp_head, out.c_str());
-    if (io_writen(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
+    if (io_write(get_conn_fd(), resp_head, strlen(resp_head)) == FAILURE) {
         set_http_status(500);
-        std::cout << "[ERROR] serve_error_page: io_writen error!" << std::endl;
+        std::cout << "[ERROR] serve_error_page: io_write error!" << std::endl;
         return;
     }
     std::cout << "Response headers:" << std::endl;
@@ -364,14 +364,14 @@ void HttpResponse::serve_error_page() {
     srcp = static_cast<char *>(mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
     std::cout << "srcp: " << srcp << std::endl;
     close(src_fd);
-    io_writen(get_conn_fd(), srcp, sbuf.st_size);
+    io_write(get_conn_fd(), srcp, sbuf.st_size);
     munmap(srcp, sbuf.st_size);
 }
 
 RequestParser HttpResponse::read_http_request() {
     char buf[MAXLINE];
     io io;
-    io_readinitb(&io, get_conn_fd());
+    io_init(&io, get_conn_fd());
     io_read_line(&io, buf, MAXLINE, true);
     std::cout << "Request headers:" << std::endl;
     std::cout << buf;
