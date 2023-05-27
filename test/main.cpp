@@ -6,13 +6,13 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/04/02 20:53:52 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/27 16:26:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <thread>
 
-#include "webserv.hpp"
+#include "io_utils.hpp"
 
 int open_client_fd(char *hostname, char *port) {
     int client_fd;
@@ -37,20 +37,19 @@ int open_client_fd(char *hostname, char *port) {
 }
 
 void call_server(char *argv[], std::string str) {
-    // std::string str = "GET / HTTP/1.1\n";
     char *buf = new char[str.length()];
     strcpy(buf, str.c_str());
     int client_fd = open_client_fd(argv[1], argv[2]);
     std::cout << "client_fd: " << client_fd << std::endl;
 
-    rio_t rio;
-    rio_readinitb(&rio, client_fd);
-    if (rio_writen(client_fd, buf, strlen(buf)) == FAIL) {
-        std::cout << "rio_writen error" << std::endl;
+    io io;
+    io_init(&io, client_fd);
+    if (io_write(client_fd, buf, strlen(buf)) == FAIL) {
+        std::cout << "io_write error" << std::endl;
         return;
     }
 
-    rio_readlineb(&rio, buf, MAXLINE, false);
+    io_read_line(&io, buf, MAXLINE, false);
     std::cout << buf << std::endl;
     close(client_fd);
     delete buf;
@@ -68,16 +67,16 @@ int main(int argc, char *argv[]) {
         char buf[MAXLINE];
         client_fd = open_client_fd(argv[1], argv[2]);
         std::cout << "client_fd: " << client_fd << std::endl;
-        rio_t rio;
-        rio_readinitb(&rio, client_fd);
+        io io;
+        io_init(&io, client_fd);
 
         if (fgets(buf, MAXLINE, stdin) != NULL) {
             // Write the string received in standard input to clientfd.
-            if (rio_writen(client_fd, buf, strlen(buf)) == FAIL) {
-                std::cout << "rio_writen error" << std::endl;
+            if (io_write(client_fd, buf, strlen(buf)) == FAIL) {
+                std::cout << "io_write error" << std::endl;
                 return FAIL;
             }
-            rio_readlineb(&rio, buf, MAXLINE, false);
+            io_read_line(&io, buf, MAXLINE, false);
             fputs(buf, stdout);
         }
         close(client_fd);
@@ -86,7 +85,6 @@ int main(int argc, char *argv[]) {
         int loop_num = atoi(argv[4]);
         for (int i = 0; i < loop_num; i++) {
             call_server(argv, str);
-            // sleep(1);
         }
     }
 

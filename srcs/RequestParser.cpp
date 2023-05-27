@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/06 17:19:25 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/21 20:55:09 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,6 +277,7 @@ int RequestParser::parse_request(const std::string request) {
     while (1) {
         line_count += 1;
         std::getline(data, line, '\n');
+        std::cout << "line: " << line << std::endl;
         if (data.bad()) {
             std::cout << "[ERROR] RequestParser::parse_request: getline badbit error" << std::endl;
             set_http_status(500);
