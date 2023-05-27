@@ -1,5 +1,17 @@
-#ifndef WEBSERV_HPP
-#define WEBSERV_HPP
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   io_utils.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/27 16:23:25 by hkubo             #+#    #+#             */
+/*   Updated: 2023/05/27 16:29:04 by hkubo            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef IO_UTILS_HPP
+#define IO_UTILS_HPP
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -20,7 +32,6 @@
 #include <sstream>
 
 #define MAXLINE 8192
-#define MAXBUF 8192
 #define IO_BUFSIZE 8192
 #define LISTENQ 1024  // Second argument to listen(). Maximum queue length of pending connections for sockfd.
 #define SUCCESS 0

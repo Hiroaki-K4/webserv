@@ -6,7 +6,7 @@
 #    By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/12 22:34:53 by hkubo             #+#    #+#              #
-#    Updated: 2023/05/21 21:02:00 by hkubo            ###   ########.fr        #
+#    Updated: 2023/05/27 16:25:24 by hkubo            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ SRCS := srcs/main.cpp \
 
 OBJS := $(SRCS:%.cpp=%.o)
 
-INCLUDE := -I./includes -I./srcs
+INCLUDE := -I./srcs
 
 CXX := c++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -pthread $(INCLUDE)
@@ -47,7 +47,7 @@ fclean: clean
 re: fclean all
 
 format:
-	clang-format -i srcs/*.cpp srcs/*.hpp test/*.cpp includes/*.hpp
+	clang-format -i srcs/*.cpp srcs/*.hpp test/*.cpp
 
 client: CXXFLAGS := -Wall -Wextra -Werror -std=c++11 -pthread $(INCLUDE)
 client: $(filter-out srcs/main.o, $(OBJS)) test/main.o
