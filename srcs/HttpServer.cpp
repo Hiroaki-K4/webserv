@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:26:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 16:14:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void HttpServer::multiple_io_server_run(ServerConfig server_config) {
     FD_ZERO(&read_set);
     FD_SET(get_listen_fd(), &read_set);
 
-    while (1) {
+    while (true) {
         ready_set = read_set;
         select(get_listen_fd() + 1, &ready_set, NULL, NULL, NULL);
         if (FD_ISSET(get_listen_fd(), &ready_set)) {

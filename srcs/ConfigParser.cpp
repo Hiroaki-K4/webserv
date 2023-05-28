@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/02 17:19:28 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 16:26:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 16:14:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,7 +349,7 @@ int ConfigParser::parse_config(const std::string file_name) {
     }
     std::istringstream data(config_info);
     std::string line;
-    while (1) {
+    while (true) {
         std::getline(data, line, '\n');
         if (data.bad()) {
             std::cout << "[ERROR] ConfigParser::parse_config: getline badbit error" << std::endl;
