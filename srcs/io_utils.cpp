@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 16:39:29 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 20:37:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,19 +62,27 @@ static int io_read(io *io_s, char *read_buf, size_t n) {
     return pass_count;
 }
 
-int io_read_line(io *io_s, void *read_buf, size_t maxlen, bool ignore_new_line) {
+int io_read_line(io *io_s, void *read_buf, size_t maxlen) {
     size_t n;
     char c, *buf_p = static_cast<char *>(read_buf);
     int read_size = 1;
 
+    int new_line_count = 0;
     for (n = 1; n < maxlen; n++) {
         int read_count = io_read(io_s, &c, read_size);
         n += read_count;
         if (read_count == read_size) {
-            *buf_p++ = c;
-            if (ignore_new_line && c == '\n') {
-                break;
+            if (c == '\n') {
+                new_line_count += 1;
+                if (new_line_count == 2) {
+                    break;
+                }
+            } else if (c == '\r') {
+                continue;
+            } else {
+                new_line_count = 0;
             }
+            *buf_p++ = c;
         } else if (read_count == 0) {
             break;
         } else {
