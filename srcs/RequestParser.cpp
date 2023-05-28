@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 20:55:09 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 16:14:00 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
     std::istringstream data(request);
     std::string line;
     unsigned int curr_line = 0;
-    while (1) {
+    while (true) {
         std::getline(data, line, '\n');
         curr_line += 1;
         if (curr_line == line_count) {
@@ -195,7 +195,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         unsigned int chunk_size;
         int length = 0;
         std::string body;
-        while (1) {
+        while (true) {
             std::getline(data, line, '\n');
             if (line == "0") {
                 std::cout << "[INFO] RequestParser::parse_request_body: Reached last chunk" << std::endl;
@@ -274,7 +274,7 @@ int RequestParser::parse_request(const std::string request) {
     std::string line;
     unsigned int line_count = 0;
     // Read requst line and header
-    while (1) {
+    while (true) {
         line_count += 1;
         std::getline(data, line, '\n');
         std::cout << "line: " << line << std::endl;

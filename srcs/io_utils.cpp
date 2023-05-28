@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:26:30 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 20:56:50 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,25 +62,31 @@ static int io_read(io *io_s, char *read_buf, size_t n) {
     return pass_count;
 }
 
-int io_read_line(io *io_s, void *read_buf, size_t maxlen, bool ignore_new_line) {
+int io_read_line(io *io_s, void *read_buf, size_t maxlen) {
     size_t n;
     char c, *buf_p = static_cast<char *>(read_buf);
+    int read_size = 1;
 
+    int new_line_count = 0;
     for (n = 1; n < maxlen; n++) {
-        int read_count = io_read(io_s, &c, 1);
-        if (read_count == 1) {
-            *buf_p++ = c;
-            if (ignore_new_line && c == '\n') {  // Finish read line
-                n++;
-                break;
+        int read_count = io_read(io_s, &c, read_size);
+        n += read_count;
+        if (read_count == read_size) {
+            if (c == '\n') {
+                new_line_count += 1;
+                if (new_line_count == 2) {
+                    break;
+                }
+            } else if (c == '\r') {
+                continue;
+            } else {
+                new_line_count = 0;
             }
+            *buf_p++ = c;
         } else if (read_count == 0) {
-            if (n == 1)
-                return 0;  // EOF, no data read
-            else
-                break;  // EOF, some data was read
+            break;
         } else {
-            return FAILURE;  // Error
+            return FAILURE;
         }
     }
     *buf_p = 0;

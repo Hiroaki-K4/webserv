@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 22:22:17 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:26:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 20:38:15 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void call_server(char *argv[], std::string str) {
         return;
     }
 
-    io_read_line(&io, buf, MAXLINE, false);
+    io_read_line(&io, buf, MAXLINE);
     std::cout << buf << std::endl;
     close(client_fd);
     delete buf;
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
                 std::cout << "io_write error" << std::endl;
                 return FAIL;
             }
-            io_read_line(&io, buf, MAXLINE, false);
+            io_read_line(&io, buf, MAXLINE);
             fputs(buf, stdout);
         }
         close(client_fd);

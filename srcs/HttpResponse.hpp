@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:45 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:26:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 17:34:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ class HttpResponse {
     RequestParser *get_request_parser();
     void set_have_location(bool have_location);
     bool get_have_location();
+    void set_have_request_parser(bool have_request_parser);
+    bool get_have_request_parser();
 
     int create_static_file_name(std::string uri, std::string &file_name);
     int create_dynamic_file_name_and_cgi_args(std::string uri, std::string &file_name, std::string &cgi_args);
@@ -66,14 +68,14 @@ class HttpResponse {
     int serve_static(char *file_name, int file_size);
     int serve_dynamic(char *file_name, char *cgi_args);
     void serve_error_page();
-    RequestParser read_http_request();
+    RequestParser *read_http_request();
     bool check_location_info(std::string route, ServerLocation **location);
     bool is_request_uri_dir(std::string uri);
     std::string get_last_modified_time(std::string target);
     std::string create_page_link(std::string target);
     std::string create_html_spaces(std::string str, unsigned int align_num);
     int extract_location_info(std::string target_uri, std::string &search_dir);
-    int check_http_request(RequestParser parser);
+    int check_http_request(RequestParser *parser);
     void serve_contents();
 
    private:
@@ -88,6 +90,7 @@ class HttpResponse {
     ServerConfig server_config;
     bool have_location;
     ServerLocation *location;
+    bool have_request_parser;
     RequestParser *request_parser;
 };
 

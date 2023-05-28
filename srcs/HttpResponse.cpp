@@ -6,15 +6,16 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/27 16:19:06 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 21:08:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
 
-HttpResponse::HttpResponse() : http_status(200), default_root_dir("contents"), have_location(false) {}
+HttpResponse::HttpResponse() : http_status(200), default_root_dir("contents"), have_location(false), have_request_parser(false) {}
 
-HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_status(200), default_root_dir("contents"), have_location(false) {
+HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config)
+    : http_status(200), default_root_dir("contents"), have_location(false), have_request_parser(false) {
     set_conn_fd(conn_fd);
     set_server_config(server_config);
 }
@@ -22,6 +23,9 @@ HttpResponse::HttpResponse(int conn_fd, ServerConfig server_config) : http_statu
 HttpResponse::~HttpResponse() {
     if (get_have_location()) {
         delete get_location();
+    }
+    if (get_have_request_parser()) {
+        delete get_request_parser();
     }
 }
 
@@ -70,6 +74,10 @@ RequestParser *HttpResponse::get_request_parser() { return this->request_parser;
 void HttpResponse::set_have_location(bool have_location) { this->have_location = have_location; }
 
 bool HttpResponse::get_have_location() { return this->have_location; }
+
+void HttpResponse::set_have_request_parser(bool have_request_parser) { this->have_request_parser = have_request_parser; }
+
+bool HttpResponse::get_have_request_parser() { return this->have_request_parser; }
 
 bool HttpResponse::check_uri_is_static() {
     if (get_have_location() && get_location()->get_is_cgi()) {
@@ -362,22 +370,21 @@ void HttpResponse::serve_error_page() {
 
     char *srcp;
     srcp = static_cast<char *>(mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
-    std::cout << "srcp: " << srcp << std::endl;
     close(src_fd);
     io_write(get_conn_fd(), srcp, sbuf.st_size);
     munmap(srcp, sbuf.st_size);
 }
 
-RequestParser HttpResponse::read_http_request() {
+RequestParser *HttpResponse::read_http_request() {
     char buf[MAXLINE];
     io io;
     io_init(&io, get_conn_fd());
-    io_read_line(&io, buf, MAXLINE, true);
-    std::cout << "Request headers:" << std::endl;
-    std::cout << buf;
+    io_read_line(&io, buf, MAXLINE);
+    std::cout << "io_buf: " << io.io_buf << std::endl;
+    // TODO: Add read request body by using the info of request header
 
-    RequestParser parser(get_server_config().get_client_max_body_size());
-    parser.parse_request(buf);
+    RequestParser *parser = new RequestParser(get_server_config().get_client_max_body_size());
+    parser->parse_request(std::string(buf));
 
     return parser;
 }
@@ -438,17 +445,18 @@ int HttpResponse::extract_location_info(std::string target_uri, std::string &sea
     return SUCCESS;
 }
 
-int HttpResponse::check_http_request(RequestParser parser) {
-    if (parser.get_is_error_request()) {
-        set_http_status(parser.get_http_status());
+int HttpResponse::check_http_request(RequestParser *parser) {
+    if (parser->get_is_error_request()) {
+        set_http_status(parser->get_http_status());
         return FAILURE;
     }
 
-    set_request_parser(&parser);
+    set_have_request_parser(true);
+    set_request_parser(parser);
 
     std::string file_name;
     std::string search_dir;
-    extract_location_info(parser.get_target_uri(), search_dir);
+    extract_location_info(parser->get_target_uri(), search_dir);
 
     set_is_static(check_uri_is_static());
 
@@ -460,11 +468,11 @@ int HttpResponse::check_http_request(RequestParser parser) {
         set_default_root_dir(search_dir);
     }
     if (get_is_static()) {
-        create_static_file_name(parser.get_target_uri(), file_name);
+        create_static_file_name(parser->get_target_uri(), file_name);
         set_file_name(file_name.c_str());
     } else {
         std::string cgi_args;
-        create_dynamic_file_name_and_cgi_args(parser.get_target_uri(), file_name, cgi_args);
+        create_dynamic_file_name_and_cgi_args(parser->get_target_uri(), file_name, cgi_args);
         set_file_name(file_name.c_str());
         set_cgi_args(cgi_args.c_str());
     }
@@ -499,7 +507,6 @@ void HttpResponse::serve_contents() {
     } else {
         if (get_is_static()) {
             if (get_location()->get_autoindex() && is_request_uri_dir(get_default_root_dir() + get_request_parser()->get_target_uri())) {
-                std::cout << "static and autoindex" << std::endl;
                 if (serve_autoindex() == FAILURE) {
                     serve_error_page();
                 }

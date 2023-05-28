@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 16:58:29 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/21 16:20:24 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 17:13:31 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 ServerLocation::ServerLocation() : is_cgi(false), autoindex(false) {}
 
-ServerLocation::~ServerLocation() {}
+ServerLocation::~ServerLocation() { std::cout << "Goodbye, ServerLocation." << std::endl; }
 
 void ServerLocation::set_route(const std::string route) { this->route = route; }
 
