@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 16:37:43 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 16:39:29 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,6 @@ int io_read_line(io *io_s, void *read_buf, size_t maxlen, bool ignore_new_line) 
         if (read_count == read_size) {
             *buf_p++ = c;
             if (ignore_new_line && c == '\n') {
-                n++;
                 break;
             }
         } else if (read_count == 0) {
