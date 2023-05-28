@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 20:39:07 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 21:08:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -370,7 +370,6 @@ void HttpResponse::serve_error_page() {
 
     char *srcp;
     srcp = static_cast<char *>(mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
-    std::cout << "srcp: " << srcp << std::endl;
     close(src_fd);
     io_write(get_conn_fd(), srcp, sbuf.st_size);
     munmap(srcp, sbuf.st_size);
@@ -381,8 +380,8 @@ RequestParser *HttpResponse::read_http_request() {
     io io;
     io_init(&io, get_conn_fd());
     io_read_line(&io, buf, MAXLINE);
-    std::cout << "Request headers:" << std::endl;
-    std::cout << buf;
+    std::cout << "io_buf: " << io.io_buf << std::endl;
+    // TODO: Add read request body by using the info of request header
 
     RequestParser *parser = new RequestParser(get_server_config().get_client_max_body_size());
     parser->parse_request(std::string(buf));

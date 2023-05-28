@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 14:17:30 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 20:39:21 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/05/28 20:43:19 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ HttpServer::HttpServer() {}
 
 HttpServer::HttpServer(int listen_fd) { set_listen_fd(listen_fd); }
 
-HttpServer::~HttpServer() { std::cout << "Goodbye, Webserv." << std::endl; }
+HttpServer::~HttpServer() { std::cout << "Goodbye, HttpServer." << std::endl; }
 
 void HttpServer::set_listen_fd(const int listen_fd) { this->listen_fd = listen_fd; }
 
