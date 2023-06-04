@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 16:14:00 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 17:07:39 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,16 +179,18 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         int content_len;
         std::istringstream(get_header().at("Content-Length")) >> content_len;
         if (content_len > get_client_max_body_size()) {
-            std::cout << "[ERROR] RequestParser::parse_request_body: client body size is too big" << std::endl;
+            std::cout << "[ERROR] RequestParser::parse_request_body(RAW): client body size is too big" << std::endl;
             set_http_status(400);
             set_is_error_request(true);
             return FAILURE;
         }
         char buf[content_len + 1];
 
+        // TODO: Read request image input
         data.read(buf, content_len);
         size_t readed = data.gcount();
         buf[readed] = '\0';
+        std::cout << "body: " << buf << std::endl;
         set_body(buf);
         return SUCCESS;
     } else if (get_body_type() == ENCODING) {
@@ -215,7 +217,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
             }
         }
         if (length > get_client_max_body_size()) {
-            std::cout << "[ERROR] RequestParser::parse_request_body: client body size is too big" << std::endl;
+            std::cout << "[ERROR] RequestParser::parse_request_body(ENCODING): client body size is too big" << std::endl;
             set_http_status(400);
             set_is_error_request(true);
             return FAILURE;
@@ -240,13 +242,6 @@ bool RequestParser::is_valid_header() {
         set_http_status(400);
         set_is_error_request(true);
         std::cout << "[ERROR] RequestParser::is_valid_header: the value of header is invalid" << std::endl;
-        return false;
-    }
-
-    if (m.find("Transfer-Encoding") == m.end() && m.find("Content-Length") == m.end()) {
-        set_http_status(411);
-        set_is_error_request(true);
-        std::cout << "[ERROR] RequestParser::is_valid_header: There is no content length property" << std::endl;
         return false;
     }
 
@@ -283,11 +278,9 @@ int RequestParser::parse_request(const std::string request) {
             set_http_status(500);
             set_is_error_request(true);
             return FAILURE;
-        } else if (data.fail()) {
-            return SUCCESS;
         }
 
-        if (line == "") {
+        if (line == "\r" || line == "") {
             break;
         }
 
@@ -312,12 +305,19 @@ int RequestParser::parse_request(const std::string request) {
     }
 
     // Decide whether to parse request body
-    if (!data.eof() && get_state() == REQ_HEADER && line == "") {
+    if (!data.eof() && get_state() == REQ_HEADER && (line == "\r" || line == "")) {
         if (is_valid_header()) {
             if (is_include_request_body()) {
                 set_state(REQ_BODY);
                 return parse_request_body(request, line_count);
             } else {
+                std::getline(data, line, '\n');
+                if (line != "") {
+                    set_http_status(411);
+                    set_is_error_request(true);
+                    std::cout << "[ERROR] RequestParser::parse_request: There is no content length property" << std::endl;
+                    return FAILURE;
+                }
                 return SUCCESS;
             }
         } else {

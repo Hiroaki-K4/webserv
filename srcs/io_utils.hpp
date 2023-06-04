@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/27 16:23:25 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 20:37:41 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 16:32:06 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,11 +42,11 @@ typedef struct {
     int read_count;
     char *io_buf_ptr;         // Next unread byte in internal buf
     char io_buf[IO_BUFSIZE];  // Internal buffer
-} io;
+} io_s;
 
-void io_init(io *io_s, int fd);
+void io_init(io_s *io_s, int fd);
 ssize_t io_write(int fd, void *input, size_t len);
-int io_read_line(io *rp, void *read_buf, size_t maxlen);
+int io_read_line(io_s *rp, void *read_buf, size_t maxlen);
 void serve_contents(int fd);
 int open_listen_fd(char *host_name, char *port);
 
