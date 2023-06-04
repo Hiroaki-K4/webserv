@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 21:08:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 16:30:14 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,9 @@ int HttpResponse::serve_static_with_get_method(char *res_head, char *res_body, i
     std::cout << res_head;
 
     // Send response body
+    std::cout << "res_body: " << res_body << std::endl;
+    std::cout << "get_conn_fd(): " << get_conn_fd() << std::endl;
+    std::cout << "file_size: " << file_size << std::endl;
     if (io_write(get_conn_fd(), res_body, file_size) == FAILURE) {
         set_http_status(500);
         std::cout << "[ERROR] serve_static: io_write error!" << std::endl;
@@ -358,7 +361,7 @@ void HttpResponse::serve_error_page() {
         std::cout << "[ERROR] serve_error_page: io_write error!" << std::endl;
         return;
     }
-    std::cout << "Response headers:" << std::endl;
+    std::cout << "Response error headers:" << std::endl;
     std::cout << resp_head;
 
     int src_fd = open(file_name, O_RDONLY, 0);
@@ -377,14 +380,13 @@ void HttpResponse::serve_error_page() {
 
 RequestParser *HttpResponse::read_http_request() {
     char buf[MAXLINE];
-    io io;
-    io_init(&io, get_conn_fd());
-    io_read_line(&io, buf, MAXLINE);
-    std::cout << "io_buf: " << io.io_buf << std::endl;
-    // TODO: Add read request body by using the info of request header
+    io_s *io = new io_s();
+    io_init(io, get_conn_fd());
+    io_read_line(io, buf, MAXLINE);
 
     RequestParser *parser = new RequestParser(get_server_config().get_client_max_body_size());
-    parser->parse_request(std::string(buf));
+    parser->parse_request(std::string(io->io_buf));
+    delete io;
 
     return parser;
 }

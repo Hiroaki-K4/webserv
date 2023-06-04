@@ -6,13 +6,13 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 16:42:19 by hkubo             #+#    #+#             */
-/*   Updated: 2023/05/28 20:56:50 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 16:27:17 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "io_utils.hpp"
 
-void io_init(io *io_s, int fd) {
+void io_init(io_s *io_s, int fd) {
     io_s->io_fd = fd;
     io_s->read_count = 0;
     io_s->io_buf_ptr = io_s->io_buf;
@@ -37,7 +37,7 @@ ssize_t io_write(int fd, void *input, size_t len) {
     return len;
 }
 
-static int io_read(io *io_s, char *read_buf, size_t n) {
+static int io_read(io_s *io_s, char *read_buf, size_t n) {
     while (io_s->read_count <= 0) {
         io_s->read_count = read(io_s->io_fd, io_s->io_buf, sizeof(io_s->io_buf));
         if (io_s->read_count < 0) {
@@ -62,7 +62,7 @@ static int io_read(io *io_s, char *read_buf, size_t n) {
     return pass_count;
 }
 
-int io_read_line(io *io_s, void *read_buf, size_t maxlen) {
+int io_read_line(io_s *io_s, void *read_buf, size_t maxlen) {
     size_t n;
     char c, *buf_p = static_cast<char *>(read_buf);
     int read_size = 1;
