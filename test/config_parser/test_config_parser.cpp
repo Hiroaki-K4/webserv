@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/15 14:36:33 by hkubo             #+#    #+#             */
-/*   Updated: 2023/06/03 16:21:49 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 17:10:03 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ TEST(ConfigParser, ok_default) {
     std::vector<ServerConfig *> servers = config.get_servers();
     std::vector<ServerLocation *> locations = servers[0]->get_locations();
 
-    EXPECT_EQ(100000, config.get_client_max_body_size());
+    EXPECT_EQ(1000000, config.get_client_max_body_size());
     EXPECT_EQ(1, servers.size());
     EXPECT_EQ(8080, servers[0]->get_port());
     EXPECT_EQ("localhost", servers[0]->get_host_name());
