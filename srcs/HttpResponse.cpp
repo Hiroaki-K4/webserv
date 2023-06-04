@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/06/04 16:30:14 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 17:00:48 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,7 +330,7 @@ int HttpResponse::serve_dynamic(char *file_name, char *cgi_args) {
 
 void HttpResponse::serve_error_page() {
     std::string error_file_name;
-    std::map<int, std::string>::iterator it = get_location()->get_error_pages().find(500);
+    std::map<int, std::string>::iterator it = get_location()->get_error_pages().find(get_http_status());
     if (it != get_location()->get_error_pages().end()) {
         error_file_name = get_location()->get_root() + get_location()->get_error_pages()[get_http_status()];
     } else {
@@ -371,8 +371,7 @@ void HttpResponse::serve_error_page() {
         return;
     }
 
-    char *srcp;
-    srcp = static_cast<char *>(mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
+    char *srcp = static_cast<char *>(mmap(0, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0));
     close(src_fd);
     io_write(get_conn_fd(), srcp, sbuf.st_size);
     munmap(srcp, sbuf.st_size);
@@ -448,6 +447,12 @@ int HttpResponse::extract_location_info(std::string target_uri, std::string &sea
 }
 
 int HttpResponse::check_http_request(RequestParser *parser) {
+    std::string search_dir;
+    extract_location_info(parser->get_target_uri(), search_dir);
+    if (search_dir != "") {
+        set_default_root_dir(search_dir);
+    }
+
     if (parser->get_is_error_request()) {
         set_http_status(parser->get_http_status());
         return FAILURE;
@@ -456,19 +461,14 @@ int HttpResponse::check_http_request(RequestParser *parser) {
     set_have_request_parser(true);
     set_request_parser(parser);
 
-    std::string file_name;
-    std::string search_dir;
-    extract_location_info(parser->get_target_uri(), search_dir);
-
     set_is_static(check_uri_is_static());
 
     if (get_have_location() && get_location()->get_autoindex() &&
         is_request_uri_dir(get_default_root_dir() + get_request_parser()->get_target_uri())) {
         return SUCCESS;
     }
-    if (search_dir != "") {
-        set_default_root_dir(search_dir);
-    }
+
+    std::string file_name;
     if (get_is_static()) {
         create_static_file_name(parser->get_target_uri(), file_name);
         set_file_name(file_name.c_str());

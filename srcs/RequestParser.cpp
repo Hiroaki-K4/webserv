@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/06/04 16:32:31 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 16:37:39 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,7 +179,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         int content_len;
         std::istringstream(get_header().at("Content-Length")) >> content_len;
         if (content_len > get_client_max_body_size()) {
-            std::cout << "[ERROR] RequestParser::parse_request_body: client body size is too big" << std::endl;
+            std::cout << "[ERROR] RequestParser::parse_request_body(RAW): client body size is too big" << std::endl;
             set_http_status(400);
             set_is_error_request(true);
             return FAILURE;
@@ -215,7 +215,7 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
             }
         }
         if (length > get_client_max_body_size()) {
-            std::cout << "[ERROR] RequestParser::parse_request_body: client body size is too big" << std::endl;
+            std::cout << "[ERROR] RequestParser::parse_request_body(ENCODING): client body size is too big" << std::endl;
             set_http_status(400);
             set_is_error_request(true);
             return FAILURE;
