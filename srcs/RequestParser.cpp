@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/06/04 16:37:39 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/04 17:07:39 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,9 +186,11 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         }
         char buf[content_len + 1];
 
+        // TODO: Read request image input
         data.read(buf, content_len);
         size_t readed = data.gcount();
         buf[readed] = '\0';
+        std::cout << "body: " << buf << std::endl;
         set_body(buf);
         return SUCCESS;
     } else if (get_body_type() == ENCODING) {
