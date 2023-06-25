@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/26 14:03:34 by hkubo             #+#    #+#             */
-/*   Updated: 2023/06/04 17:00:48 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/24 21:13:11 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -378,10 +378,12 @@ void HttpResponse::serve_error_page() {
 }
 
 RequestParser *HttpResponse::read_http_request() {
-    char buf[MAXLINE];
+    // char buf[MAXLINE];
     io_s *io = new io_s();
     io_init(io, get_conn_fd());
-    io_read_line(io, buf, MAXLINE);
+    // io_read_line(io, buf, MAXLINE);
+    io_read_request(io);
+    // std::cout << "std::string(io->io_buf): " << std::string(io->io_buf) << std::endl;
 
     RequestParser *parser = new RequestParser(get_server_config().get_client_max_body_size());
     parser->parse_request(std::string(io->io_buf));

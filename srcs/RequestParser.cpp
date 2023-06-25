@@ -6,7 +6,7 @@
 /*   By: hkubo <hkubo@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/26 14:35:39 by hkubo             #+#    #+#             */
-/*   Updated: 2023/06/04 17:07:39 by hkubo            ###   ########.fr       */
+/*   Updated: 2023/06/24 16:45:21 by hkubo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,8 @@ int RequestParser::parse_request_body(const std::string request, unsigned int li
         char buf[content_len + 1];
 
         // TODO: Read request image input
+        std::cout << "content_len: " << content_len << std::endl;
+        std::cout << "request: " << request << std::endl;
         data.read(buf, content_len);
         size_t readed = data.gcount();
         buf[readed] = '\0';
@@ -263,6 +265,7 @@ bool RequestParser::is_include_request_body() {
 }
 
 int RequestParser::parse_request(const std::string request) {
+    std::cout << "RequestParser::parse_request: " << request << std::endl;
     set_request(request);
 
     std::istringstream data(request);
